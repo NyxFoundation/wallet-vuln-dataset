@@ -261,3 +261,52 @@ def _t2c_drops(title: str) -> bool:
 def test_advisory_citing_bumps_are_kept(title):
     """A bump that cites an advisory id IS a security fix and must survive."""
     assert not _t2c_drops(title), title
+
+
+# ---------------------------------------------------------------------------
+# Regression: T2d — conventional-commit meta-work rescued by keyword protection
+# ---------------------------------------------------------------------------
+
+def _t2d_drops(title: str) -> bool:
+    return (bool(gate.META_PREFIX_RE.search(title))
+            and not gate.ADVISORY_ID_RE.search(title)
+            and not gate.SUPPLY_CHAIN_RE.search(title))
+
+
+@pytest.mark.parametrize("title", [
+    "build: supply `-Wl,--high-entropy-va`",   # ASLR linker flag, not key entropy
+    "ci: pin github actions",
+    "test: add seed derivation cases",
+    "refactor: rename keyring fields",
+    "docs: document the seed backup flow",
+    "style: format keyring.ts",
+])
+def test_meta_prefix_work_is_dropped(title):
+    """The author declared it build/test/docs work; keywords must not override.
+
+    "build: supply -Wl,--high-entropy-va" matched key_material on "entropy",
+    picked up a second signal, and reached the CORROBORATED tier — a linker
+    flag presented as a key-generation fix.
+    """
+    assert _t2d_drops(title), title
+
+
+@pytest.mark.parametrize("title", [
+    "build: make the release reproducible",
+    "build: verify firmware signature before flashing",
+    "ci: add sbom generation",
+    "build: enable secure boot checks",
+    "chore: bump h2 for RUSTSEC-2024-0332",
+])
+def test_build_integrity_work_survives(title):
+    """Build-integrity IS a real wallet threat surface, not meta-work."""
+    assert not _t2d_drops(title), title
+
+
+@pytest.mark.parametrize("title", [
+    "fix: clear seed from memory",
+    "security fix: do not let user change seed",
+    "ecdsa: adhere strictly to RFC6979",
+])
+def test_real_fixes_survive_meta_prefix_rule(title):
+    assert not _t2d_drops(title), title

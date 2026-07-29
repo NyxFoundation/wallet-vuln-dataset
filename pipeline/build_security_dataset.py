@@ -131,6 +131,35 @@ DEP_BUMP_RE = re.compile(
     re.IGNORECASE,
 )
 
+# --- T2d: conventional-commit meta-work that keyword protection rescues ------
+# `build: supply -Wl,--high-entropy-va` is an ASLR linker flag. It matches the
+# key_material vocabulary on "entropy", picks up a second signal, and lands in
+# the CORROBORATED tier — a linker flag presented as a key-generation fix.
+#
+# The conventional-commit prefix is a reliable author-declared statement that
+# the change is build/CI/test/docs/style work, so it is decisive here too,
+# overriding keyword protection like T2c. Two exceptions are preserved because
+# they are the cases where such a commit really is a security fix: a cited
+# advisory id, and genuine supply-chain / build-integrity language (reproducible
+# builds, code signing, secure boot) — which is a real threat surface for
+# wallets, not meta-work.
+META_PREFIX_RE = re.compile(
+    r"^\s*(?:build|ci|test|tests|docs?|style|perf|refactor|chore)\s*"
+    r"(?:\([^)]*\))?\s*!?:", re.IGNORECASE)
+SUPPLY_CHAIN_RE = re.compile(
+    # word-order tolerant: "reproducible build" and "make the release
+    # reproducible" are the same claim, as are "firmware verification" and
+    # "verify firmware signature".
+    r"reproducib\w*|deterministic build|code[- ]?signing|notariz\w*"
+    r"|secure[- ]?boot|supply[- ]?chain|typosquat|postinstall"
+    r"|attestation|sbom|provenance"
+    r"|(?:verif\w*|validat\w*|check\w*)[^.\n]{0,30}"
+    r"(?:signature|checksum|hash|firmware|binary|artifact|release|download)"
+    r"|(?:signature|checksum|firmware|binary|artifact)[^.\n]{0,30}"
+    r"(?:verif\w*|validat\w*)"
+    r"|update channel|rollback attack|downgrade attack",
+    re.IGNORECASE)
+
 BARE_CVE_TITLE_RE = re.compile(r"^\s*CVE-\d{4}-\d{3,7}\s*$", re.IGNORECASE)
 _ISPEC = _ilu.spec_from_file_location(
     "_wallet_ident", Path(__file__).resolve().parent.parent / "collection" / "wallet_ident.py")
@@ -346,6 +375,18 @@ def build(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     t2c_mask = title2.str.contains(DEP_BUMP_RE) & ~blob2.str.contains(ADVISORY_ID_RE)
     t2c_dropped = df[t2c_mask]
     df = df[~t2c_mask].copy()
+
+    # T2d — author-declared meta-work (conventional-commit prefix). Decisive,
+    # unless it cites an advisory or is genuine build-integrity/supply-chain work.
+    title3 = df["title"].fillna("")
+    blob3 = title3 + " " + df["description"].fillna("")
+    t2d_mask = (
+        title3.str.contains(META_PREFIX_RE)
+        & ~blob3.str.contains(ADVISORY_ID_RE)
+        & ~blob3.str.contains(SUPPLY_CHAIN_RE)
+    )
+    t2d_dropped = df[t2d_mask]
+    df = df[~t2d_mask].copy()
 
     # T2b — drop NVD substring-match false positives (unrelated CVEs)
     t2b_mask = pd.Series(
