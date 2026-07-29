@@ -1,0 +1,63 @@
+---
+license: cc-by-4.0
+task_categories:
+- text-classification
+language:
+- en
+pretty_name: NyxFoundation Vulnerability Reports
+size_categories:
+- 1K<n<10K
+configs:
+- config_name: ethereum
+  data_files:
+  - split: train
+    path: ethereum/train.parquet
+- config_name: defi
+  data_files:
+  - split: train
+    path: defi/train.parquet
+---
+
+# NyxFoundation Vulnerability Reports
+
+Past security vulnerability reports and fixes from audited protocols and clients,
+normalized for use with the SPECA audit pipeline.
+
+## Domains
+
+| Domain | Description |
+|---|---|
+| `ethereum` | Past fixes from 11 Ethereum consensus + execution clients |
+| `defi` | DeFi audit contest findings (Code4rena, Sherlock, CodeHawks) |
+
+## Usage
+
+```python
+from datasets import load_dataset
+
+# Ethereum client fixes
+ds = load_dataset("{{ repo_id }}", "ethereum", split="train")
+
+# DeFi audit findings
+ds = load_dataset("{{ repo_id }}", "defi", split="train")
+```
+
+## Schema
+
+| Column | Type | Description |
+|---|---|---|
+| `id` | str | Unique row identifier |
+| `source_platform` | str | Client/platform slug (e.g. `geth`, `code4rena`) |
+| `contest` | str | Repo slug or contest identifier |
+| `issue_id` | str | Platform-local issue/PR id |
+| `severity` | str | High / Medium / Low / Info |
+| `title` | str | Verbatim issue title |
+| `description` | str | Verbatim description |
+| `source_url` | str | Link to original report |
+| `introduced_in_commit` | str | Vulnerable-state commit SHA (parent of fix) |
+| `domain` | str | `ethereum` or `defi` |
+| `scraped_at` | str | ISO 8601 UTC timestamp |
+
+## License
+
+CC BY 4.0 — see [LICENSE](LICENSE) for details.
