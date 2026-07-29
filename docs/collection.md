@@ -1,0 +1,105 @@
+# collection/ — raw acquisition (network-bound)
+
+These scripts rebuild the *raw* snapshot (`data/raw/train.classified.parquet`)
+from scratch. They need network access and, for the silent-fix pass, an LLM.
+The curated dataset is derived from the raw snapshot **offline** by
+`pipeline/build_security_dataset.py` — you do not need any of this to use the
+data.
+
+## The three configuration modules
+
+Everything else is a crawler. These three hold all the domain knowledge, and no
+crawler hard-codes a repo, keyword, or package name:
+
+| Module | Holds | Why it is separate |
+|---|---|---|
+| [`wallets.py`](../collection/wallets.py) | the 181-repo registry: `repo`, `category`, `ecosystem`, `custody`, `tier` | one edit adds a wallet everywhere; `tier` lets a crawl be scoped without editing the registry |
+| [`wallet_vocab.py`](../collection/wallet_vocab.py) | the custody threat vocabulary — 11 weighted groups, sensitive paths, standards, per-repo search-term selection | the gate *derives* its regexes from this, so crawl and gate cannot drift apart |
+| [`wallet_ident.py`](../collection/wallet_ident.py) | package coordinates (npm/Go/crates/PyPI/Maven/NuGet) and per-repo NVD identity patterns | advisory DBs index by package, not repo; and ambiguous slugs need context before an NVD row is accepted |
+
+## Crawlers
+
+| Group | Scripts |
+|---|---|
+| Per-repo repo crawl | `crawl_wallet_past_fixes.py`, `crawl_ghsa_advisories.py`, `grep_wallet_commits.py`, `mine_wallet_releases.py`, `mine_stealth_prs.py`, `mine_direct_pulls.py`, `parse_wallet_changelogs.py` |
+| Advisory databases | `crawl_cve.py`, `crawl_osv.py`, `crawl_rustsec.py`, `crawl_govulncheck.py` |
+| Cross-repo / standards | `crawl_cross_wallet.py`, `crawl_standards_divergence.py` |
+| Merge + enrich | `merge_crawl_csvs.py`, `build_derived.py`, `cross_reference.py`, `blame_walk.py` |
+| Silent-fix classify | `llm_classify_fixes.py` (LLM), `local_diffs.py` (rate-limit-free diffs) |
+| Rate-limit plumbing | `gh_rate.py` |
+| Orchestrator | `run_pipeline.sh` |
+
+Dropped from the client build because they have no wallet analogue:
+`crawl_teku_jira_refs.py` (one client's JIRA) and `extract_nimbus_urgency.py`
+(one client's release-note template). `crawl_specs_divergence.py` became
+`crawl_standards_divergence.py` — the wallet equivalent of spec divergence is
+mis-implementing BIP-32/39/44, SLIP-0010/39, EIP-712/155/1271/4337 or RFC 6979.
+
+## Running it
+
+```bash
+# smoke: tier-1 repos, capped
+MODE=smoke bash collection/run_pipeline.sh
+
+# full corpus
+MODE=full TIER=3 bash collection/run_pipeline.sh
+```
+
+`TIER` scopes the search-heavy stages (1 = 46 mass-market repos, 3 = all 181).
+The advisory crawlers are cheap and always cover the whole registry regardless.
+
+## Two scale problems the client build never hit
+
+Going from 11 repos to 181 broke two assumptions. Both are worth knowing about
+before modifying a crawler.
+
+### Rate limits are the binding constraint, and 403 is ambiguous
+
+A full crawl issues roughly 5,500 `search/*` calls against a **30 requests per
+minute** limit. HTTP 403 is therefore not an exception — it is the expected
+steady state. The client crawlers treated any 403 as an auth misconfiguration
+and aborted the entire run, which at this scale loses every repo after the
+first throttle.
+
+`gh_rate.py` classifies the 403 body instead:
+
+| Kind | Signal | Response |
+|---|---|---|
+| primary rate limit | `API rate limit exceeded` | sleep until GitHub's own reset timestamp |
+| secondary rate limit | `secondary rate limit` / `abuse detection` | exponential backoff |
+| real auth failure | anything else | raise immediately |
+
+The third case must stay distinct, or a broken token spins forever instead of
+failing loudly.
+
+### `GET /repos/{owner}/{repo}/pulls` silently ignores `labels`
+
+This one produced a 138,738-row over-collection before it was caught. The pulls
+endpoint does not support a `labels` query parameter; it ignores the unknown
+param and returns **every closed PR**, paginated:
+
+```
+pulls?labels=zzznonexistent   -> 100 rows   (all closed PRs)
+issues?labels=zzznonexistent  -> 0 rows     (correct)
+issues?labels=security        -> 8 rows     (correct)
+```
+
+It was latent in the client build because 11 repos had hand-written label maps
+whose labels mostly existed. Here the label strategy is **derived** from the
+registry category, so most candidate labels (`bootloader`, `signing`,
+`keyring`) do not exist on any given repo — and each phantom label dumped that
+repo's entire history into the corpus.
+
+Two guards now, both required:
+
+1. `existing_labels(repo)` fetches the repo's real label set once and the crawl
+   queries only labels it actually defines.
+2. Label-filtered crawls use the **issues** endpoint, which honours `labels`,
+   keeping items whose `pull_request.merged_at` is set.
+
+`tests/test_security_dataset.py` asserts the pulls endpoint never returns and
+that no single repo exceeds 25% of the corpus.
+
+## Documentation
+
+[silent_fix_detection](./silent_fix_detection.md) · [limitations](./limitations.md)

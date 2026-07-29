@@ -88,11 +88,12 @@ NONFIX_TITLE_RE = re.compile(
     r"|add support|introduce|improve|optimi[sz]e|simplify|migrate|style|move)\b", re.I)
 ID_RE = re.compile(r"CVE-\d{4}-\d{4,7}|GHSA-", re.I)
 SRC_EXT_RE = re.compile(r"\.(go|rs|java|nim|ts|js|py|c|cpp|h|sol)\b")
+import importlib.util as _ilu4
+from pathlib import Path as _P4
+_VS = _ilu4.spec_from_file_location("_wallet_vocab", _P4(__file__).resolve().parent / "wallet_vocab.py")
+_vocab = _ilu4.module_from_spec(_VS); _VS.loader.exec_module(_vocab)  # type: ignore
 SENSITIVE_RE = re.compile(
-    r"fork.?choice|state.?transition|epoch|consensus|finality|reorg|slashing"
-    r"|attestation|sync.?committee|blob|kzg|bls|discv5|gossip|p2p|rlpx|evm"
-    r"|opcode|precompile|trie|tx.?pool|mempool|signature|merkle|ssz|rlp|secp256",
-    re.I)
+    r"\b(?:" + "|".join(re.escape(p) for p in _vocab.SENSITIVE_PATHS) + r")\b", re.I)
 PR_RE = re.compile(r"/pull/(\d+)")
 SHA_RE = re.compile(r"/commit/([0-9a-f]{7,40})", re.I)
 
@@ -162,7 +163,7 @@ def build_eval(cur, raw, cache, per_class, seed):
     return items
 
 
-PROMPT_VERSION = "v2"
+PROMPT_VERSION = "wallet-v1"
 
 
 def build_prompt(it: dict) -> str:
@@ -170,36 +171,68 @@ def build_prompt(it: dict) -> str:
         it["title"] + " " + it["desc"] + " " + it["diff"])))
     graph_ctx = (f"Security-sensitive subsystems touched: {', '.join(sens[:6])}"
                  if sens else "No obviously security-sensitive subsystem in the paths.")
-    return f"""You are a security engineer triaging a code change in an Ethereum wallet.
-Decide whether it is a SECURITY / vulnerability fix versus an ORDINARY change
-(feature, refactor, performance, test, docs, style, dependency bump).
+    return f"""You are a security engineer triaging a code change in crypto
+wallet software. Decide whether it is a SECURITY / vulnerability fix versus an
+ORDINARY change (feature, refactor, performance, test, docs, style, dep bump).
 
-A SECURITY fix repairs an exploitable or availability-affecting defect, e.g.:
-crash / panic / segfault, DoS / OOM / unbounded resource use, memory-safety
-(use-after-free, OOB), integer overflow/underflow, auth / validation bypass — OR,
-CRUCIALLY for a blockchain wallet, a CONSENSUS-class defect: fork-choice /
-finality / reorg / state-transition / invalid-block-acceptance / non-determinism.
-Treat a consensus-class fix as security-relevant EVEN IF no external attacker is
-named — the pre-fix code can split the chain or accept invalid blocks. Nodes
-process untrusted network input (blocks, txs, attestations, p2p messages, peers),
-so weigh the WORST-CASE trigger, not the common case.
+The threat model is CUSTODY, not protocol. A SECURITY fix here is one that stops
+a user losing FUNDS, KEY MATERIAL, or SIGNING AUTHORITY. Concretely:
 
-NOT security: adding a feature/flag/metric, renaming, refactoring, perf tuning,
-test-only or CI/docs changes, or bumping a third-party/vendored dependency (even
-if that dep fixed a crash) — the wallet's own code has no defect there.
+- key material: seed/mnemonic/private key leaked, logged, left in memory, weakly
+  generated (bad entropy/RNG), wrongly derived (BIP-32/39/44, SLIP-0010), or
+  stored unprotected (keystore/keychain/vault/secure element)
+- signing: a signature valid over something the user never saw or approved —
+  missing EIP-712 domain/chainId, replay across chains, nonce/k reuse, signature
+  malleability, blind signing, sighash or PSBT errors, verification that accepts
+  an invalid signature
+- approval: spend authority obtained WITHOUT any key compromise — unlimited
+  approvals, permit/permit2 abuse, delegation or session-key scope errors
+- transport: the dapp<->wallet channel admitting an unauthorized caller —
+  missing origin checks, postMessage/CORS flaws, WalletConnect pairing or
+  session hijack, deeplink/QR handling, exposed RPC methods, WebView bridges
+- ui deception: the user approved the wrong thing because the UI lied —
+  address spoofing/homoglyphs, clipboard hijack, wrong amount or recipient,
+  broken transaction preview, phishing-list failures
+- platform: an OS/browser escape reaching the key store — XSS, prototype
+  pollution, CSP bypass, path traversal, insecure deserialization, backup or
+  screenshot exposure, lock/biometric bypass
+- smart accounts: reentrancy, uninitialized proxy, upgrade/module/guard bypass,
+  ERC-1271 or ERC-4337 validation flaws
+- MPC/seedless: share leakage, biased nonce, DKG/resharing flaws, or anything
+  letting an attacker assemble a quorum of shares
+- passkey/WebAuthn: mis-parsed clientDataJSON, unchecked user-presence or
+  user-verification flags, missing origin/rpId binding, P-256 verification bugs
+  — note these are SIGNING BYPASSES WITH NO KEY LEAK AT ALL
+- firmware: bootloader/secure-boot verification, PIN/passphrase handling,
+  trusted-display bypass, fault-injection and side-channel hardening
+- supply chain: malicious dependency, compromised build or update channel
+
+Weigh the WORST-CASE trigger, not the common case: a wallet processes untrusted
+input from web pages, QR codes, deeplinks, hostile RPC nodes, malicious tokens
+and contracts, and sometimes an attacker holding the device.
+
+IMPORTANT — do not over-fire. A crash or panic in wallet UI code is usually just
+a crash; it is a security fix only when it is reachable from untrusted input OR
+touches key/signing paths. NOT security: adding a feature/flag/metric, renaming,
+refactoring, perf tuning, test-only or CI/docs changes, or bumping a third-party
+dependency (even if that dep fixed a CVE) — the wallet's own code has no defect
+there.
 
 Reason step by step (Chain-of-Thought):
 1. What does the diff actually change (wallet source, or test/vendor/config)?
-2. Does it ADD a guard/validation/bounds/nil/overflow check or error handling,
-   or REMOVE an exploitable condition (panic/unwrap/unchecked path)?
-3. Is the touched subsystem security- or consensus-relevant?
-4. Could malformed/untrusted input or a peer trigger the pre-fix path (worst case)?
+2. Does it ADD a guard/validation/bounds/origin/signature check, or REMOVE an
+   exploitable condition?
+3. Is the touched subsystem custody-relevant (keys, signing, approvals,
+   transport, firmware, contract validation)?
+4. Could a malicious dapp, signing request, deeplink/QR, hostile RPC, malicious
+   local app, or physical device access trigger the pre-fix path (worst case)?
+5. If funds/keys/signing authority are NOT reachable, say so and answer false.
 
 Calibrate: confidence >0.7 only when the diff concretely shows a defect being
 repaired; <0.4 when it is a feature/refactor/vendor/test change.
 
 Output ONLY a single JSON object on the last line, no prose after it:
-{{"is_security_fix": true|false, "confidence": 0.0-1.0, "vuln_class": "<dos|memory|overflow|consensus|auth|validation|other|none>", "reason": "<one sentence>"}}
+{{"is_security_fix": true|false, "confidence": 0.0-1.0, "vuln_class": "<key_material|signing|approval|transport|ui_deception|platform|contract|mpc|firmware|supply_chain|dos|memory|other|none>", "reason": "<one sentence>"}}
 
 ## Development artifacts
 title: {it['title']}
