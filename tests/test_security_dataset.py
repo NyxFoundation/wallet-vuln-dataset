@@ -374,3 +374,41 @@ def test_advisory_crawlers_only_know_registry_slugs(module, attr):
     slugs = set(getattr(mod, attr))
     stray = slugs - set(wallets.WALLET_CONFIG)
     assert not stray, f"{attr} references non-registry slugs: {sorted(stray)}"
+
+
+# ---------------------------------------------------------------------------
+# Regression: label/attack_path honesty in enrich_labels
+# ---------------------------------------------------------------------------
+
+enrich = _load("enrich_labels", "pipeline/enrich_labels.py")
+
+
+@pytest.mark.parametrize("files,expected", [
+    ([".github/workflows/security-code-scanner.yml"], "build-ci"),
+    ([".github/workflows/main_ci.yml"], "build-ci"),
+    (["docs/security.md"], "build-ci"),
+    (["test/hdnode.js"], "test"),
+    (["test/ecpair.spec.ts"], "test"),
+])
+def test_ci_and_test_only_changes_are_labelled_by_path(files, expected):
+    """Paths outrank prose when nothing shippable changed.
+
+    A workflow-only change whose title says "signature" was coming back as
+    sign:encoding-malleability.
+    """
+    hay = " ".join(files) + " fix signature verification malleability"
+    assert enrich.assign_label(hay, "wallet_sdk", files) == expected
+
+
+def test_product_code_still_gets_a_custody_label():
+    files = ["src/ecdsa.js", "test/ecdsa.js"]
+    hay = " ".join(files) + " deterministic nonce rfc6979"
+    assert enrich.assign_label(hay, "wallet_sdk", files) == "sign:nonce"
+
+
+def test_attack_path_has_no_fabricated_default():
+    """The client build defaulted to "malformed_input", stamping that claim
+    onto every row it could not classify."""
+    src = (ROOT / "pipeline/enrich_labels.py").read_text()
+    assert 'derive(_AP, reason_hay, "malformed_input")' not in src
+    assert 'derive(_AP, reason_hay, "unknown")' in src

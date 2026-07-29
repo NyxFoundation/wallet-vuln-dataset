@@ -271,8 +271,31 @@ _BY_CATEGORY = {k: [_compile(t) if t and isinstance(t[0][0], str) else t for t i
                 for k, v in _BY_CATEGORY.items()}
 
 
-def assign_label(hay: str, lyr: str) -> str:
-    """`lyr` is the registry category (see layer_of)."""
+# Files whose change cannot itself be a custody defect. When a fix touches
+# ONLY these, the paths outrank whatever the title says.
+_NON_PRODUCT_FILE = re.compile(
+    r"(?:^|/)\.github/|(?:^|/)\.circleci/|(?:^|/)docs?/|\.md$|\.txt$"
+    r"|(?:^|/)tests?/|(?:^|/)__tests__/|[._-]test\.[a-z]+$|[._-]spec\.[a-z]+$"
+    r"|(?:^|/)fixtures?/|\.ya?ml$|\.lock$|(?:^|/)Makefile$|Dockerfile",
+    re.IGNORECASE)
+
+
+def _paths_only_non_product(files: list[str]) -> bool:
+    return bool(files) and all(_NON_PRODUCT_FILE.search(f) for f in files)
+
+
+def assign_label(hay: str, lyr: str, files: list[str] | None = None) -> str:
+    """`lyr` is the registry category (see layer_of).
+
+    When every changed file is CI/docs/test, the label is decided by the PATHS,
+    not the prose: a workflow-only change whose title happens to say "signature"
+    was coming back as `sign:encoding-malleability`.
+    """
+    if files is not None and _paths_only_non_product(files):
+        joined = " ".join(files)
+        if re.search(r"tests?/|__tests__|[._-]test\.|[._-]spec\.|fixtures?/", joined, re.I):
+            return "test"
+        return "build-ci"
     tables = _BY_CATEGORY.get(lyr, [_KEY, _SIGN, _TRANSPORT, _PLATFORM])
     for tbl in tables:
         for rx, lab in tbl:
@@ -505,12 +528,15 @@ def main() -> int:
         pred = preds.get(url, {}) if isinstance(preds.get(url), dict) else {}
         vclass = str(pred.get("vuln_class") or "")
         hay = " ".join(files) + " " + str(r.get("title") or "") + " " + str(r.get("description") or "")
-        label = assign_label(hay, lyr)
+        label = assign_label(hay, lyr, files)
         if label != "other":
             n_label += 1
         reason_hay = str(pred.get("reason") or "") + " " + hay
         root_cause = derive(_RC, reason_hay) or _VCLASS_RC.get(vclass, "other")
-        attack_path = derive(_AP, reason_hay, "malformed_input")
+        # No default: an unmatched row genuinely has no identified attack path.
+        # The client build defaulted to "malformed_input", which stamped that
+        # claim onto every row it could not classify.
+        attack_path = derive(_AP, reason_hay, "unknown")
         rows.append({
             "id": r["id"], "layer": lyr, "label": label,
             "root_cause": root_cause, "attack_path": attack_path,
