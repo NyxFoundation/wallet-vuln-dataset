@@ -44,49 +44,18 @@ from urllib.request import Request, urlopen
 #      depend on them because a vulnerable dep version constitutes a risk.
 #
 # OSV.dev indexes advisories per crate name so we must query each individually.
+import importlib.util as _ilu5
+from pathlib import Path as _P5
+_ISPEC = _ilu5.spec_from_file_location("_wallet_ident", _P5(__file__).resolve().parent / "wallet_ident.py")
+_ident = _ilu5.module_from_spec(_ISPEC); _ISPEC.loader.exec_module(_ident)  # type: ignore
+
+# Derived from wallet_ident.PACKAGES, not hand-written: the ported version
+# still listed reth/lighthouse/grandine crates and was importing ETHEREUM
+# CLIENT advisories into the wallet corpus.
 RUST_CLIENT_CRATES: dict[str, list[str]] = {
-    "reth": [
-        # Internal workspace crates (task spec)
-        "reth",
-        "reth-primitives",
-        "reth-db",
-        "reth-rpc",
-        "reth-net-nat",
-        "reth-network",
-        "reth-consensus",
-        # Published dependency crates used by reth
-        "revm",
-        "revm-primitives",
-        "discv5",
-        "libp2p",
-        "ethereum-types",
-        "rlp",
-    ],
-    "lighthouse": [
-        # Internal workspace crates (task spec)
-        "lighthouse",
-        "eth2_libp2p",
-        "slasher",
-        "beacon_node",
-        "account_manager",
-        "lighthouse_network",
-        # Published dependency crates used by lighthouse
-        "libp2p",
-        "discv5",
-        "blst",
-        "ethereum-types",
-        "ssz_types",
-    ],
-    "grandine": [
-        # Internal workspace crates (task spec)
-        "grandine",
-        "eth2_types",
-        "grandine-bin",
-        # Published dependency crates used by grandine
-        "libp2p",
-        "discv5",
-        "ethereum-types",
-    ],
+    slug: [pkg for eco, pkg in pkgs if eco == "crates.io"]
+    for slug, pkgs in _ident.PACKAGES.items()
+    if any(eco == "crates.io" for eco, _ in pkgs)
 }
 
 OSV_QUERY_URL = "https://api.osv.dev/v1/query"

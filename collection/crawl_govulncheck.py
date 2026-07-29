@@ -40,26 +40,16 @@ from urllib.request import Request, urlopen
 # Each value is a list of Go module paths to query on behalf of that wallet.
 # `None` means the wallet is not a Go project — skip it gracefully.
 
+import importlib.util as _ilu5
+from pathlib import Path as _P5
+_ISPEC = _ilu5.spec_from_file_location("_wallet_ident", _P5(__file__).resolve().parent / "wallet_ident.py")
+_ident = _ilu5.module_from_spec(_ISPEC); _ISPEC.loader.exec_module(_ident)  # type: ignore
+
+# Derived from wallet_ident.PACKAGES (see crawl_rustsec.py for why).
 GO_MODULES: dict[str, list[str] | None] = {
-    "geth": [
-        "github.com/ethereum/go-ethereum",
-        "golang.org/x/crypto",
-        "github.com/gorilla/websocket",
-    ],
-    "prysm": [
-        "github.com/prysmaticlabs/prysm",
-        "github.com/prysmaticlabs/prysm/v3",
-        "github.com/prysmaticlabs/prysm/v4",
-        "github.com/prysmaticlabs/prysm/v5",
-        "github.com/wealdtech/go-eth2-wallet-encryptor-keystorev4",
-    ],
-    "erigon": [
-        "github.com/ledgerwatch/erigon",
-        "github.com/erigontech/erigon",
-    ],
-    "lodestar": None,   # TypeScript
-    "nimbus": None,     # Nim
-    "teku": None,       # Java, covered by crawl_osv.py
+    slug: [pkg for eco, pkg in pkgs if eco == "Go"]
+    for slug, pkgs in _ident.PACKAGES.items()
+    if any(eco == "Go" for eco, _ in pkgs)
 }
 
 ALL_CLIENTS = list(GO_MODULES)

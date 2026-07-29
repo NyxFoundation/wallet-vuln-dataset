@@ -21,3 +21,16 @@
     [commits] 120/181 (ok=120 fail=0)
     [commits] 140/181 (ok=140 fail=0)
     [commits] 160/181 (ok=160 fail=0)
+    [commits] 180/181 (ok=180 fail=0)
+    [commits] done (ok=181 fail=0)
+>>> [releases] PY collection/mine_wallet_releases.py --wallet all --out-dir /home/gohan/workspace/wallet-vuln-dataset/scratchpad_crawl/supp --max-records 0
+    [releases] ok
+>>> [changelog] PY collection/parse_wallet_changelogs.py --wallet all --out-dir /home/gohan/workspace/wallet-vuln-dataset/scratchpad_crawl/supp --max-records 0
+    [changelog] ok
+>>> [osv] PY collection/crawl_osv.py --wallet all --out-dir /home/gohan/workspace/wallet-vuln-dataset/scratchpad_crawl/supp
+    [osv] ok
+>>> [rustsec] PY collection/crawl_rustsec.py --wallet all --out-dir /home/gohan/workspace/wallet-vuln-dataset/scratchpad_crawl/supp
+    [rustsec] ok
+>>> [govuln] PY collection/crawl_govulncheck.py --wallet all --out-dir /home/gohan/workspace/wallet-vuln-dataset/scratchpad_crawl/supp
+    [govuln] ok
+>>> [stealth] per-wallet over 181 repos: PY collection/mine_stealth_prs.py --wallet @WALLET --out-dir /home/gohan/workspace/wallet-vuln-dataset/scratchpad_crawl/supp --max-per-wallet 0

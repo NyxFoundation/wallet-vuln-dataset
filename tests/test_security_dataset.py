@@ -341,3 +341,36 @@ def test_no_ultrashort_sensitive_path_tokens():
     """Tokens under 4 chars are almost always noise once anchored."""
     tiny = [p for p in vocab.SENSITIVE_PATHS if len(p) < 4]
     assert not tiny, f"ambiguous short path tokens: {tiny}"
+
+
+# ---------------------------------------------------------------------------
+# Regression: no Ethereum-client contamination
+# ---------------------------------------------------------------------------
+
+ETH_CLIENT_SLUGS = {"geth", "nethermind", "besu", "erigon", "reth", "lighthouse",
+                    "lodestar", "nimbus", "prysm", "teku", "grandine"}
+
+
+def test_no_ethereum_clients_in_registry():
+    assert not (ETH_CLIENT_SLUGS & set(wallets.WALLET_CONFIG))
+
+
+@pytest.mark.parametrize("module,attr", [
+    ("collection/crawl_rustsec.py", "RUST_CLIENT_CRATES"),
+    ("collection/crawl_govulncheck.py", "GO_MODULES"),
+    ("collection/crawl_osv.py", "CLIENT_PACKAGES"),
+    ("collection/crawl_cve.py", "CLIENT_IDENT"),
+])
+def test_advisory_crawlers_only_know_registry_slugs(module, attr):
+    """Ported advisory crawlers kept their Ethereum-client coordinate maps.
+
+    crawl_rustsec still listed reth/lighthouse/grandine crates and
+    crawl_govulncheck still listed geth/prysm/erigon Go modules, so a full run
+    imported ETHEREUM CLIENT advisories straight into the wallet corpus (56
+    geth rows were found in the first pass). All coordinate maps must now
+    derive from wallet_ident.PACKAGES.
+    """
+    mod = _load(module.split("/")[-1][:-3], module)
+    slugs = set(getattr(mod, attr))
+    stray = slugs - set(wallets.WALLET_CONFIG)
+    assert not stray, f"{attr} references non-registry slugs: {sorted(stray)}"
