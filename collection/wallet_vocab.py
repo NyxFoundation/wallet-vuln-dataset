@@ -204,7 +204,11 @@ def _pattern(keyword: str) -> "re.Pattern[str]":
     if pat is None:
         # \b works for alphanumeric edges; keywords with leading/trailing
         # punctuation (e.g. "CVE-") anchor on the alphanumeric side only.
-        body = re.escape(keyword)
+        #
+        # A SPACE inside a keyword matches any word separator: commit messages
+        # write "nonce reuse", "nonce-reuse" and "nonce_reuse" interchangeably,
+        # and a space-literal pattern silently drops two of the three.
+        body = r"[-_\s]+".join(re.escape(part) for part in keyword.split())
         left = r"\b" if keyword[:1].isalnum() else ""
         right = r"\b" if keyword[-1:].isalnum() else ""
         pat = re.compile(left + body + right, re.IGNORECASE)
