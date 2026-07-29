@@ -412,3 +412,38 @@ def test_attack_path_has_no_fabricated_default():
     src = (ROOT / "pipeline/enrich_labels.py").read_text()
     assert 'derive(_AP, reason_hay, "malformed_input")' not in src
     assert 'derive(_AP, reason_hay, "unknown")' in src
+
+
+# ---------------------------------------------------------------------------
+# Regression: cross-wallet / standards crawlers must be wallet-domain
+# ---------------------------------------------------------------------------
+
+ETH_PROTOCOL_TERMS = ["fork choice", "fork_choice", "attestation", "slashing",
+                      "sync_committee", "epoch_processing", "bls_verify"]
+
+
+@pytest.mark.parametrize("module", [
+    "collection/crawl_cross_wallet.py",
+    "collection/crawl_standards_divergence.py",
+])
+def test_cross_and_standards_crawlers_know_only_wallets(module):
+    """Both shipped fully Ethereum: crawl_cross_wallet searched wallet repos
+    for "geth"/"nimbus"/"prysm" and bumped severity on "fork choice"."""
+    mod = _load(module.split("/")[-1][:-3], module)
+    names = getattr(mod, "CLIENT_NAMES", None) or getattr(mod, "CLIENT_PATTERNS", {})
+    assert set(names) == set(wallets.WALLET_CONFIG), "not registry-driven"
+    assert not (ETH_CLIENT_SLUGS & set(names))
+
+
+def test_cross_wallet_severity_signals_are_custody_not_consensus():
+    mod = _load("crawl_cross_wallet", "collection/crawl_cross_wallet.py")
+    sig = [s.lower() for s in mod.HIGH_SEVERITY_SIGNALS]
+    assert not (set(ETH_PROTOCOL_TERMS) & set(sig)), "consensus terms still present"
+    assert "seed" in sig and "nonce reuse" in sig
+
+
+def test_standards_terms_are_wallet_standards():
+    mod = _load("crawl_standards_divergence", "collection/crawl_standards_divergence.py")
+    keys = set(mod.SPEC_TERMS)
+    assert {"bip39", "bip32", "eip712", "eip4337", "slip10"} <= keys, sorted(keys)
+    assert not ({"fork_choice", "sync_committee", "epoch_processing"} & keys)

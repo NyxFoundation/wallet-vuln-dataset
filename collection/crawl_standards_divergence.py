@@ -54,34 +54,30 @@ ISSUES_REPO = "ethereum/consensus-specs"
 # Each logical term maps to 3-4 surface variants.  We query each variant
 # separately and deduplicate afterwards — this is the key insight from the
 # contributor note (underscore vs space yields 13x different result counts).
-SPEC_TERMS: dict[str, list[str]] = {
-    "fork_choice":       ["fork_choice", "fork choice", "forkChoice", "ForkChoice"],
-    "sync_committee":    ["sync_committee", "sync committee", "syncCommittee", "SyncCommittee"],
-    "state_transition":  ["state_transition", "state transition", "stateTransition", "process_slot"],
-    "epoch_processing":  ["epoch_processing", "epoch processing", "processEpoch", "process_epoch"],
-    "fork_choice_store": ["ProtoArray", "fc_store", "ForkChoiceStore"],
-    "attestation":       ["attestation"],
-    "slashing":          ["slashing", "slashable"],
-    "bls_verify":        ["bls_verify", "bls.Verify", "BLSVerify"],
-    "client_divergence": [
-        "wallet divergence", "consensus divergence",
-        "consensus split", "implementation divergence",
-    ],
-}
+import importlib.util as _ilu6
+from pathlib import Path as _P6
+_WS6 = _ilu6.spec_from_file_location("_wallets", _P6(__file__).resolve().parent / "wallets.py")
+_wal = _ilu6.module_from_spec(_WS6); _WS6.loader.exec_module(_wal)  # type: ignore
+_VS6 = _ilu6.spec_from_file_location("_wallet_vocab", _P6(__file__).resolve().parent / "wallet_vocab.py")
+_vocab = _ilu6.module_from_spec(_VS6); _VS6.loader.exec_module(_vocab)  # type: ignore
+
+# The wallet analogue of consensus-spec divergence is mis-implementing a
+# WALLET standard: BIP-32/39/44, SLIP-0010/39, EIP-712/155/1271/4337, RFC 6979.
+# Each logical standard maps to every surface form seen in PR text, queried
+# independently then deduplicated (underscore vs space vs hyphen yields very
+# different result counts).
+SPEC_TERMS: dict[str, list[str]] = dict(_vocab.STANDARD_TERMS)
+SPEC_TERMS["standard_divergence"] = [
+    "spec compliance", "not spec compliant", "standard compliance",
+    "incompatible with", "interop", "derivation mismatch",
+    "different address", "address mismatch",
+]
 
 # Patterns for detecting which wallet a PR/issue is about.
+# Which wallet a PR/issue is about.
 CLIENT_PATTERNS: dict[str, list[str]] = {
-    "geth":        ["go-ethereum", "geth"],
-    "prysm":       ["prysm", "prysmatic"],
-    "lighthouse":  ["lighthouse", "sigma prime", "sigp"],
-    "lodestar":    ["lodestar", "chainsafe"],
-    "nimbus":      ["nimbus"],
-    "teku":        ["teku", "consensys"],
-    "besu":        ["besu", "hyperledger"],
-    "erigon":      ["erigon"],
-    "reth":        ["reth", "paradigm"],
-    "nethermind":  ["nethermind"],
-    "grandine":    ["grandine"],
+    slug: sorted({slug, _wal.WALLET_CONFIG[slug]["repo"].split("/", 1)[1].lower()})
+    for slug in _wal.WALLET_CONFIG
 }
 
 CSV_FIELDS = (
@@ -103,13 +99,13 @@ HIGH_SEVERITY_PATTERNS = re.compile(
 
 
 def _detect_client(text: str) -> str:
-    """Return the first matching wallet name, or 'ethereum_specs' as fallback."""
+    """First matching wallet slug, else 'wallet_standards' (a standards-level row)."""
     lower = text.lower()
     for wallet, patterns in CLIENT_PATTERNS.items():
         for pat in patterns:
             if pat.lower() in lower:
                 return wallet
-    return "ethereum_specs"
+    return "wallet_standards"
 
 
 def _severity(text: str) -> str:

@@ -65,19 +65,25 @@ EXTRA_REPOS: dict[str, str] = {
 
 # Aliases per wallet slug — any of these appearing in a foreign PR body
 # counts as a cross-wallet mention.
-CLIENT_NAMES: dict[str, list[str]] = {
-    "geth":       ["geth", "go-ethereum"],
-    "nethermind": ["nethermind"],
-    "besu":       ["besu", "hyperledger"],
-    "erigon":     ["erigon"],
-    "reth":       ["reth"],
-    "lighthouse": ["lighthouse", "sigp"],
-    "lodestar":   ["lodestar", "chainsafe"],
-    "nimbus":     ["nimbus"],
-    "prysm":      ["prysm", "prysmatic"],
-    "teku":       ["teku", "consensys"],
-    "grandine":   ["grandine"],
-}
+import importlib.util as _ilu6
+from pathlib import Path as _P6
+_WS6 = _ilu6.spec_from_file_location("_wallets", _P6(__file__).resolve().parent / "wallets.py")
+_wal = _ilu6.module_from_spec(_WS6); _WS6.loader.exec_module(_wal)  # type: ignore
+_VS6 = _ilu6.spec_from_file_location("_wallet_vocab", _P6(__file__).resolve().parent / "wallet_vocab.py")
+_vocab = _ilu6.module_from_spec(_VS6); _VS6.loader.exec_module(_vocab)  # type: ignore
+
+# Names a wallet is referred to by, derived from the registry: the slug, the
+# repo name, and the owner org. Cross-WALLET variant hunting is the point —
+# wallets copy each other's security fixes, so "same bug as Rabby had" in a
+# MetaMask PR is a lead. The ported version searched for geth/nimbus/prysm.
+def _names_for(slug: str) -> list[str]:
+    cfg = _wal.WALLET_CONFIG[slug]
+    owner, name = cfg["repo"].split("/", 1)
+    out = {slug, slug.replace("-", " "), name.lower(), name.lower().replace("-", " "), owner.lower()}
+    return sorted(n for n in out if len(n) > 3)
+
+
+CLIENT_NAMES: dict[str, list[str]] = {s: _names_for(s) for s in _wal.WALLET_CONFIG}
 
 # Search query patterns (appended to `gh search prs --repo <repo>` calls)
 CROSS_CLIENT_QUERIES: list[str] = [
@@ -88,18 +94,11 @@ CROSS_CLIENT_QUERIES: list[str] = [
 
 # High-severity signals: if body/title contains any of these alongside a
 # cross-wallet mention, severity is bumped to High.
-HIGH_SEVERITY_SIGNALS: list[str] = [
-    "divergence",
-    "consensus",
-    "fork choice",
-    "fork_choice",
-    "state transition",
-    "state_transition",
-    "reorg",
-    "finality",
-    "slashing",
-    "attestation",
-]
+# A cross-wallet mention is only interesting when it co-occurs with custody
+# language. "consensus"/"fork choice"/"slashing" mean nothing to a wallet.
+HIGH_SEVERITY_SIGNALS: list[str] = (
+    _vocab.KEY_MATERIAL + _vocab.SIGNING + _vocab.MPC + _vocab.APPROVAL
+)
 
 # ---------------------------------------------------------------------------
 # CSV schema
