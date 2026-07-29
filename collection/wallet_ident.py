@@ -89,9 +89,23 @@ PACKAGES: dict[str, list[tuple[str, str]]] = {
     "coolwallet":          [("npm", "@coolwallet/core")],
     "polkadot-extension":  [("npm", "@polkadot/extension-dapp"), ("npm", "@polkadot/extension-base")],
     "bip39-tool":          [("npm", "bip39")],
+    "privy-sss":           [("npm", "shamir-secret-sharing")],
+    "thirdweb-js":         [("npm", "thirdweb"), ("npm", "@thirdweb-dev/sdk"),
+                            ("npm", "@thirdweb-dev/wallets")],
+    "openfort-js":         [("npm", "@openfort/openfort-js")],
+    "particle-auth":       [("npm", "@particle-network/auth-core")],
+    "web3auth-mpc":        [("npm", "@web3auth/mpc-core-kit")],
+    "dfns-sdk":            [("npm", "@dfns/sdk")],
+    "passkey-kit":         [("npm", "passkey-kit")],
+    "simplewebauthn":      [("npm", "@simplewebauthn/server"),
+                            ("npm", "@simplewebauthn/browser")],
     "zerion-sdk":          [("npm", "defi-sdk")],
 
     # Go
+    "openfort-sss":        [("Go", "github.com/openfort-xyz/shamir-secret-sharing-go")],
+    "para-mpc":            [("Go", "github.com/getpara/mpc-export")],
+    "go-webauthn":         [("Go", "github.com/go-webauthn/webauthn")],
+    "duo-webauthn":        [("Go", "github.com/duo-labs/webauthn")],
     "status-go":           [("Go", "github.com/status-im/status-go")],
     "bnb-tss-lib":         [("Go", "github.com/bnb-chain/tss-lib"),
                             ("Go", "github.com/bnb-chain/tss-lib/v2")],
@@ -118,6 +132,7 @@ PACKAGES: dict[str, list[tuple[str, str]]] = {
     # Maven
     "web3j":               [("Maven", "org.web3j:core"), ("Maven", "org.web3j:crypto")],
     "sparrow":             [("Maven", "com.sparrowwallet:drongo")],
+    "webauthn4j":          [("Maven", "com.webauthn4j:webauthn4j-core")],
 
     # NuGet
     "wasabi":              [("NuGet", "WalletWasabi")],
@@ -186,7 +201,33 @@ CVE_IDENT: dict[str, str] = {
     "aptos":           r"\baptos\b",
     "near-wallet":     r"\bnear\b.{0,30}(?:wallet|protocol)",
     "freighter":       r"freighter|stellar.{0,20}wallet",
-    "pdf":             r"(?!)",  # never matches; placeholder guard
+    # --- embedded / seedless wallets ---
+    "privy-sss":       r"\bprivy\b|shamir.?secret.?sharing",
+    "openfort-signer": r"\bopenfort\b|opensigner",
+    "openfort-sss":    r"\bopenfort\b",
+    "openfort-contracts": r"\bopenfort\b",
+    "openfort-js":     r"\bopenfort\b",
+    "thirdweb-js":     r"\bthirdweb\b",
+    "thirdweb-contracts": r"\bthirdweb\b",
+    "particle-auth":   r"particle.?network|@particle-network",
+    "para-mpc":        r"\bgetpara\b|para\b.{0,30}(?:wallet|mpc|sdk)",
+    "web3auth-mpc":    r"web3auth|tor(?:us)?.?labs",
+    "lit-peer":        r"lit.?protocol",
+    "dfns-sdk":        r"\bdfns\b",
+    # --- passkey / WebAuthn ---
+    # "base" and "coinbase smart wallet" need context: "base" is unusable bare.
+    "webauthn-sol":    r"webauthn.?sol|base\b.{0,40}(?:webauthn|smart wallet)",
+    "coinbase-smart-wallet": r"coinbase\b.{0,30}smart wallet|smart wallet\b.{0,30}coinbase",
+    "p256-verifier":   r"p256.?verifier|\bdaimo\b",
+    "clave":           r"\bclave\b.{0,40}(?:wallet|zksync|passkey)|getclave",
+    "passkeys-4337":   r"passkey.{0,30}4337|4337.{0,30}passkey",
+    "webauthn-owner-plugin": r"webauthn.?owner|exactly\b.{0,30}webauthn",
+    "passkey-kit":     r"passkey.?kit|kalepail",
+    "kernel-7579":     r"zerodev|kernel\b.{0,30}(?:7579|plugin)",
+    "simplewebauthn":  r"simplewebauthn|@simplewebauthn",
+    "go-webauthn":     r"go-?webauthn|github\.com/go-webauthn",
+    "webauthn4j":      r"webauthn4j",
+    "duo-webauthn":    r"duo-?labs.{0,20}webauthn",
 }
 
 # Slugs whose name is distinctive enough that the bare token is safe.

@@ -98,6 +98,14 @@ PLATFORM = [
     "root detection", "jailbreak", "tapjacking", "overlay attack",
     "autofill", "biometric bypass", "lock screen bypass", "auto-lock",
     "sensitive data in backup", "world-readable",
+    # passkey / WebAuthn: signing authority rests on the platform
+    # authenticator, so an assertion-parsing or flag-checking bug is a direct
+    # signing bypass with no key leak involved.
+    "passkey", "webauthn", "authenticator", "attestation", "clientDataJSON",
+    "authenticatorData", "user presence", "user verification", "up flag",
+    "uv flag", "challenge", "rpId", "relying party", "origin binding",
+    "credential id", "secp256r1", "p-256", "touchid", "faceid",
+    "platform authenticator", "resident key", "discoverable credential",
 ]
 
 # --- smart-contract accounts ----------------------------------------------
@@ -115,6 +123,13 @@ MPC = [
     "zero-knowledge proof", "range proof", "paillier", "commitment",
     "abort attack", "rogue key", "key resharing", "dkg",
     "biased nonce", "lattice attack", "small subgroup",
+    # seedless / embedded wallets: the key is split between device, provider
+    # and recovery factor, so the attack is assembling a quorum of shares
+    # rather than stealing one secret.
+    "shamir", "secret sharing", "share reconstruction", "quorum",
+    "recovery factor", "device share", "social recovery", "guardian",
+    "oauth", "social login", "email otp", "magic link", "session token",
+    "share refresh", "threshold bypass",
 ]
 
 # --- classic memory safety (firmware, C/C++ cores) ------------------------

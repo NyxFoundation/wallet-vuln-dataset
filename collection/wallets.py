@@ -170,6 +170,51 @@ WALLET_CONFIG: dict[str, dict] = {
     "magic":               {"repo": "magiclabs/magic-js",                "category": "wallet_sdk",        "ecosystem": "multi",    "custody": "lib",   "tier": 2},
     "bitgo":               {"repo": "BitGo/BitGoJS",                     "category": "mpc_tss",           "ecosystem": "multi",    "custody": "mpc",   "tier": 2},
 
+    # ---- embedded / email / social-login wallets ---------------------------
+    # "Seedless" wallets: the user signs in with email, OAuth or a passkey and
+    # never sees a mnemonic. The key is split (Shamir / MPC) between device,
+    # provider and recovery factor. The custody question moves from "can the
+    # seed leak" to "can an attacker assemble a quorum of shares" — a different
+    # failure surface, and one that is growing fastest in real usage.
+    #
+    # Most vendors here (Privy, Dynamic, Para, Magic) keep the SDK closed and
+    # publish only the cryptographic core. That core is exactly the part where
+    # a defect is catastrophic, so it is in scope even when the product is not.
+    "privy-sss":           {"repo": "privy-io/shamir-secret-sharing",     "category": "mpc_tss",       "ecosystem": "multi",    "custody": "mpc",   "tier": 1},
+    "openfort-signer":     {"repo": "openfort-xyz/opensigner",            "category": "mpc_tss",       "ecosystem": "multi",    "custody": "mpc",   "tier": 2},
+    "openfort-sss":        {"repo": "openfort-xyz/shamir-secret-sharing-go", "category": "mpc_tss",    "ecosystem": "multi",    "custody": "mpc",   "tier": 3},
+    "openfort-contracts":  {"repo": "openfort-xyz/openfort-contracts",    "category": "smart_account", "ecosystem": "evm",      "custody": "smart", "tier": 3},
+    "openfort-js":         {"repo": "openfort-xyz/openfort-js",           "category": "wallet_sdk",    "ecosystem": "evm",      "custody": "lib",   "tier": 3},
+    "thirdweb-js":         {"repo": "thirdweb-dev/js",                    "category": "wallet_sdk",    "ecosystem": "evm",      "custody": "lib",   "tier": 1},
+    "thirdweb-contracts":  {"repo": "thirdweb-dev/contracts",             "category": "smart_account", "ecosystem": "evm",      "custody": "smart", "tier": 2},
+    "particle-auth":       {"repo": "Particle-Network/particle-web-auth-core", "category": "mpc_tss",  "ecosystem": "multi",    "custody": "mpc",   "tier": 3},
+    "para-mpc":            {"repo": "getpara/mpc-export",                 "category": "mpc_tss",       "ecosystem": "multi",    "custody": "mpc",   "tier": 3},
+    "web3auth-mpc":        {"repo": "Web3Auth/mpc-core-kit",              "category": "mpc_tss",       "ecosystem": "multi",    "custody": "mpc",   "tier": 2},
+    "lit-peer":            {"repo": "LIT-Protocol/lit-peer",              "category": "mpc_tss",       "ecosystem": "multi",    "custody": "mpc",   "tier": 3},
+    "dfns-sdk":            {"repo": "dfns/dfns-sdk-ts",                   "category": "mpc_tss",       "ecosystem": "multi",    "custody": "mpc",   "tier": 3},
+
+    # ---- passkey / WebAuthn / biometric wallets ----------------------------
+    # A passkey wallet replaces the seed with a platform authenticator: the
+    # private key lives in the phone's secure enclave and is released by Face
+    # ID / Touch ID / Windows Hello. Signing authority therefore rests on
+    # secp256r1 (P-256) verification and on the WebAuthn assertion being parsed
+    # correctly — a mis-parsed `clientDataJSON` or an unchecked user-presence
+    # flag is a direct signing bypass, with no key leak involved at all.
+    "coinbase-smart-wallet": {"repo": "coinbase/smart-wallet",            "category": "smart_account", "ecosystem": "evm",      "custody": "smart", "tier": 1},
+    "webauthn-sol":        {"repo": "base/webauthn-sol",                  "category": "smart_account", "ecosystem": "evm",      "custody": "smart", "tier": 1},
+    "p256-verifier":       {"repo": "daimo-eth/p256-verifier",            "category": "smart_account", "ecosystem": "evm",      "custody": "smart", "tier": 1},
+    "clave":               {"repo": "getclave/clave-contracts",           "category": "smart_account", "ecosystem": "evm",      "custody": "smart", "tier": 2},
+    "passkeys-4337":       {"repo": "passkeys-4337/smart-wallet",         "category": "smart_account", "ecosystem": "evm",      "custody": "smart", "tier": 3, "archived": True},
+    "webauthn-owner-plugin": {"repo": "exactly/webauthn-owner-plugin",    "category": "smart_account", "ecosystem": "evm",      "custody": "smart", "tier": 3},
+    "passkey-kit":         {"repo": "kalepail/passkey-kit",               "category": "wallet_sdk",    "ecosystem": "stellar",  "custody": "smart", "tier": 2},
+    "kernel-7579":         {"repo": "zerodevapp/kernel-7579-plugins",     "category": "smart_account", "ecosystem": "evm",      "custody": "smart", "tier": 3},
+    # WebAuthn verification libraries that wallets embed. A parsing or
+    # flag-checking bug here is a signing bypass in every wallet using them.
+    "simplewebauthn":      {"repo": "MasterKale/SimpleWebAuthn",          "category": "wallet_sdk",    "ecosystem": "multi",    "custody": "lib",   "tier": 2},
+    "go-webauthn":         {"repo": "go-webauthn/webauthn",               "category": "wallet_sdk",    "ecosystem": "multi",    "custody": "lib",   "tier": 2},
+    "webauthn4j":          {"repo": "webauthn4j/webauthn4j",              "category": "wallet_sdk",    "ecosystem": "multi",    "custody": "lib",   "tier": 3},
+    "duo-webauthn":        {"repo": "duo-labs/webauthn",                  "category": "wallet_sdk",    "ecosystem": "multi",    "custody": "lib",   "tier": 3, "archived": True},
+
     # ---- connection / signing transport -----------------------------------
     "walletconnect":       {"repo": "WalletConnect/walletconnect-monorepo","category": "infra",           "ecosystem": "multi",    "custody": "lib",   "tier": 1},
     "reown-appkit":        {"repo": "reown-com/appkit",                  "category": "infra",             "ecosystem": "multi",    "custody": "lib",   "tier": 1},
@@ -244,7 +289,14 @@ WALLET_LANGUAGE: dict[str, str] = {
     "soul-wallet": "solidity", "biconomy-scw": "solidity",
     "etherspot": "solidity", "sequence-contracts": "solidity",
     "rhinestone": "solidity", "argent-contracts": "cairo",
-    "eclair": "scala", "phoenix": "kotlin", "muun-apollo": "kotlin",
+    "eclair": "scala",
+    "openfort-sss": "go", "para-mpc": "go", "go-webauthn": "go", "duo-webauthn": "go",
+    "lit-peer": "rust",
+    "webauthn4j": "java",
+    "openfort-contracts": "solidity", "thirdweb-contracts": "solidity",
+    "coinbase-smart-wallet": "solidity", "webauthn-sol": "solidity",
+    "p256-verifier": "solidity", "webauthn-owner-plugin": "solidity",
+    "kernel-7579": "solidity", "phoenix": "kotlin", "muun-apollo": "kotlin",
     "nunchuk": "kotlin", "coinbase-mobile-sdk": "kotlin",
     "muun-falcon": "swift", "alphawallet-ios": "swift",
     "tangem": "swift", "tonkeeper-ios": "swift", "pera": "swift",

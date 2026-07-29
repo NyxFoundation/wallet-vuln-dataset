@@ -35,7 +35,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "collection"))
 import local_diffs as ld  # noqa: E402
 import llm_classify_fixes as llm  # noqa: E402  (reuse the pluggable LLM engine)
 
-CONSENSUS = {"lighthouse", "lodestar", "nimbus", "prysm", "teku", "grandine"}
+# The client build split labels by protocol layer (consensus vs execution).
+# Wallets have no such split; the meaningful axis is the registry CATEGORY,
+# because what can go wrong in hardware firmware and in a browser extension
+# barely overlaps.
+import importlib.util as _ilu2
+_WS = _ilu2.spec_from_file_location("_wallets", Path(__file__).resolve().parent.parent / "collection" / "wallets.py")
+_wal = _ilu2.module_from_spec(_WS); _WS.loader.exec_module(_wal)  # type: ignore
 PR_RE = re.compile(r"/pull/(\d+)")
 SHA_RE = re.compile(r"/commit/([0-9a-f]{7,40})", re.I)
 HUNK_RE = re.compile(r"^@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@")
@@ -44,7 +50,7 @@ FILE_CAP_CHARS = 16000
 
 
 def layer(wallet: str) -> str:
-    return "consensus" if wallet in CONSENSUS else "execution"
+    return _wal.WALLET_CONFIG.get(wallet, {}).get("category", "wallet_sdk")
 
 
 # --- advisory -> fix commit (dedicated security patch releases only) ---------
@@ -131,107 +137,205 @@ def resolve_advisory(wallet, ghsa, summary):
 
 # --- label rules: (regex, label). Ordered specific -> general; first match wins.
 # Matched against "changed file paths + title + description".
-_C = [  # consensus
-    (r"das[-_/]|data[-_]?column|peer[-_]?das|column[-_]?sidecar|sampling", "data-availability-sampling"),
-    (r"kzg|blob[-_]?sidecar|polynomial[-_]?commit|4844|c-kzg", "kzg-commitments"),
-    (r"\bepbs\b|payload[-_]?attestation|builder[-_]?(?:bid|api|payload)|blinded[-_]?(?:block|beacon)|mev[-_]?boost|\bptc\b|execution[-_]?payload[-_]?envelope", "builder"),
-    (r"light[-_]?wallet", "light-wallet"),
-    (r"weak[-_]?subjectivity", "weak-subjectivity"),
-    (r"deposit[-_]?contract", "deposit-contract"),
-    (r"fork[-_]?choice|forkchoice|on_block|proposer[-_]?boost|lmd|ghost", "fork-choice"),
-    (r"sync[-_]?committee|synccommittee", "beacon-chain:sync-committee"),
-    (r"execution[-_]?payload|execpayload|process_execution", "beacon-chain:execution-payload"),
-    (r"attest", "beacon-chain:attestation"),
-    (r"slash", "beacon-chain:slashing"),
-    (r"withdraw|bls[-_]?to[-_]?execution|bls_change", "beacon-chain:withdrawal"),
-    (r"voluntary[-_]?exit|consolidat|\bexit\b", "beacon-chain:exit-consolidation"),
-    (r"\bdeposit", "beacon-chain:deposit"),
-    # epoch processing, split by the process_epoch sub-stages (spec fn names)
-    (r"justif|finali[sz]ation|\bffg\b|process_justif", "beacon-chain:justification-and-finality"),
-    (r"rewards?[-_]?and[-_]?penal|\breward|penalt|inactivity", "beacon-chain:rewards-and-penalties"),
-    (r"registry[-_]?update|activation[-_]?queue|exit[-_]?queue|\bchurn|activation_eligibility", "beacon-chain:registry-updates"),
-    (r"effective[-_]?balance", "beacon-chain:effective-balance-updates"),
-    (r"epoch[-_]?process|process_epoch|historical_summar|historical_root|participation_flag|randao_mix|slashings_reset|eth1_data_reset", "beacon-chain:epoch-processing"),
-    (r"block[-_]?process|process_block|block_header|randao|eth1[-_]?data", "beacon-chain:block-processing"),
-    (r"gossip|req[-_]?resp|reqresp|discv5|/enr|network|/p2p|libp2p", "p2p-interface"),
-    (r"\bbls\b|signature[-_]?verif", "bls"),
-    (r"/fork\b|fork\.py|upgrade_to|state_upgrade", "fork-transition"),
-    (r"validator|duties|proposer|attester", "validator"),
-    (r"beacon[-_]?chain|state[-_]?transition|beaconstate", "beacon-chain:block-processing"),
+#
+# The label answers *which part of the custody chain broke*. Rules are split by
+# registry category because the same word means different things in different
+# repos ("session" is a WalletConnect pairing in infra and a login token in a
+# mobile app), then a shared cross-cutting table catches the rest.
+
+_KEY = [  # key material — applies to every category, checked first
+    (r"seed[-_ ]?phrase|mnemonic|recovery[-_ ]?phrase|bip[-_ ]?39|slip[-_ ]?0?039", "key:seed-mnemonic"),
+    (r"bip[-_ ]?32|bip[-_ ]?44|slip[-_ ]?0?010|derivation[-_ ]?path|\bhdkey\b|xprv|xpub|extended[-_ ]?key", "key:derivation"),
+    (r"entropy|\brng\b|csprng|random|getrandom|secure[-_ ]?random", "key:entropy-rng"),
+    (r"keystore|keychain|keyring|\bvault\b|secure[-_ ]?enclave|secure[-_ ]?element|encrypted[-_ ]?store", "key:storage"),
+    (r"pbkdf2|scrypt|argon2|key[-_ ]?derivation[-_ ]?function|\bkdf\b|password[-_ ]?hash", "key:kdf"),
+    (r"zeroize|wipe|scrub|clear[-_ ]?memory|memset_s|explicit_bzero", "key:memory-hygiene"),
+    (r"backup|export[-_ ]?key|import[-_ ]?key|restore", "key:backup-restore"),
 ]
-_E = [  # execution
-    (r"precompil", "precompiles"),
-    (r"instruction|opcode|/ops?/", "opcodes"),
-    (r"eof\b|evm[-_]?object", "eof"),
-    (r"blob[-_]?pool|blobpool|4844|blob[-_]?tx", "blobs"),
-    (r"engine[-_]?api|newpayload|forkchoiceupdated|getpayload|payload[-_]?builder", "engine-api"),
-    (r"txpool|tx[-_]?pool|mempool|legacypool", "txpool"),
-    (r"downloader|snap[-_]?sync|/sync|beacon[-_]?sync|skeleton", "sync"),
-    (r"\brpc\b|jsonrpc|json[-_]?rpc|/rpc/|eth_api|web3", "rpc"),
-    (r"\bgas\b|gaspool|eip[-_]?1559|fee[-_]?market|basefee", "gas"),
-    (r"/vm/|/evm|interpreter|opcodes", "evm"),
-    (r"transaction|/tx\b|signer|/types/tx", "transactions"),
-    (r"\btrie\b|mpt|patricia|/state|stateobject|snapshot|storage", "state-trie"),
-    (r"\brlp\b", "rlp"),
-    (r"devp2p|/p2p|discover|/eth/protocol|/eth/handler|snap[-_]?protocol|wire", "p2p"),
-    (r"block[-_]?process|/core/blockchain|verifyheader|process(?:block|_block)|state_transition", "block-processing"),
+
+_SIGN = [  # signing correctness
+    (r"eip[-_ ]?712|signtypeddata|typed[-_ ]?data|domain[-_ ]?separator", "sign:typed-data"),
+    (r"eip[-_ ]?155|chain[-_ ]?id|replay[-_ ]?protect|cross[-_ ]?chain[-_ ]?replay", "sign:replay-protection"),
+    (r"nonce[-_ ]?reuse|deterministic[-_ ]?nonce|rfc[-_ ]?6979|\bk[-_ ]?reuse\b|biased[-_ ]?nonce", "sign:nonce"),
+    (r"malleab|low[-_ ]?s\b|\bder\b|recovery[-_ ]?id|\brecid\b", "sign:encoding-malleability"),
+    (r"blind[-_ ]?sign|clear[-_ ]?sign|display[-_ ]?transaction|what[-_ ]?you[-_ ]?sign", "sign:blind-signing"),
+    (r"\bpsbt\b|sighash|witness|taproot|\bschnorr\b", "sign:bitcoin-sighash"),
+    (r"personal_sign|eth_sign|message[-_ ]?prefix", "sign:message-signing"),
+    (r"secp256|ed25519|ecdsa|curve|scalar|point[-_ ]?decompress", "sign:curve-primitives"),
+    (r"signature[-_ ]?verif|verify[-_ ]?sig|sigverify|invalid[-_ ]?signature", "sign:verification"),
 ]
-_X = [  # cross-cutting (checked after protocol rules; most-informative first)
-    (r"crypto|secp256|ecrecover|keccak|\bhash\b|blst|bn256|bls12|schnorr", "crypto"),
-    (r"\bssz\b|serial|encode|decode|marshal|unmarshal|codec", "serialization"),
-    (r"leveldb|rocksdb|pebble|/db\b|database|/ethdb|/storage/kv", "database"),
-    # non-protocol but real areas (keeps 'other' honest instead of forced)
-    (r"\.github|\.circleci|dockerfile|docker-compose|\.gradle\b|gradle/|makefile\b"
-     r"|/build/|verification-metadata|renovate|/vendor/|docs/vulnerab|go\.mod\b|go\.sum"
-     r"|package-lock|yarn\.lock|Cargo\.(?:toml|lock)|\.ya?ml\b", "build-ci"),
-    (r"metric|diagnostic|prometheus|grafana|observ|telemetr|tracing|\botel\b", "metrics-observability"),
-    (r"\bcmd/|/cli/|main\.(?:go|rs)\b|BesuCommand|/flags?/|command\.java", "cli"),
-    (r"_test\.(?:go|rs|py|ts|js)|/tests?/|testhelper|mock_|spec\.(?:ts|js)|\bfuzz", "test"),
+
+_APPROVE = [  # spend authority
+    (r"unlimited[-_ ]?approval|infinite[-_ ]?approval|max[-_ ]?uint|spending[-_ ]?cap", "approval:unlimited"),
+    (r"permit2|eip[-_ ]?2612|erc[-_ ]?2612|\bpermit\b", "approval:permit"),
+    (r"setapprovalforall|approve|allowance|revoke", "approval:allowance"),
+    (r"session[-_ ]?key|delegat|authoriz", "approval:delegation"),
 ]
-_C = [(re.compile(p, re.I), l) for p, l in _C]
-_E = [(re.compile(p, re.I), l) for p, l in _E]
-_X = [(re.compile(p, re.I), l) for p, l in _X]
+
+_TRANSPORT = [  # dapp <-> wallet channel
+    (r"walletconnect|\bwc\b[-_ ]?uri|pairing|session[-_ ]?topic|\brelay\b", "transport:walletconnect"),
+    (r"postmessage|cross[-_ ]?origin|same[-_ ]?origin|origin[-_ ]?check|\bcors\b", "transport:origin"),
+    (r"content[-_ ]?script|inject|provider|window\.ethereum|eip[-_ ]?1193", "transport:provider-injection"),
+    (r"deeplink|deep[-_ ]?link|universal[-_ ]?link|url[-_ ]?scheme|intent[-_ ]?filter", "transport:deeplink"),
+    (r"webview|javascriptinterface|wkwebview|evaluatejavascript", "transport:webview"),
+    (r"permission|approve[-_ ]?connection|connected[-_ ]?sites|dapp[-_ ]?permission", "transport:permissions"),
+    (r"\brpc\b|json[-_ ]?rpc|method[-_ ]?whitelist|unauthorized[-_ ]?method", "transport:rpc-surface"),
+]
+
+_UI = [  # user-facing truthfulness
+    (r"phishing|blocklist|blacklist|scam|malicious[-_ ]?site", "ui:phishing-detection"),
+    (r"clipboard|paste|copy[-_ ]?address", "ui:clipboard"),
+    (r"homoglyph|punycode|unicode|\brtl\b|bidi|spoof|look[-_ ]?alike", "ui:address-spoofing"),
+    (r"simulat|preview|decode[-_ ]?transaction|human[-_ ]?readable|estimate", "ui:transaction-preview"),
+    (r"display|truncat|checksum[-_ ]?address|render[-_ ]?amount|\bdecimals\b", "ui:display-integrity"),
+]
+
+_PLATFORM = [  # OS / browser escapes
+    (r"\bxss\b|cross[-_ ]?site[-_ ]?script|innerhtml|dangerouslyset|sanitiz", "platform:xss"),
+    (r"prototype[-_ ]?pollution|__proto__|constructor[-_ ]?pollution", "platform:prototype-pollution"),
+    (r"\bcsp\b|content[-_ ]?security[-_ ]?policy|unsafe[-_ ]?eval|unsafe[-_ ]?inline", "platform:csp"),
+    (r"path[-_ ]?traversal|zip[-_ ]?slip|\.\./|directory[-_ ]?traversal", "platform:path-traversal"),
+    (r"deserializ|pickle|unmarshal[-_ ]?untrusted|yaml\.load", "platform:deserialization"),
+    (r"allowbackup|exported[-_ ]?activity|screenshot|screen[-_ ]?record|flag_secure", "platform:mobile-hardening"),
+    (r"biometric|faceid|touchid|lock[-_ ]?screen|auto[-_ ]?lock|idle[-_ ]?timeout", "platform:auth-lock"),
+    (r"sandbox|isolat|\biframe\b|permission[-_ ]?manifest", "platform:sandbox"),
+]
+
+_CONTRACT = [  # smart-contract accounts
+    (r"reentran", "contract:reentrancy"),
+    (r"initializ|uninitialized|\binit\b[-_ ]?once|constructor", "contract:initialization"),
+    (r"upgrad|proxy|implementation[-_ ]?slot|storage[-_ ]?collision|delegatecall", "contract:upgrade-proxy"),
+    (r"erc[-_ ]?1271|isvalidsignature|contract[-_ ]?signature", "contract:erc1271"),
+    (r"erc[-_ ]?4337|userop|validateuserop|entrypoint|paymaster|bundler", "contract:erc4337"),
+    (r"threshold|owner|guardian|module|guard|fallback[-_ ]?handler", "contract:access-control"),
+    (r"invariant|audit|formal|fuzz", "contract:invariant"),
+]
+
+_MPC = [  # threshold signing
+    (r"\bdkg\b|key[-_ ]?gen|resharing|refresh", "mpc:keygen-refresh"),
+    (r"share|shamir|secret[-_ ]?sharing|lagrange", "mpc:secret-share"),
+    (r"paillier|range[-_ ]?proof|zero[-_ ]?knowledge|\bzk\b|commitment", "mpc:proofs"),
+    (r"abort|identifiable|malicious[-_ ]?party|rogue[-_ ]?key", "mpc:malicious-party"),
+    (r"lattice|small[-_ ]?subgroup|bias", "mpc:cryptanalysis"),
+]
+
+_FIRMWARE = [  # hardware wallets
+    (r"bootloader|secure[-_ ]?boot|firmware[-_ ]?verif|signature[-_ ]?check[-_ ]?firmware", "firmware:boot-verification"),
+    (r"\bpin\b|passphrase|wipe[-_ ]?counter|brute[-_ ]?force|retry[-_ ]?counter", "firmware:pin-passphrase"),
+    (r"fault[-_ ]?injection|glitch|voltage|laser|side[-_ ]?channel|power[-_ ]?analysis|constant[-_ ]?time", "firmware:physical-attack"),
+    (r"\busb\b|\bhid\b|\bnfc\b|bluetooth|\bble\b|transport[-_ ]?protocol", "firmware:host-transport"),
+    (r"display|screen|confirm[-_ ]?on[-_ ]?device|trusted[-_ ]?display", "firmware:trusted-display"),
+    (r"secure[-_ ]?element|\bse\b[-_ ]?applet|atecc|optiga", "firmware:secure-element"),
+]
+
+_SUPPLY = [
+    (r"supply[-_ ]?chain|malicious[-_ ]?(?:package|dependency)|typosquat|postinstall", "supply-chain:dependency"),
+    (r"code[-_ ]?signing|notariz|reproducible[-_ ]?build|checksum[-_ ]?verif", "supply-chain:build-integrity"),
+    (r"update[-_ ]?channel|auto[-_ ]?update|rollback|downgrade", "supply-chain:update-channel"),
+]
+
+_X = [  # cross-cutting, checked last
+    (r"crypto|keccak|sha256|\bhash\b|cipher|\baes\b|chacha", "crypto-primitives"),
+    (r"serial|encode|decode|marshal|unmarshal|codec|\brlp\b|protobuf|\bcbor\b", "serialization"),
+    (r"leveldb|rocksdb|sqlite|indexeddb|/db\b|database|realm", "storage"),
+    (r"network|http|fetch|websocket|\bapi\b|node[-_ ]?provider|infura|alchemy", "network-io"),
+    (r"\.github|\.circleci|dockerfile|makefile\b|/build/|renovate|/vendor/"
+     r"|go\.mod\b|package-lock|yarn\.lock|Cargo\.(?:toml|lock)|\.ya?ml\b|gradle", "build-ci"),
+    (r"metric|prometheus|telemetr|tracing|analytics|sentry", "metrics-observability"),
+    (r"\bcmd/|/cli/|main\.(?:go|rs)\b|/flags?/", "cli"),
+    (r"_test\.(?:go|rs|py|ts|js|kt|swift)|/tests?/|mock_|spec\.(?:ts|js)|\bfuzz", "test"),
+]
+
+# Which category-specific tables apply, in priority order. Key material and
+# signing come first everywhere: they are the outcomes that actually cost money.
+_BY_CATEGORY: dict[str, list] = {
+    "browser_extension": [_KEY, _SIGN, _TRANSPORT, _UI, _APPROVE, _PLATFORM],
+    "mobile":            [_KEY, _SIGN, _PLATFORM, _TRANSPORT, _UI, _APPROVE],
+    "desktop":           [_KEY, _SIGN, _PLATFORM, _TRANSPORT, _UI, _APPROVE],
+    "hardware_firmware": [_KEY, _SIGN, _FIRMWARE, _SUPPLY],
+    "smart_account":     [_CONTRACT, _SIGN, _APPROVE, _KEY],
+    "mpc_tss":           [_MPC, _KEY, _SIGN],
+    "wallet_sdk":        [_KEY, _SIGN, _APPROVE, _TRANSPORT, _PLATFORM],
+    "node_wallet":       [_KEY, _SIGN, _PLATFORM, _UI],
+    "infra":             [_TRANSPORT, _SIGN, _APPROVE, _UI],
+}
+
+def _compile(tbl):
+    return [(re.compile(p, re.I), l) for p, l in tbl]
+
+_KEY, _SIGN, _APPROVE = _compile(_KEY), _compile(_SIGN), _compile(_APPROVE)
+_TRANSPORT, _UI, _PLATFORM = _compile(_TRANSPORT), _compile(_UI), _compile(_PLATFORM)
+_CONTRACT, _MPC = _compile(_CONTRACT), _compile(_MPC)
+_FIRMWARE, _SUPPLY, _X = _compile(_FIRMWARE), _compile(_SUPPLY), _compile(_X)
+_BY_CATEGORY = {k: [_compile(t) if t and isinstance(t[0][0], str) else t for t in v]
+                for k, v in _BY_CATEGORY.items()}
 
 
 def assign_label(hay: str, lyr: str) -> str:
-    rules = (_C if lyr == "consensus" else _E) + _X
-    for rx, lab in rules:
+    """`lyr` is the registry category (see layer_of)."""
+    tables = _BY_CATEGORY.get(lyr, [_KEY, _SIGN, _TRANSPORT, _PLATFORM])
+    for tbl in tables:
+        for rx, lab in tbl:
+            if rx.search(hay):
+                return lab
+    for rx, lab in _X:
         if rx.search(hay):
             return lab
     return "other"
 
 
 # --- root_cause / attack_path (keyword + classifier vuln_class) --------------
+# root_cause answers "why was it a bug"; attack_path answers "how is it reached".
+# Retargeted from the client build: a wallet is not attacked by a malicious
+# block, it is attacked by a malicious *dapp page*, a *crafted signing request*,
+# a *malicious QR/deeplink*, or someone holding the device.
 _RC = [
-    (r"out.of.bounds|bounds check|index out|slice bounds|oob\b", "missing_bounds_check"),
+    (r"seed|mnemonic|entropy|weak[-_ ]?random|predictable|insufficient[-_ ]?entropy", "weak_key_generation"),
+    (r"key[-_ ]?(?:leak|expos|logg)|plaintext[-_ ]?key|secret[-_ ]?in[-_ ]?log|not[-_ ]?cleared|zeroize", "key_material_exposure"),
+    (r"derivation[-_ ]?path|hardened|bip[-_ ]?3[29]|slip[-_ ]?0?010|wrong[-_ ]?path", "incorrect_key_derivation"),
+    (r"nonce[-_ ]?reuse|k[-_ ]?reuse|biased[-_ ]?nonce|deterministic[-_ ]?nonce", "nonce_reuse"),
+    (r"replay|chain[-_ ]?id|domain[-_ ]?separator|eip[-_ ]?155|cross[-_ ]?chain", "missing_replay_protection"),
+    (r"signature[-_ ]?verif|verify|sigverify|accept.*invalid[-_ ]?sig|malleab", "signature_verification_flaw"),
+    (r"origin|cross[-_ ]?origin|postmessage|unauthorized[-_ ]?(?:dapp|site|caller)|permission[-_ ]?bypass", "missing_origin_authorization"),
+    (r"approval|allowance|unlimited|permit|delegat", "excessive_spend_authority"),
+    (r"display|preview|truncat|homoglyph|punycode|spoof|misleading|blind[-_ ]?sign", "user_deception"),
+    (r"out.of.bounds|bounds check|index out|slice bounds|\boob\b|buffer[-_ ]?overflow", "missing_bounds_check"),
     (r"overflow|underflow|wrapping", "integer_overflow_underflow"),
-    (r"nil pointer|null pointer|nil deref|npe|unwrap|nil map|none type", "unhandled_error_or_nil"),
-    (r"validat|verify|sanitiz|malformed|invalid input|check that", "missing_input_validation"),
-    (r"gas|refund|out of gas|gas cost", "incorrect_gas_accounting"),
-    (r"consensus|divergen|chain split|invalid block|non.?determin|fork", "consensus_divergence"),
-    (r"oom|out of memory|unbounded|exhaust|memory leak|resource|dos|denial", "resource_exhaustion"),
-    (r"race|toctou|concurren|deadlock|data race", "race_condition"),
-    (r"deserial|serializ|decode|ssz|rlp", "serialization_bug"),
-    (r"state|storage|trie|balance|corrupt", "improper_state_update"),
-    (r"signature|crypto|kzg|bls|curve|point", "crypto_misuse"),
+    (r"nil pointer|null pointer|npe|unwrap|none type|unhandled", "unhandled_error_or_nil"),
+    (r"validat|sanitiz|malformed|invalid input|check that|escap", "missing_input_validation"),
+    (r"prototype[-_ ]?pollution|\bxss\b|injection|eval", "untrusted_code_execution"),
     (r"reentran", "reentrancy"),
+    (r"initializ|uninitialized|storage[-_ ]?collision|upgrade", "unsafe_initialization_or_upgrade"),
+    (r"access[-_ ]?control|owner|threshold|guard|privileg|auth", "broken_access_control"),
+    (r"race|toctou|concurren|deadlock", "race_condition"),
+    (r"deserial|serializ|decode|encode|parse", "serialization_bug"),
+    (r"side[-_ ]?channel|timing|constant[-_ ]?time|power[-_ ]?analysis|fault[-_ ]?injection|glitch", "side_channel"),
+    (r"oom|out of memory|unbounded|exhaust|memory leak|resource|dos|denial", "resource_exhaustion"),
+    (r"supply[-_ ]?chain|dependency|typosquat|postinstall|code[-_ ]?signing", "supply_chain_compromise"),
+    (r"crypto|curve|point|paillier|proof|commitment|share", "crypto_misuse"),
+    (r"state|storage|balance|corrupt", "improper_state_update"),
 ]
 _AP = [
-    (r"malicious (?:block|payload)|invalid block|crafted block", "malicious_block"),
-    (r"malicious (?:tx|transaction)|crafted (?:tx|transaction)", "malicious_tx"),
-    (r"attestation|attester", "malicious_attestation"),
-    (r"p2p|gossip|peer message|network message|req.?resp|rpc request", "malicious_p2p_message"),
-    (r"malformed|invalid input|crafted input|bad input|parse", "malformed_input"),
-    (r"crafted state|state|database", "crafted_state"),
-    (r"large|oversized|huge|unbounded", "large_input"),
-    (r"\bpeer\b|connection", "peer"),
+    (r"malicious (?:dapp|site|website|page)|crafted (?:dapp|page)|attacker.controlled (?:site|origin)", "malicious_dapp"),
+    (r"malicious (?:tx|transaction|payload)|crafted (?:tx|transaction)|signing[-_ ]?request", "malicious_signing_request"),
+    (r"phishing|spoofed[-_ ]?(?:domain|site)|look[-_ ]?alike|scam", "phishing_site"),
+    (r"deeplink|deep[-_ ]?link|universal[-_ ]?link|url[-_ ]?scheme|\bqr\b|intent", "malicious_deeplink_or_qr"),
+    (r"walletconnect|pairing|session|\brelay\b", "malicious_pairing_session"),
+    (r"malicious[-_ ]?(?:token|nft|contract)|crafted[-_ ]?contract|hostile[-_ ]?contract", "malicious_contract_or_token"),
+    (r"malicious[-_ ]?(?:package|dependency)|compromised[-_ ]?(?:package|build)|supply[-_ ]?chain", "compromised_dependency"),
+    (r"physical|fault[-_ ]?injection|glitch|laser|voltage|evil[-_ ]?maid|stolen[-_ ]?device", "physical_device_access"),
+    (r"malicious[-_ ]?host|compromised[-_ ]?(?:computer|host|companion)|usb|\bhid\b", "compromised_host"),
+    (r"local[-_ ]?app|other[-_ ]?app|malicious[-_ ]?app|screen[-_ ]?record|overlay|tapjack|clipboard", "malicious_local_app"),
+    (r"malformed|invalid input|crafted input|bad input|parse|oversized|large", "malformed_input"),
+    (r"network|\bmitm\b|man.in.the.middle|\brpc\b|node[-_ ]?provider", "hostile_network_or_rpc"),
+    (r"\bpeer\b|p2p|gossip", "malicious_peer"),
 ]
 _RC = [(re.compile(p, re.I), v) for p, v in _RC]
 _AP = [(re.compile(p, re.I), v) for p, v in _AP]
 
 _VCLASS_RC = {"dos": "resource_exhaustion", "memory": "missing_bounds_check",
-              "overflow": "integer_overflow_underflow", "consensus": "consensus_divergence",
-              "validation": "missing_input_validation", "auth": "missing_input_validation"}
+              "overflow": "integer_overflow_underflow", "crypto": "crypto_misuse",
+              "validation": "missing_input_validation", "auth": "broken_access_control"}
 
 
 def derive(rules, hay, default=""):

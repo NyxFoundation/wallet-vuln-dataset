@@ -1,0 +1,2 @@
+=== MODE=full TIER=3 (157 repos) CAP=0 PAGES=0 RUN_HEAVY=1 WORK=/home/gohan/workspace/wallet-vuln-dataset/scratchpad_crawl ===
+>>> [canonical] per-wallet over 157 repos: PY collection/crawl_wallet_past_fixes.py --wallet @WALLET --out-dir /home/gohan/workspace/wallet-vuln-dataset/scratchpad_crawl/canonical --max-records 0

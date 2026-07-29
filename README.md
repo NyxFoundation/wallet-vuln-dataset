@@ -33,16 +33,16 @@ holding the seed, the contract holding the balance, the MPC library sharding the
 and libraries like `ethers`, `viem`, `bitcoinjs-lib`, `wallet-core` and WalletConnect,
 where a single defect is simultaneously a bug in a hundred wallets.
 
-**157 repositories** — see [`collection/wallets.py`](collection/wallets.py):
+**181 repositories** — see [`collection/wallets.py`](collection/wallets.py):
 
 | by category | | by custody model | |
 |---|---:|---|---:|
-| wallet SDK / library | 43 | self-custody | 65 |
-| browser extension | 26 | library (no custody) | 49 |
-| mobile | 24 | smart-contract account | 17 |
-| desktop | 17 | hardware (secure element) | 15 |
-| smart-contract account | 13 | MPC / threshold | 11 |
-| MPC / TSS | 11 | | |
+| wallet SDK / library | 50 | self-custody | 65 |
+| browser extension | 26 | library (no custody) | 55 |
+| mobile | 24 | smart-contract account | 27 |
+| smart-contract account | 22 | MPC / threshold / seedless | 19 |
+| MPC / TSS / seedless | 19 | hardware (secure element) | 15 |
+| desktop | 17 | | |
 | hardware firmware | 10 | | |
 | node wallet | 7 | | |
 | connection infra | 6 | | |
@@ -64,9 +64,26 @@ Severity follows what a defect costs the *user*, not CVSS:
 | `ui_deception` | the user approved the wrong thing because the UI lied |
 | `platform` | an OS/browser escape reached the key store |
 | `contract` | the smart account's own validation was bypassable |
-| `mpc` | the threshold protocol leaked a share or biased a nonce |
+| `mpc` | the threshold protocol leaked a share, biased a nonce, or let an attacker assemble a quorum |
 | `memory` | classic memory corruption in firmware / native cores |
 | `supply_chain` | the dependency or update channel was the attack |
+
+Two custody models the Ethereum-client corpus has no analogue for are covered
+explicitly:
+
+- **Seedless / embedded wallets** (Privy, Web3Auth, Openfort, Para, thirdweb,
+  Magic, Turnkey, Dfns) — the user signs in with email or OAuth and never sees a
+  mnemonic; the key is split between device, provider and recovery factor. The
+  question stops being "can the seed leak" and becomes "can an attacker assemble
+  a quorum of shares". Most of these vendors keep the product SDK closed and
+  publish only the cryptographic core — which is precisely the part where a
+  defect is catastrophic, so it is in scope even when the product is not.
+- **Passkey / biometric wallets** (Coinbase Smart Wallet, `webauthn-sol`,
+  `p256-verifier`, Clave, passkey-kit) — signing authority rests on a platform
+  authenticator released by Face ID / Touch ID. A mis-parsed `clientDataJSON` or
+  an unchecked user-verification flag is a **direct signing bypass with no key
+  leak at all**, which is why the WebAuthn verification libraries wallets embed
+  are in the registry alongside the wallets themselves.
 
 Defined in [`collection/wallet_vocab.py`](collection/wallet_vocab.py).
 
