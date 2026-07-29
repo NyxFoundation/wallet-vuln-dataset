@@ -10,8 +10,39 @@ Built with the same methodology as
 [`NyxFoundation/ethereum-vuln-dataset`](https://github.com/NyxFoundation/ethereum-vuln-dataset),
 retargeted from a *protocol* threat model to a **custody** threat model.
 
-> **Status: build in progress.** The registry, vocabulary and pipeline are in place;
-> the corpus is being collected. Numbers land here as the crawl completes.
+> **Status: interim build.** The stealth-PR stage is still crawling; these numbers
+> come from the advisory + commit-grep + release/changelog slices and will grow.
+
+```python
+import pandas as pd
+df = pd.read_parquet("data/wallet_vulns.parquet")
+
+df[df.authority_tier != "C_candidate"]   # the essential slice (8,597 rows)
+df[df.confidence == "high"]              # strongest evidence only
+```
+
+## Dataset at a glance
+
+| | rows |
+|---|---:|
+| raw snapshot (all repos) | 46,116 |
+| curated (security-only) | **15,022** |
+| └ essential slice (tier A ∪ B) | **8,597** |
+| by tier | A_authoritative 476 · B_corroborated 8,121 · C_candidate 6,425 |
+| by confidence | high 5,455 · medium 8,762 · low 805 |
+| by severity | Critical 1 · High 82 · Medium 12 · Low 52 · Info 10,391 · Unrated 4,484 |
+
+**99% of rows are Info or Unrated**, because almost no wallet fix is ever
+graded by anyone. Unrated is not low impact — it is the absence of a grader.
+
+De-noising before the gate, and what each stage removes:
+
+| Stage | Drops | Rationale |
+|---|---:|---|
+| T2 | 2,218 | CI / docs / dep-bump meta-work (title-anchored) |
+| T2c | 486 | version bumps whose **package name** is custody vocabulary (`@metamask/eth-hd-keyring`, `@scure/bip39`) — decided on title shape, overriding keyword protection |
+| T2d | 4,448 | author-declared `build:`/`ci:`/`test:`/`docs:` work, unless it cites an advisory or is real build-integrity work |
+| GATE | 23,942 | no independent security signal fired |
 
 ## Why this exists (and why CVE lists are the wrong map)
 

@@ -291,8 +291,23 @@ def count_signals(row) -> int:
         n += 1                                   # strong security keyword
     if MODERATE_RE.search(combined):
         n += 1                                   # moderate bug-class keyword
-    if SENSITIVE_PATH_RE.search(combined):
-        n += 1                                   # security-sensitive subsystem (A2)
+    # A2 — custody-sensitive subsystem. Counted ONLY when it fires on a token
+    # the keyword signal did not already use.
+    #
+    # In the client build STRONG_RE ("vulnerability", "exploit", "RCE") and the
+    # sensitive-path list ("fork_choice", "kzg", "discv5") shared no vocabulary,
+    # so they really were independent. Here they overlap heavily — "seed",
+    # "keyring", "vault", "signature" are in BOTH — so a single word scored two
+    # "independent" signals and pushed plain UI work ("Seed: reduce space
+    # between index and word") into the corroborated tier.
+    _paths = set(_vocab.matches(combined, _vocab.SENSITIVE_PATHS))
+    if _paths:
+        _kw = set()
+        for _grp in _vocab.GROUPS.values():
+            _kw.update(k.lower() for k in _vocab.matches(combined, _grp))
+        # a path token is fresh evidence unless some matched keyword contains it
+        if any(not any(p in k for k in _kw) for p in (x.lower() for x in _paths)):
+            n += 1
     if FIX_IMPACT_RE.search(combined):
         n += 1                                   # fix-verb × crash-class impact (C5')
     if str(row.get("stride", "Other")) not in ("Other", "", "nan"):
@@ -449,6 +464,8 @@ def build(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
         "t1_boilerplate_dropped": int(len(t1_dropped)),
         "t1_dropped_by_source": {k: int(v) for k, v in t1_dropped["source_platform"].value_counts().items()},
         "t2_noise_dropped": int(len(t2_dropped)),
+        "t2c_dep_bump_dropped": int(len(t2c_dropped)),
+        "t2d_meta_prefix_dropped": int(len(t2d_dropped)),
         "t2b_nvd_fp_dropped": int(len(t2b_dropped)),
         "after_t1": int(len(df)),
         "security_rows": int(len(sec)),
