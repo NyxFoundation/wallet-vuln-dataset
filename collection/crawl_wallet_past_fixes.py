@@ -505,6 +505,8 @@ def _fetch_security_prs_label_fallback(repo: str) -> list[dict]:
         "hyperledger/besu": ["bug", "consensus", "EVM"],
     }
     labels = _FALLBACK_LABELS.get(repo, ["bug", "security"])
+    have = existing_labels(repo)
+    labels = list(dict.fromkeys(l for l in labels if l.lower() in have))
     seen: set[int] = set()
     results: list[dict] = []
 
@@ -513,8 +515,10 @@ def _fetch_security_prs_label_fallback(repo: str) -> list[dict]:
             f"  [T9] label fallback for {repo}: querying label={label!r}",
             file=sys.stderr,
         )
+        # issues endpoint: the pulls endpoint ignores `labels` and would return
+        # every closed PR (see existing_labels).
         chunk = gh_json([
-            "api", f"repos/{repo}/pulls",
+            "api", f"repos/{repo}/issues",
             "-X", "GET",
             "--paginate",
             "-f", "state=closed",
@@ -526,7 +530,8 @@ def _fetch_security_prs_label_fallback(repo: str) -> list[dict]:
             time.sleep(1)
             continue
         for pr in chunk:
-            if not pr.get("merged_at"):
+            _prs = pr.get("pull_request")
+            if not isinstance(_prs, dict) or not _prs.get("merged_at"):
                 continue
             num = pr.get("number")
             if num is None or num in seen:
@@ -733,6 +738,31 @@ _KEY_CUSTODY_SLUGS = frozenset(
 )
 
 
+_REPO_LABELS_CACHE: dict[str, set[str]] = {}
+
+
+def existing_labels(repo: str) -> set[str]:
+    """The labels a repo actually defines, lower-cased. Cached per repo.
+
+    Two reasons this matters more here than in the client build:
+
+    1. The label strategy is DERIVED from the registry category, so most
+       candidate labels ("bootloader", "signing", "keyring") do not exist on
+       any given repo. Querying them is pure waste.
+    2. GitHub's ``GET /repos/{o}/{r}/pulls`` endpoint **silently ignores an
+       unknown ``labels`` query parameter** and returns every closed PR. So a
+       phantom label did not return nothing — it returned the repo's ENTIRE PR
+       history, paginated. That is what made the first full run both wrong
+       (138k over-collected rows) and slow.
+    """
+    if repo in _REPO_LABELS_CACHE:
+        return _REPO_LABELS_CACHE[repo]
+    data = gh_json(["api", f"repos/{repo}/labels?per_page=100", "--paginate"])
+    names = {str(x.get("name", "")).lower() for x in data} if isinstance(data, list) else set()
+    _REPO_LABELS_CACHE[repo] = names
+    return names
+
+
 def crawl_extra_labels(
     wallet_slug: str,
     config: dict,
@@ -801,7 +831,21 @@ def crawl_extra_labels(
         return False
 
     # --- Label-based crawl ---
-    for label in area_labels:
+    # Only query labels the repo actually defines (see existing_labels): an
+    # unknown label on the pulls endpoint returns EVERY closed PR, so skipping
+    # phantom labels is a correctness fix, not just an optimisation.
+    have = existing_labels(repo)
+    _seen_lc: set[str] = set()
+    wanted = []
+    for l in area_labels:                       # label match is case-insensitive
+        if l.lower() in have and l.lower() not in _seen_lc:
+            _seen_lc.add(l.lower()); wanted.append(l)
+    skipped = [l for l in area_labels if l.lower() not in have]
+    if skipped:
+        print(f"  [{wallet_slug}] extra_labels: {len(skipped)} label(s) not defined "
+              f"on {repo}, skipped: {', '.join(sorted(skipped)[:8])}"
+              + (" ..." if len(skipped) > 8 else ""), file=sys.stderr)
+    for label in wanted:
         if label in skip_labels:
             continue
 
@@ -809,9 +853,11 @@ def crawl_extra_labels(
             f"  [{wallet_slug}] extra_labels: fetching PRs with label={label!r}",
             file=sys.stderr,
         )
+        # ISSUES endpoint, not pulls: it is the one that honours `labels`.
+        # It returns issues *and* PRs; PR items carry a "pull_request" key.
         chunk = gh_json([
             "api",
-            f"repos/{repo}/pulls",
+            f"repos/{repo}/issues",
             "-X", "GET",
             "--paginate",
             "-f", "state=closed",
@@ -826,8 +872,12 @@ def crawl_extra_labels(
             time.sleep(1)
             continue
 
-        # Only keep merged PRs (merged_at non-null)
-        merged = [pr for pr in chunk if pr.get("merged_at")]
+        # Keep only PR items that were actually merged. The issues endpoint
+        # gives no merged_at, so the PR sub-object's URL is resolved lazily by
+        # _add_pr; here we filter to merged via the "pull_request.merged_at".
+        merged = [it for it in chunk
+                  if isinstance(it.get("pull_request"), dict)
+                  and it["pull_request"].get("merged_at")]
         print(
             f"  [{wallet_slug}] extra_labels: label={label!r} => "
             f"{len(merged)} merged PR(s)",
