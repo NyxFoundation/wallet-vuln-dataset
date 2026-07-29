@@ -34,3 +34,5 @@
 >>> [govuln] PY collection/crawl_govulncheck.py --wallet all --out-dir /home/gohan/workspace/wallet-vuln-dataset/scratchpad_crawl/supp
     [govuln] ok
 >>> [stealth] per-wallet over 181 repos: PY collection/mine_stealth_prs.py --wallet @WALLET --out-dir /home/gohan/workspace/wallet-vuln-dataset/scratchpad_crawl/supp --max-per-wallet 0
+    [stealth] 20/181 (ok=20 fail=0)
+    [stealth] 40/181 (ok=40 fail=0)

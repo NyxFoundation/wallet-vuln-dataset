@@ -100,6 +100,42 @@ Two guards now, both required:
 `tests/test_security_dataset.py` asserts the pulls endpoint never returns and
 that no single repo exceeds 25% of the corpus.
 
+## Measured yield per slice
+
+Numbers from the current build, so the cost of each stage is visible rather than
+assumed.
+
+| Slice | Raw rows | Notes |
+|---|---:|---|
+| repo advisories (GHSA) | 16 | across **all 181 repos**; 167 repos publish none |
+| advisory DBs (OSV/RustSec/govulncheck/NVD) | ~80 | skewed to npm — see below |
+| canonical PR/issue crawl | 5,299 | |
+| commit-grep | 29,277 | 22% survive de-noise + scoring |
+| release notes + changelogs | 2,169 | |
+| stealth PRs | ~830/repo | only **8%** score on title |
+
+**The advisory slice is 16 rows.** That single number is the argument for
+everything else in this directory.
+
+**Stealth PRs look wasteful and are not.** Only 8% of stealth rows score at all
+— dependabot PR bodies quote the security advisory of the dependency they bump,
+so a body-keyword search matches essentially every one of them. But measuring
+the overlap against commit-grep on the first 44 repos:
+
+| | rows | |
+|---|---:|---|
+| stealth scoring rows | 2,917 | |
+| **not already found by commit-grep** | **2,396** | **82%** |
+| duplicate of a commit row | 521 | 18% |
+
+So the two slices find *different* things: a squash-merged PR's title often
+differs from the commit subject, and merge commits carry no description at all.
+Examples recovered only by the stealth slice include `bitcoinjs-lib` "Stricter
+ecdsa RFC 6979 adherence" and `bitcoin-core` "ECDSA signature optimization and
+more DoS prevention". The low precision is absorbed by the gate (T2c drops the
+dependabot rows, the gate drops the unscored remainder); the cost is wall-clock,
+not corpus quality.
+
 ## Documentation
 
 [silent_fix_detection](./silent_fix_detection.md) · [limitations](./limitations.md)
