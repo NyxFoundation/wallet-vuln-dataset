@@ -51,6 +51,13 @@ from pathlib import Path
 
 import pandas as pd
 
+# The wallet threat vocabulary is shared with the crawlers so the gate looks
+# for exactly what the crawl went out to find (collection/wallet_vocab.py).
+import importlib.util as _ilu
+_VSPEC = _ilu.spec_from_file_location(
+    "_wallet_vocab", Path(__file__).resolve().parent.parent / "collection" / "wallet_vocab.py")
+_vocab = _ilu.module_from_spec(_VSPEC); _VSPEC.loader.exec_module(_vocab)  # type: ignore
+
 # --- T1: release-note / urgency boilerplate (not a fix) --------------------
 BOILERPLATE_RE = re.compile(
     r"critical update required"
@@ -93,19 +100,10 @@ NOISE_TITLE_RE = re.compile(
 # straight into the authoritative tier. Such a row has a *bare* CVE-id title.
 # It is kept only when its description actually names the wallet.
 BARE_CVE_TITLE_RE = re.compile(r"^\s*CVE-\d{4}-\d{3,7}\s*$", re.IGNORECASE)
-WALLET_CVE_IDENT: dict[str, str] = {
-    "geth":       r"go.?ethereum",
-    "besu":       r"\bbesu\b",
-    "nethermind": r"\bnethermind\b",
-    "erigon":     r"\berigon\b",
-    "reth":       r"paradigm|\brevm\b|reth\b.{0,30}(?:ethereum|execution)",
-    "lighthouse": r"\bsigp\b|lighthouse.{0,30}(?:ethereum|beacon|consensus|validator)",
-    "lodestar":   r"chainsafe|lodestar.{0,30}(?:ethereum|beacon|consensus)",
-    "nimbus":     r"nimbus.?eth|status.?im",
-    "prysm":      r"\bprysm\b",
-    "teku":       r"\bteku\b|consensys",
-    "grandine":   r"\bgrandine\b",
-}
+_ISPEC = _ilu.spec_from_file_location(
+    "_wallet_ident", Path(__file__).resolve().parent.parent / "collection" / "wallet_ident.py")
+_ident = _ilu.module_from_spec(_ISPEC); _ISPEC.loader.exec_module(_ident)  # type: ignore
+WALLET_CVE_IDENT: dict[str, str] = _ident.CVE_IDENT
 
 
 def _nvd_false_positive(title: str, description: str, platform: str) -> bool:
@@ -114,34 +112,37 @@ def _nvd_false_positive(title: str, description: str, platform: str) -> bool:
         return False
     pat = WALLET_CVE_IDENT.get(platform)
     if not pat:
-        return True
+        return True   # unknown platform: not a bare-CVE NVD import, leave it alone
     return re.search(pat, description or "", re.IGNORECASE) is None
 
-# Strong: words that almost always mean a security defect. Includes the
-# protocol-specific failure modes that generic CWE wordlists miss.
+# Strong: language that almost always means a custody defect. Built from the
+# shared vocabulary's decisive groups (key_material / signing / mpc / contract /
+# approval) rather than restated here, so the crawl and the gate cannot drift.
+_STRONG_GROUPS = ("key_material", "signing", "mpc", "contract", "approval", "supply_chain")
 STRONG_RE = re.compile(
-    r"\b(?:"
-    r"vulnerabilit(?:y|ies)|exploit|RCE|remote code exec(?:ution)?|arbitrary code"
-    r"|use.after.free|UAF|double.free|heap (?:overflow|corruption|spray)"
-    r"|stack (?:overflow|smash|corruption)|integer (?:overflow|underflow)|buffer overflow"
-    r"|out.of.bounds|OOB|null pointer deref|segfault|memory (?:corruption|safety)|unsound(?:ness)?"
-    r"|injection|deserializ|privilege escal|auth(?:entication)? bypass|access control"
-    r"|denial.of.service|DoS|OOM|resource exhaustion"
-    r"|consensus (?:failure|split|diverg)|finality (?:reversion|stall)|chain split"
-    r"|equivocation|long.range attack|eclipse attack|timing attack|replay attack"
-    r"|validator (?:slashing|key leak)|invalid block accept|state (?:divergence|corruption)"
-    r")\b",
+    "|".join(
+        (r"\b" if k[:1].isalnum() else "") + re.escape(k) + (r"\b" if k[-1:].isalnum() else "")
+        for g in _STRONG_GROUPS for k in _vocab.GROUPS[g]
+    )
+    # plus the classic severe-defect words, which mean the same thing anywhere
+    + r"|\b(?:vulnerabilit(?:y|ies)|exploit|RCE|remote code exec(?:ution)?"
+      r"|arbitrary code|use.after.free|double.free|heap (?:overflow|corruption)"
+      r"|buffer overflow|out.of.bounds|memory corruption|unsound(?:ness)?"
+      r"|privilege escal|auth(?:entication)? bypass|steal(?:ing)? funds"
+      r"|loss of funds|fund loss|drain(?:ed|ing)? (?:wallet|funds))\b",
     re.IGNORECASE,
 )
 
-# Moderate: bug-class words that are often, but not always, security relevant.
+# Moderate: bug-class language that is often, but not always, custody relevant
+# (a wallet UI crash is a crash; it is not usually a fund-loss bug).
+_MODERATE_GROUPS = ("transport", "ui_deception", "platform", "memory", "generic")
 MODERATE_RE = re.compile(
-    r"\b(?:"
-    r"panic|crash|hang|deadlock|livelock|race condition|data race|TOCTOU"
-    r"|memory leak|goroutine leak|fd leak|infinite loop|unbounded|amplification"
-    r"|reorg|nonce|underflow|assertion|invariant|divergence|malformed|untrusted"
-    r"|security|unsafe|sanitiz|validate|overflow"
-    r")\b",
+    "|".join(
+        (r"\b" if k[:1].isalnum() else "") + re.escape(k) + (r"\b" if k[-1:].isalnum() else "")
+        for g in _MODERATE_GROUPS for k in _vocab.GROUPS[g]
+    )
+    + r"|\b(?:hang|deadlock|livelock|data race|infinite loop|unbounded"
+      r"|assertion|malformed|untrusted|sanitiz|validate|underflow)\b",
     re.IGNORECASE,
 )
 
@@ -159,25 +160,20 @@ FIX_IMPACT_RE = re.compile(
     r"\b(?:fix|fixes|fixed|prevent|avoid|guard|handle|resolve|correct|patch)\w*"
     r"\b[^.\n]{0,40}\b(?:crash|panic|segfault|deadlock|hang|freeze|oom"
     r"|out.of.memory|overflow|underflow|data race|race condition|reorg"
-    r"|non.?determin|infinite loop|use.after.free|null (?:pointer|deref))\b"
+    r"|non.?determin|infinite loop|use.after.free|null (?:pointer|deref)|key leak|seed leak|signature replay|replay|nonce reuse|origin check|approval|allowance|phishing|spoof|bypass|leak)\b"
     r"|\b(?:crash|panic|segfault|deadlock|hang|oom|overflow|underflow|reorg"
     r"|race condition)\b[^.\n]{0,25}"
     r"\b(?:fix|fixed|prevent|avoid|guard against|resolved|patch)\w*\b",
     re.IGNORECASE,
 )
 
-# --- A2: security-sensitive code areas -------------------------------------
+# --- A2: custody-sensitive code areas --------------------------------------
 # A keyword hit *inside* one of these subsystems is a second, independent
-# signal — a "fix panic in fork_choice" stacks kw(panic)+path(fork_choice) and
-# is promoted out of the noisy single-keyword tier. Word-boundary matched so
-# dep-bumps like "path-to-regexp" don't false-match "p2p"/"trie".
+# signal — "fix panic in the keyring" stacks kw(panic)+path(keyring) and is
+# promoted out of the noisy single-keyword tier. Word-boundary matched so a
+# dep-bump like "path-to-regexp" cannot false-match a short path token.
 SENSITIVE_PATH_RE = re.compile(
-    r"\b(?:"
-    r"fork.?choice|state.?transition|epoch.?process|consensus|finality|reorg"
-    r"|slashing|attestation|sync.?committee|blob|kzg|c-kzg|4844|bls|blst|discv5"
-    r"|gossipsub|req.?resp|p2p|devp2p|rlpx|evm|opcode|precompile|trie|tx.?pool"
-    r"|mempool|signature|merkle|ssz|rlp|secp256|ecrecover|snap.?sync"
-    r")\b",
+    r"\b(?:" + "|".join(re.escape(p) for p in _vocab.SENSITIVE_PATHS) + r")\b",
     re.IGNORECASE,
 )
 

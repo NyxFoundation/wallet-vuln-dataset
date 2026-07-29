@@ -131,26 +131,17 @@ def extract_description(cve_item: dict) -> str:
 # when its description actually names the wallet via a distinctive identifier.
 import re as _re
 
-CLIENT_IDENT: dict[str, str] = {
-    "geth":       r"go.?ethereum",
-    "besu":       r"\bbesu\b",
-    "nethermind": r"\bnethermind\b",
-    "erigon":     r"\berigon\b",
-    "reth":       r"paradigm|\brevm\b|reth\b.{0,30}(?:ethereum|execution)",
-    "lighthouse": r"\bsigp\b|lighthouse.{0,30}(?:ethereum|beacon|consensus|validator)",
-    "lodestar":   r"chainsafe|lodestar.{0,30}(?:ethereum|beacon|consensus)",
-    "nimbus":     r"nimbus.?eth|status.?im",
-    "prysm":      r"\bprysm\b",
-    "teku":       r"\bteku\b|consensys",
-    "grandine":   r"\bgrandine\b",
-}
+import importlib.util as _ilu
+from pathlib import Path as _P
+_ISPEC = _ilu.spec_from_file_location("_wallet_ident", _P(__file__).resolve().parent / "wallet_ident.py")
+_ident = _ilu.module_from_spec(_ISPEC); _ISPEC.loader.exec_module(_ident)  # type: ignore
+CLIENT_IDENT: dict[str, str] = _ident.CVE_IDENT
 
 
 def _names_wallet(description: str, wallet_slug: str) -> bool:
-    pat = CLIENT_IDENT.get(wallet_slug)
-    if not pat:
-        return True
-    return _re.search(pat, description, _re.IGNORECASE) is not None
+    # Fails CLOSED for unknown slugs (see wallet_ident.names_wallet): a
+    # mislabelled CVE in the authoritative tier costs more than a miss.
+    return _ident.names_wallet(description, wallet_slug)
 
 
 def cve_to_row(vuln: dict, wallet_slug: str) -> dict | None:

@@ -53,54 +53,11 @@ from urllib.request import Request, urlopen
 # Design note: OSV uses the module path for Go packages (not just the repo),
 # which is why "github.com/ethereum/go-ethereum" and not "go-ethereum".
 
-CLIENT_PACKAGES: dict[str, list[tuple[str, str]]] = {
-    "geth": [
-        ("Go", "github.com/ethereum/go-ethereum"),
-    ],
-    "nethermind": [
-        # Nethermind is primarily C#; no Go/npm packages.  Coverage via NVD
-        # (crawl_cve.py) and GHSA (crawl_wallet_past_fixes.py).
-    ],
-    "besu": [
-        # Besu publishes to Maven Central.
-        ("Maven", "org.hyperledger.besu:besu"),
-        ("Maven", "org.hyperledger.besu:ethereum"),
-    ],
-    "erigon": [
-        ("Go", "github.com/ledgerwatch/erigon"),
-        # erigontech organisation fork
-        ("Go", "github.com/erigontech/erigon"),
-    ],
-    "reth": [
-        ("crates.io", "reth"),
-        ("crates.io", "reth-primitives"),
-    ],
-    "lighthouse": [
-        ("crates.io", "lighthouse"),
-        ("crates.io", "eth2_libp2p"),
-    ],
-    "lodestar": [
-        ("npm", "@chainsafe/lodestar"),
-        ("npm", "@chainsafe/ssz"),
-        ("npm", "@chainsafe/lodestar-beacon-state-transition"),
-    ],
-    "nimbus": [
-        # Nim has no OSV ecosystem.  Placeholder keeps the slug reachable via
-        # --wallet all without erroring; returns 0 rows.
-    ],
-    "prysm": [
-        ("Go", "github.com/prysmaticlabs/prysm"),
-        ("Go", "github.com/prysmaticlabs/prysm/v3"),
-        ("Go", "github.com/prysmaticlabs/prysm/v4"),
-        ("Go", "github.com/prysmaticlabs/prysm/v5"),
-    ],
-    "teku": [
-        ("Maven", "tech.pegasys.teku:teku"),
-    ],
-    "grandine": [
-        ("crates.io", "grandine"),
-    ],
-}
+import importlib.util as _ilu
+from pathlib import Path as _P
+_ISPEC = _ilu.spec_from_file_location("_wallet_ident", _P(__file__).resolve().parent / "wallet_ident.py")
+_ident = _ilu.module_from_spec(_ISPEC); _ISPEC.loader.exec_module(_ident)  # type: ignore
+CLIENT_PACKAGES: dict[str, list[tuple[str, str]]] = _ident.PACKAGES
 
 ALL_CLIENTS = list(CLIENT_PACKAGES)
 

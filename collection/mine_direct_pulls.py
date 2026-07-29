@@ -55,36 +55,27 @@ WALLET_REPOS: dict[str, str] = {s: c["repo"] for s, c in _wallets_mod.WALLET_CON
 # Security keyword lists
 # ---------------------------------------------------------------------------
 
-SECURITY_KEYWORDS: list[str] = [
-    "panic",
-    "overflow",
-    "crash",
-    "dos",
-    "oom",
-    "race condition",
-    "use-after-free",
-    "uaf",
-    "out-of-bounds",
-    "oob",
-    "memory leak",
-    "unsound",
-    "unsafe",
-    "invariant",
-    "divergence",
-    "assertion",
-    "nullpointer",
-    "indexoutofbounds",
-    "stackoverflow",
-    "deadlock",
-]
+import importlib.util as _ilu
+from pathlib import Path as _P
+_VSPEC = _ilu.spec_from_file_location("_wallet_vocab", _P(__file__).resolve().parent / "wallet_vocab.py")
+_vocab = _ilu.module_from_spec(_VSPEC); _VSPEC.loader.exec_module(_vocab)  # type: ignore
+_WSPEC2 = _ilu.spec_from_file_location("_wallets2", _P(__file__).resolve().parent / "wallets.py")
+_wal = _ilu.module_from_spec(_WSPEC2); _WSPEC2.loader.exec_module(_wal)  # type: ignore
+
+
+def _terms_for(slug: str) -> list[str]:
+    cfg = _wal.WALLET_CONFIG.get(slug, {})
+    return _vocab.search_terms(slug, cfg.get("category", ""), _wal.language_of(slug))
+
+import importlib.util as _ilu3
+from pathlib import Path as _P3
+_GSPEC = _ilu3.spec_from_file_location("_gh_rate", _P3(__file__).resolve().parent / "gh_rate.py")
+_ghr = _ilu3.module_from_spec(_GSPEC); _GSPEC.loader.exec_module(_ghr)  # type: ignore
+
+SECURITY_KEYWORDS: list[str] = list(_vocab._CORE_SEARCH_TERMS)
 
 # Java-specific terms that appear in teku/besu crash/bug PRs
-JAVA_KEYWORDS: list[str] = [
-    "throws",
-    "illegalstateexception",
-    "assertion failed",
-    "nullpointer",
-]
+JAVA_KEYWORDS: list[str] = _vocab._LANGUAGE_SEARCH_TERMS["java"]
 
 # Combined and lowercased for efficient matching
 _ALL_KEYWORDS: list[str] = list(dict.fromkeys(
@@ -159,7 +150,7 @@ def _fetch_pulls_page(repo: str, page: int) -> list[dict] | None:
         None on hard error (caller should log and continue).
     """
     try:
-        result = subprocess.run(
+        result = _ghr.run_gh(
             [
                 "gh", "api",
                 f"repos/{repo}/pulls",
@@ -168,8 +159,7 @@ def _fetch_pulls_page(repo: str, page: int) -> list[dict] | None:
                 "-f", "per_page=100",
                 "-f", f"page={page}",
             ],
-            capture_output=True, text=True, timeout=90,
-            encoding="utf-8", errors="replace",
+            timeout=90, resource="core", label=f"{repo} pulls p{page}",
         )
     except subprocess.TimeoutExpired:
         print(

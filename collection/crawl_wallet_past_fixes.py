@@ -65,6 +65,11 @@ _WSPEC = _ilu.spec_from_file_location("_wallets", Path(__file__).resolve().paren
 _wallets_mod = _ilu.module_from_spec(_WSPEC); _WSPEC.loader.exec_module(_wallets_mod)  # type: ignore
 WALLET_CONFIG: dict[str, dict] = _wallets_mod.WALLET_CONFIG
 
+import importlib.util as _ilu3
+from pathlib import Path as _P3
+_GSPEC = _ilu3.spec_from_file_location("_gh_rate", _P3(__file__).resolve().parent / "gh_rate.py")
+_ghr = _ilu3.module_from_spec(_GSPEC); _GSPEC.loader.exec_module(_ghr)  # type: ignore
+
 # GHSA `severity` is one of low/medium/high/critical. Map onto the
 # unified schema's `severity` (High/Medium/Low/Info). `critical`
 # collapses to `High` because the downstream parquet's enum doesn't
@@ -392,11 +397,14 @@ def gh_json(args: list[str], timeout: int = 120):
     failure modes (and how they're logged) match the repo's existing
     scrapers."""
     try:
-        result = subprocess.run(
-            ["gh", *args],
-            capture_output=True, text=True, timeout=timeout,
-            encoding="utf-8", errors="replace",
-        )
+        # `search` when the call is a search endpoint, else `core` — the two
+        # have independent quotas and very different reset windows.
+        _res = "search" if any("search" in str(a) for a in args) else "core"
+        result = _ghr.run_gh(["gh", *args], timeout=timeout, resource=_res,
+                             label=" ".join(str(a) for a in args[:3]))
+    except PermissionError as e:
+        print(f"  [fatal] gh auth failure: {e}", file=sys.stderr)
+        return None
     except (subprocess.TimeoutExpired, FileNotFoundError) as e:
         print(f"  [warn] gh failed: {e}", file=sys.stderr)
         return None

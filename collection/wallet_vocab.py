@@ -263,3 +263,62 @@ if __name__ == "__main__":
               "fix EIP-712 domain separator missing chainId allows signature replay",
               "update README"]:
         print(f"  {score(t)}  <- {t}")
+
+
+# --- search-term selection -------------------------------------------------
+# GitHub's search API is issued one query per term, so the full 266-keyword
+# vocabulary cannot be sent per repo (it would be ~266 queries × 157 repos and
+# would hit the secondary rate limit long before finishing). These are the
+# highest-yield terms: decisive custody language that a real fix commit message
+# actually contains, plus a category- and language-specific tail.
+#
+# Chosen for *commit-message* likelihood, not for completeness — a maintainer
+# silently fixing a key leak writes "clear the seed", not "key_material".
+_CORE_SEARCH_TERMS: list[str] = [
+    "security", "vulnerability", "CVE-", "exploit",
+    "private key", "seed", "mnemonic", "entropy", "keystore", "keyring",
+    "signature", "signing", "nonce", "replay",
+    "approval", "allowance", "phishing", "spoof",
+    "origin", "permission", "bypass", "leak",
+    "sanitize", "validate", "overflow", "crash",
+]
+
+_CATEGORY_SEARCH_TERMS: dict[str, list[str]] = {
+    "browser_extension": ["postMessage", "content script", "XSS", "provider", "dapp"],
+    "mobile":            ["deeplink", "webview", "keychain", "biometric", "backup"],
+    "desktop":           ["password", "encrypt", "storage", "RPC"],
+    "hardware_firmware": ["bootloader", "secure element", "PIN", "fault", "constant time"],
+    "smart_account":     ["reentrancy", "delegatecall", "initializer", "validateUserOp", "audit"],
+    "mpc_tss":           ["share", "DKG", "proof", "commitment", "biased"],
+    "wallet_sdk":        ["derivation", "BIP32", "encoding", "ECDSA", "prototype pollution"],
+    "node_wallet":       ["wallet", "RPC", "descriptor", "PSBT"],
+    "infra":             ["session", "pairing", "relay", "origin", "URI"],
+}
+
+_LANGUAGE_SEARCH_TERMS: dict[str, list[str]] = {
+    "c":        ["buffer overflow", "memcpy", "out of bounds"],
+    "cpp":      ["buffer overflow", "use after free", "uninitialized"],
+    "rust":     ["unwrap", "panic", "unsound", "RUSTSEC"],
+    "go":       ["panic", "nil pointer", "data race"],
+    "js":       ["prototype pollution", "XSS", "unsafe-eval"],
+    "python":   ["traceback", "eval", "pickle"],
+    "java":     ["IllegalStateException", "NullPointerException"],
+    "solidity": ["reentrancy", "unchecked", "invariant"],
+    "swift":    ["keychain", "crash"],
+    "kotlin":   ["keystore", "crash"],
+    "csharp":   ["NullReferenceException"],
+    "dart":     ["exception"],
+}
+
+
+def search_terms(slug: str, category: str = "", language: str = "") -> list[str]:
+    """Search terms for one repo: core custody language + category + language.
+
+    ~35 terms per repo rather than the full vocabulary — enough recall to find
+    silent fixes, few enough to survive GitHub's secondary rate limit across
+    157 repos.
+    """
+    terms = list(_CORE_SEARCH_TERMS)
+    terms += _CATEGORY_SEARCH_TERMS.get(category, [])
+    terms += _LANGUAGE_SEARCH_TERMS.get(language, [])
+    return list(dict.fromkeys(terms))

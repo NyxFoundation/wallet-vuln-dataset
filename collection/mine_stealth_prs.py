@@ -59,47 +59,37 @@ WALLET_REPOS: dict[str, str] = {s: c["repo"] for s, c in _wallets_mod.WALLET_CON
 # ---------------------------------------------------------------------------
 
 # General security keywords — searched in PR bodies for all wallets.
-GENERAL_KEYWORDS: list[str] = [
-    "panic",
-    "overflow",
-    "crash",
-    "DoS",
-    "OOM",
-    "race condition",
-    "use-after-free",
-    "UAF",
-    "out-of-bounds",
-    "OOB",
-    "memory leak",
-    "segfault",
-    "unsound",
-    "unsafe",
-    "invariant violation",
-    "consensus divergence",
-]
+import importlib.util as _ilu
+from pathlib import Path as _P
+_VSPEC = _ilu.spec_from_file_location("_wallet_vocab", _P(__file__).resolve().parent / "wallet_vocab.py")
+_vocab = _ilu.module_from_spec(_VSPEC); _VSPEC.loader.exec_module(_vocab)  # type: ignore
+_WSPEC2 = _ilu.spec_from_file_location("_wallets2", _P(__file__).resolve().parent / "wallets.py")
+_wal = _ilu.module_from_spec(_WSPEC2); _WSPEC2.loader.exec_module(_wal)  # type: ignore
+
+
+def _terms_for(slug: str) -> list[str]:
+    cfg = _wal.WALLET_CONFIG.get(slug, {})
+    return _vocab.search_terms(slug, cfg.get("category", ""), _wal.language_of(slug))
+
+import importlib.util as _ilu3
+from pathlib import Path as _P3
+_GSPEC = _ilu3.spec_from_file_location("_gh_rate", _P3(__file__).resolve().parent / "gh_rate.py")
+_ghr = _ilu3.module_from_spec(_GSPEC); _GSPEC.loader.exec_module(_ghr)  # type: ignore
+
+GENERAL_KEYWORDS: list[str] = list(_vocab._CORE_SEARCH_TERMS)
 
 # Language-specific keywords by wallet group (T20).
 # These are IN ADDITION to GENERAL_KEYWORDS for the matched wallets.
 LANG_SPECIFIC: dict[str, list[str]] = {
-    # Java: teku, besu
-    "teku":       ["throws", "IllegalStateException", "assertion failed"],
-    "besu":       ["throws", "IllegalStateException", "assertion failed"],
-    # Nim: nimbus
-    "nimbus":     ["defect", "accessViolation"],
-    # Rust: reth, lighthouse, grandine
-    "reth":       ["unwrap", "RUSTSEC-", "unsoundness"],
-    "lighthouse": ["unwrap", "RUSTSEC-", "unsoundness"],
-    "grandine":   ["unwrap", "RUSTSEC-", "unsoundness"],
+    s: _vocab._LANGUAGE_SEARCH_TERMS.get(_wal.language_of(s), [])
+    for s in _wal.WALLET_CONFIG
 }
 
 # Spec-term variants (T16 fix): each logical term maps to all surface forms
 # that appear in PR bodies.  All variants are queried independently and then
 # deduplicated.
-SPEC_TERM_VARIANTS: dict[str, list[str]] = {
-    "fork_choice":      ["fork_choice", "fork choice", "forkChoice", "ForkChoice"],
-    "sync_committee":   ["sync_committee", "sync committee", "syncCommittee"],
-    "state_transition": ["state_transition", "state transition", "stateTransition"],
-}
+# Wallet standards whose mis-implementation is itself the bug (BIP/SLIP/EIP).
+SPEC_TERM_VARIANTS: dict[str, list[str]] = _vocab.STANDARD_TERMS
 
 # Flattened: unique list of all spec surface forms.
 _SPEC_KEYWORDS: list[str] = [
@@ -111,13 +101,7 @@ _SPEC_KEYWORDS: list[str] = [
 # ---------------------------------------------------------------------------
 # Sensitive path patterns for path_hint metadata (T8)
 # ---------------------------------------------------------------------------
-SENSITIVE_PATHS: list[str] = [
-    "fork_choice", "fork choice", "state_transition", "epoch_processing",
-    "bls", "kzg", "discv5", "p2p", "req_resp", "gossipsub",
-    "evm", "precompile", "opcode", "trie", "tx_pool", "txpool",
-    "consensus", "finality", "reorg", "slashing",
-    "crypto", "signature", "merkle", "ssz",
-]
+SENSITIVE_PATHS: list[str] = _vocab.SENSITIVE_PATHS
 
 # ---------------------------------------------------------------------------
 # CSV schema
@@ -174,7 +158,7 @@ def _search_prs(repo: str, keyword: str, limit: int = 1000) -> list[dict]:
     and prints a warning to stderr.
     """
     try:
-        result = subprocess.run(
+        result = _ghr.run_gh(
             [
                 "gh", "search", "prs",
                 "--repo", repo,
@@ -184,8 +168,7 @@ def _search_prs(repo: str, keyword: str, limit: int = 1000) -> list[dict]:
                 "--limit", str(limit),
                 keyword,
             ],
-            capture_output=True, text=True, timeout=60,
-            encoding="utf-8", errors="replace",
+            timeout=60, resource="search", label=f"{repo} {keyword!r}",
         )
     except subprocess.TimeoutExpired:
         print(

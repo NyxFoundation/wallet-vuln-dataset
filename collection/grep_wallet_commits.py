@@ -73,18 +73,20 @@ CSV_FIELDS: tuple[str, ...] = _crawl.CSV_FIELDS
 # Search terms for `gh api search/commits`.  Each term is issued as a
 # separate query (repo:<slug> <term>) so we stay under the 1,000-result cap
 # per search API call and cast a wider net than a single compound query.
-SECURITY_TERMS: tuple[str, ...] = (
-    "security",
-    "vulnerability",
-    "CVE-",
-    "DoS",
-    "panic",
-    "crash",
-    "RCE",
-    "memory leak",
-    "integer overflow",
-    "race condition",
-)
+import importlib.util as _ilu
+from pathlib import Path as _P
+_VSPEC = _ilu.spec_from_file_location("_wallet_vocab", _P(__file__).resolve().parent / "wallet_vocab.py")
+_vocab = _ilu.module_from_spec(_VSPEC); _VSPEC.loader.exec_module(_vocab)  # type: ignore
+_WSPEC2 = _ilu.spec_from_file_location("_wallets2", _P(__file__).resolve().parent / "wallets.py")
+_wal = _ilu.module_from_spec(_WSPEC2); _WSPEC2.loader.exec_module(_wal)  # type: ignore
+
+
+def _terms_for(slug: str) -> list[str]:
+    cfg = _wal.WALLET_CONFIG.get(slug, {})
+    return _vocab.search_terms(slug, cfg.get("category", ""), _wal.language_of(slug))
+
+# Default term list; per-repo terms come from _terms_for(slug).
+SECURITY_TERMS: tuple[str, ...] = tuple(_vocab._CORE_SEARCH_TERMS)
 
 # Regex to infer severity from a commit subject line.  Matches
 # Critical/High/Medium/Low case-insensitively; defaults to "Info".
@@ -100,6 +102,11 @@ MAX_COMMITS_PER_TERM = 200
 # ---------------------------------------------------------------------------
 # Exceptions
 # ---------------------------------------------------------------------------
+
+import importlib.util as _ilu
+from pathlib import Path as _P
+_GSPEC = _ilu.spec_from_file_location("_gh_rate", _P(__file__).resolve().parent / "gh_rate.py")
+_ghr = _ilu.module_from_spec(_GSPEC); _GSPEC.loader.exec_module(_ghr)  # type: ignore
 
 class AuthError(Exception):
     """Raised when the GitHub API returns 401/403, indicating an auth
@@ -149,8 +156,10 @@ def search_commits(repo: str, term: str) -> list[dict]:
         Empty list on HTTP 422 (repo too large / unsupported) or other errors.
     """
     query = f"repo:{repo} {term}"
+    # Routed through gh_rate: a 403 from the 30/min search limit is expected at
+    # 157-repo scale and must be waited out, not treated as an auth failure.
     try:
-        result = subprocess.run(
+        result = _ghr.run_gh(
             [
                 "gh", "api", "-X", "GET", "search/commits",
                 "-f", f"q={query}",
@@ -158,9 +167,10 @@ def search_commits(repo: str, term: str) -> list[dict]:
                 "--paginate",
                 "-H", "Accept: application/vnd.github.cloak-preview+json",
             ],
-            capture_output=True, text=True, timeout=120,
-            encoding="utf-8", errors="replace",
+            timeout=120, resource="search", label=f"{repo} {term!r}",
         )
+    except PermissionError as exc:
+        raise AuthError(f"GitHub auth failure on {repo} for term {term!r}: {exc}") from exc
     except (subprocess.TimeoutExpired, FileNotFoundError) as exc:
         print(f"  [warn] gh failed for term {term!r}: {exc}", file=sys.stderr)
         return []
@@ -169,8 +179,10 @@ def search_commits(repo: str, term: str) -> list[dict]:
         msg = (result.stderr or "").strip()[:300]
         status = _extract_http_status(result.stderr or "")
 
-        if status in (401, 403):
+        if status == 401:
             # Auth failure — raise so the caller can abort all subsequent wallets.
+            # (403 is handled by gh_rate above: rate-limit 403s are waited out
+            # and only genuine auth 403s reach here as PermissionError.)
             raise AuthError(
                 f"GitHub API returned HTTP {status} for term {term!r} on {repo}: {msg}"
             )
@@ -218,19 +230,26 @@ def search_commits(repo: str, term: str) -> list[dict]:
     return items[:MAX_COMMITS_PER_TERM]
 
 
-def fetch_security_commits(repo: str) -> list[dict]:
-    """Iterate SECURITY_TERMS, search commits for each, deduplicate by SHA.
+def fetch_security_commits(repo: str, terms: list[str] | None = None) -> list[dict]:
+    """Iterate the search terms, search commits for each, deduplicate by SHA.
+
+    `terms` defaults to the core custody vocabulary; callers pass the per-repo
+    list from `_terms_for(slug)` so a hardware-firmware repo searches for
+    "bootloader"/"constant time" while a JS SDK searches for "prototype
+    pollution"/"XSS". Using one global list across 157 heterogeneous repos was
+    the single biggest recall loss in the ported design.
 
     A 2-second sleep between terms keeps us well under the search/commits
     rate limit of 30 req/min for authenticated users (2s/call = 30 calls/min
     exactly at the limit; sleeping ensures we stay under it).
     """
+    terms = list(terms or SECURITY_TERMS)
     seen_sha: set[str] = set()
     all_commits: list[dict] = []
 
-    for i, term in enumerate(SECURITY_TERMS, 1):
+    for i, term in enumerate(terms, 1):
         print(
-            f"  [{repo}] term {i}/{len(SECURITY_TERMS)}: {term!r} ...",
+            f"  [{repo}] term {i}/{len(terms)}: {term!r} ...",
             file=sys.stderr,
         )
         commits = search_commits(repo, term)
@@ -242,7 +261,7 @@ def fetch_security_commits(repo: str) -> list[dict]:
                 all_commits.append(c)
                 new_count += 1
         print(
-            f"  [{repo}] term {i}/{len(SECURITY_TERMS)}: {term!r} -> "
+            f"  [{repo}] term {i}/{len(terms)}: {term!r} -> "
             f"{len(commits)} hits, {new_count} new (total {len(all_commits)})",
             file=sys.stderr,
         )
@@ -410,9 +429,10 @@ def crawl_and_write(
 ) -> int:
     """Top-level: crawl, write CSV + manifest, return row count."""
     repo = WALLET_CONFIG[wallet_slug]["repo"]
+    terms = _terms_for(wallet_slug)
     print(
         f"[{wallet_slug}] searching commits on {repo} "
-        f"({len(SECURITY_TERMS)} terms) ...",
+        f"({len(terms)} terms) ...",
         file=sys.stderr,
     )
 
@@ -422,7 +442,7 @@ def crawl_and_write(
     # We need raw commit count for the manifest; re-implement the crawl here
     # so we can capture the intermediate count before max_records truncation.
     def _capturing_fetcher(r: str) -> list[dict]:
-        commits = fetch_security_commits(r)
+        commits = fetch_security_commits(r, terms)
         raw_commits.extend(commits)
         return commits
 
@@ -439,7 +459,7 @@ def crawl_and_write(
         manifest_path,
         wallet=wallet_slug,
         repo=repo,
-        n_search_terms=len(SECURITY_TERMS),
+        n_search_terms=len(terms),
         n_commits_searched=len(raw_commits),
         n_rows=n,
         crawled_at=crawled_at,
