@@ -447,3 +447,23 @@ def test_standards_terms_are_wallet_standards():
     keys = set(mod.SPEC_TERMS)
     assert {"bip39", "bip32", "eip712", "eip4337", "slip10"} <= keys, sorted(keys)
     assert not ({"fork_choice", "sync_committee", "epoch_processing"} & keys)
+
+
+def test_direct_pulls_filter_is_boundary_anchored():
+    """Third place the substring-matching bug appeared.
+
+    `any(kw in text ...)` let "sign" fire on "design"/"assign" and "seed" on
+    "seeded". All three keyword call sites now go through vocab.matches().
+    """
+    src = (ROOT / "collection/mine_direct_pulls.py").read_text()
+    assert "any(kw in text for kw in _ALL_KEYWORDS)" not in src
+    assert "_vocab.matches(text, _ALL_KEYWORDS)" in src
+
+
+@pytest.mark.parametrize("text,should_match", [
+    ("redesign the assign flow", False),      # design/assign must not fire "sign"
+    ("seeded random for tests", False),       # "seeded" must not fire "seed"
+    ("improve sensitive data lifetime in memory for BIP-39 seed", True),
+])
+def test_boundary_matching_across_call_sites(text, should_match):
+    assert bool(vocab.matches(text, vocab._CORE_SEARCH_TERMS)) is should_match

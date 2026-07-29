@@ -105,10 +105,11 @@ def is_security_relevant(pr: dict) -> bool:
     Case-insensitive. Checks both general security terms and Java-specific
     crash signatures (IllegalStateException, throws, assertion failed).
     """
-    title = (pr.get("title") or "").lower()
-    body = (pr.get("body") or "")[:1000].lower()
-    text = title + " " + body
-    return any(kw in text for kw in _ALL_KEYWORDS)
+    # Word-boundary matched via the shared vocabulary. Bare `in` matching made
+    # "sign" fire on "design"/"assign" and "seed" on "seeded", so PRs like
+    # "Add Uint8Array support" came back flagged security-relevant.
+    text = (pr.get("title") or "") + " " + (pr.get("body") or "")[:1000]
+    return bool(_vocab.matches(text, _ALL_KEYWORDS))
 
 
 # ---------------------------------------------------------------------------
