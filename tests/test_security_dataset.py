@@ -247,7 +247,17 @@ def test_real_fixes_survive_the_dep_bump_rule(title):
     assert not gate.DEP_BUMP_RE.search(title), title
 
 
-def test_advisory_citing_bump_is_kept():
-    """"Bump h2 for RUSTSEC-2024-0332" IS a security fix and must survive."""
-    t = "Bump h2 for RUSTSEC-2024-0332"
-    assert gate.DEP_BUMP_RE.search(t) and gate.ADVISORY_ID_RE.search(t)
+def _t2c_drops(title: str) -> bool:
+    """The actual T2c decision: bump-shaped AND not citing an advisory id."""
+    return bool(gate.DEP_BUMP_RE.search(title)) and not bool(
+        gate.ADVISORY_ID_RE.search(title))
+
+
+@pytest.mark.parametrize("title", [
+    "Bump h2 for RUSTSEC-2024-0332",
+    "bump: postcss to resolve CVE-2023-44270",
+    "Bump golang.org/x/crypto from 0.16.0 to 0.17.0 for CVE-2023-48795",
+])
+def test_advisory_citing_bumps_are_kept(title):
+    """A bump that cites an advisory id IS a security fix and must survive."""
+    assert not _t2c_drops(title), title

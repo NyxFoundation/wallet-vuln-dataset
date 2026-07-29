@@ -13,3 +13,4 @@
 >>> [ghsa] PY collection/crawl_ghsa_advisories.py --wallet all --out-dir /home/gohan/workspace/wallet-vuln-dataset/scratchpad_crawl/canonical
     [ghsa] ok
 >>> [commits] per-wallet over 181 repos: PY collection/grep_wallet_commits.py --wallet @WALLET --out-dir /home/gohan/workspace/wallet-vuln-dataset/scratchpad_crawl/supp --max-records 0
+    [commits] 20/181 (ok=20 fail=0)
