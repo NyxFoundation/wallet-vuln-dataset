@@ -17,13 +17,29 @@ retargeted from a *protocol* threat model to a **custody** threat model.
 
 Ethereum clients silently patch ~98–100% of their vulnerabilities. Wallets are
 **worse**: a wallet does not run a network, it ships an app-store update — so there is
-usually no advisory, no CVE, and no release note admitting a fix. Counting wallet CVEs
-undercounts the real fix population by roughly two orders of magnitude.
+usually no advisory, no CVE, and no release note admitting a fix.
+
+That is not a hunch. Crawling the published GitHub Security Advisories of all 181
+repositories in this registry returns:
+
+| | |
+|---|---:|
+| repositories crawled | 181 |
+| **published advisories across all of them** | **16** |
+| repositories with **zero** advisories | **167 (92%)** |
+| security-relevant PR/issue rows from the same repos | 5,299 |
+| ratio, non-advisory : advisory | **331 : 1** |
+
+An advisory-anchored wallet vulnerability dataset would have **sixteen rows**. Sixteen,
+for the software holding hundreds of billions of dollars. Every advisory that does exist
+belongs to an npm library or a US-based company — because npm publishes GHSAs when
+downstream consumers run `npm audit`, and because those companies have disclosure
+policies. Hardware wallets, mobile wallets and non-US projects contribute **none**.
 
 So CVE/GHSA is used here only as the **spine** that calibrates the crawl. The corpus
 itself is recovered from commit history: keyword-gated commit grep, unlabelled
 ("stealth") PRs touching custody-sensitive paths, and an LLM silent-fix classifier over
-the diff.
+the diff. Method: [`docs/silent_fix_detection.md`](docs/silent_fix_detection.md).
 
 ## Scope
 
