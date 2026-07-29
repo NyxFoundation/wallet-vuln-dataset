@@ -224,7 +224,7 @@ def _pr_to_row(pr: dict, wallet_slug: str) -> dict | None:
     }
 
 
-def mine_client(
+def mine_wallet(
     wallet_slug: str,
     *,
     max_pages: int | None = None,
@@ -374,7 +374,7 @@ def mine_and_write(
 ) -> int:
     """Top-level: mine, write CSV + manifest, return row count."""
     repo = WALLET_REPOS[wallet_slug]
-    rows = mine_client(wallet_slug, max_pages=max_pages)
+    rows = mine_wallet(wallet_slug, max_pages=max_pages)
 
     csv_path = out_dir / f"{wallet_slug}.direct_prs.csv"
     manifest_path = out_dir / f"{wallet_slug}.direct_prs_manifest.json"

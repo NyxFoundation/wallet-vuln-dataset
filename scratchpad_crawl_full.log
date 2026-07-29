@@ -15,3 +15,9 @@
 >>> [commits] per-wallet over 181 repos: PY collection/grep_wallet_commits.py --wallet @WALLET --out-dir /home/gohan/workspace/wallet-vuln-dataset/scratchpad_crawl/supp --max-records 0
     [commits] 20/181 (ok=20 fail=0)
     [commits] 40/181 (ok=40 fail=0)
+    [commits] 60/181 (ok=60 fail=0)
+    [commits] 80/181 (ok=80 fail=0)
+    [commits] 100/181 (ok=100 fail=0)
+    [commits] 120/181 (ok=120 fail=0)
+    [commits] 140/181 (ok=140 fail=0)
+    [commits] 160/181 (ok=160 fail=0)

@@ -310,3 +310,34 @@ def test_build_integrity_work_survives(title):
 ])
 def test_real_fixes_survive_meta_prefix_rule(title):
     assert not _t2d_drops(title), title
+
+
+# ---------------------------------------------------------------------------
+# Regression: SENSITIVE_PATHS tokens must not be noise
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("text", [
+    "Bump sha.js from 2.4.11 to 2.4.12 package-lock.json",
+    "Bump secp256k1 from 4.0.3 to 4.0.4",
+    "docs: enhance fallback handler documentation in Safe.sol",
+])
+def test_sensitive_paths_do_not_fire_on_noise(text):
+    """"se" fired on "Safe.sol" and "lock" on "package-lock.json".
+
+    SENSITIVE_PATHS feeds the gate's corroborating signal, so noisy tokens
+    inflated n_signals corpus-wide and pushed ordinary rows into the
+    corroborated tier.
+    """
+    assert vocab.matches(text, vocab.SENSITIVE_PATHS) == [], text
+
+
+def test_sensitive_paths_still_fire_on_custody_code():
+    got = vocab.matches("fix: clear the seed from the keyring vault on unlock",
+                        vocab.SENSITIVE_PATHS)
+    assert {"seed", "keyring", "vault", "unlock"} <= set(got), got
+
+
+def test_no_ultrashort_sensitive_path_tokens():
+    """Tokens under 4 chars are almost always noise once anchored."""
+    tiny = [p for p in vocab.SENSITIVE_PATHS if len(p) < 4]
+    assert not tiny, f"ambiguous short path tokens: {tiny}"

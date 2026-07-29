@@ -210,7 +210,7 @@ def _search_prs(repo: str, keyword: str, limit: int = 1000) -> list[dict]:
 # Per-wallet mining
 # ---------------------------------------------------------------------------
 
-def _keywords_for_client(wallet_slug: str) -> list[str]:
+def _keywords_for_wallet(wallet_slug: str) -> list[str]:
     """Return the full ordered keyword list for a wallet (general + lang-specific
     + spec variants).  Preserves insertion order; caller deduplicates results."""
     kws: list[str] = list(GENERAL_KEYWORDS)
@@ -221,8 +221,11 @@ def _keywords_for_client(wallet_slug: str) -> list[str]:
 
 def _compute_path_hint(title: str, body: str) -> str:
     """Scan title + body for SENSITIVE_PATHS terms; return comma-separated matches."""
-    text = (title + " " + body).lower()
-    matched = [term for term in SENSITIVE_PATHS if term.lower() in text]
+    # Word-boundary matched via the shared vocabulary. Bare `in` matching made
+    # "se" fire on "Safe.sol" and "lock" on "package-lock.json", so a dependency
+    # bump came back tagged "crypto,se,lock".
+    text = title + " " + body
+    matched = _vocab.matches(text, SENSITIVE_PATHS)
     # Deduplicate while preserving first-seen order
     seen: set[str] = set()
     unique: list[str] = []
@@ -256,10 +259,10 @@ def _pr_to_row(pr: dict, wallet_slug: str) -> dict | None:
     }
 
 
-def mine_client(
+def mine_wallet(
     wallet_slug: str,
     *,
-    max_per_client: int | None = None,
+    max_per_wallet: int | None = None,
     sleep_between: float = 2.0,
 ) -> list[dict]:
     """Mine stealth PRs for one wallet.  Returns a deduplicated list of row
@@ -268,14 +271,14 @@ def mine_client(
     Deduplication key is (repo, PR number) — the same PR can hit multiple
     keywords, but only the first occurrence is kept.
 
-    If max_per_client is set, collection stops once the cap is reached
+    If max_per_wallet is set, collection stops once the cap is reached
     (across all keywords, after deduplication).
     """
     if wallet_slug not in WALLET_REPOS:
         sys.exit(f"unknown wallet {wallet_slug!r}; known: {sorted(WALLET_REPOS)}")
 
     repo = WALLET_REPOS[wallet_slug]
-    keywords = _keywords_for_client(wallet_slug)
+    keywords = _keywords_for_wallet(wallet_slug)
     print(
         f"[{wallet_slug}] mining {len(keywords)} keywords on {repo}…",
         file=sys.stderr,
@@ -304,9 +307,9 @@ def mine_client(
                 continue
             rows.append(row)
             new_count += 1
-            if max_per_client and len(rows) >= max_per_client:
+            if max_per_wallet and len(rows) >= max_per_wallet:
                 print(
-                    f"  [{wallet_slug}] hit max-per-wallet cap ({max_per_client}); stopping",
+                    f"  [{wallet_slug}] hit max-per-wallet cap ({max_per_wallet}); stopping",
                     file=sys.stderr,
                 )
                 return rows
@@ -375,12 +378,12 @@ def mine_and_write(
     wallet_slug: str,
     out_dir: Path,
     *,
-    max_per_client: int | None = None,
+    max_per_wallet: int | None = None,
 ) -> int:
     """Top-level: mine, write CSV + manifest, return row count."""
     repo = WALLET_REPOS[wallet_slug]
-    keywords = _keywords_for_client(wallet_slug)
-    rows = mine_client(wallet_slug, max_per_client=max_per_client)
+    keywords = _keywords_for_wallet(wallet_slug)
+    rows = mine_wallet(wallet_slug, max_per_wallet=max_per_wallet)
 
     csv_path = out_dir / f"{wallet_slug}.stealth_prs.csv"
     manifest_path = out_dir / f"{wallet_slug}.stealth_prs_manifest.json"
@@ -570,10 +573,10 @@ def main() -> int:
             )
         wallets = [args.wallet]
 
-    cap = args.max_per_client or None
+    cap = args.max_per_wallet or None
     total = 0
     for c in wallets:
-        total += mine_and_write(c, out_dir, max_per_client=cap)
+        total += mine_and_write(c, out_dir, max_per_wallet=cap)
 
     print(
         f"done — {total} stealth PR rows across {len(wallets)} wallet(s)",

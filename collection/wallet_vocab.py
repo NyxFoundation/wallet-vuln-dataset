@@ -223,15 +223,21 @@ def matches(text: str, keywords: list[str]) -> list[str]:
 # --- paths whose modification is custody-sensitive -------------------------
 # Used as a corroborating signal: a fix touching one of these is far more
 # likely to be a real vulnerability than the same words in a README.
+# NOTE: every token here must survive word-boundary matching WITHOUT being
+# noise. Earlier drafts included "se" (secure element), "tx" and "lock"; those
+# fired on "Safe.sol", "package-lock.json" and almost any diff, and because
+# this list also feeds the gate's SENSITIVE_PATH_RE corroborating signal, they
+# inflated n_signals corpus-wide and pushed ordinary rows into the corroborated
+# tier. Prefer a longer, unambiguous token over a short one.
 SENSITIVE_PATHS: list[str] = [
     "keyring", "keystore", "keychain", "vault", "seed", "mnemonic", "bip39",
-    "bip32", "hdkey", "derivation", "entropy", "random", "crypto", "cipher",
+    "bip32", "hdkey", "derivation", "entropy", "csprng", "crypto", "cipher",
     "encrypt", "decrypt", "signer", "signing", "signature", "sign",
-    "transaction", "tx", "psbt", "approve", "allowance", "permission",
-    "provider", "rpc", "session", "pairing", "connect", "deeplink",
-    "webview", "content-script", "background", "permissions", "origin",
-    "secure_element", "se", "bootloader", "firmware", "applet",
-    "account", "wallet", "auth", "password", "unlock", "lock",
+    "transaction", "psbt", "approve", "allowance", "permission", "permissions",
+    "provider", "session", "pairing", "deeplink", "webview",
+    "content-script", "origin", "secure element", "secure_element",
+    "bootloader", "firmware", "applet", "passkey", "webauthn",
+    "account", "wallet", "auth", "password", "unlock", "auto-lock",
     "phishing", "blocklist", "allowlist",
 ]
 
