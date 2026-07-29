@@ -99,6 +99,38 @@ NOISE_TITLE_RE = re.compile(
 # gadget CVEs), dumping unrelated advisories (glibc, X.Org, Samba, Linux USB)
 # straight into the authoritative tier. Such a row has a *bare* CVE-id title.
 # It is kept only when its description actually names the wallet.
+# --- T2c: dependency bumps that LOOK like custody fixes ---------------------
+# Unique to the wallet domain. The client build's T2 lets a row escape the
+# CI/docs/dep-bump filter when it carries "strong vuln language", which is
+# correct there: "fork choice" never appears in a package name.
+#
+# Here it backfires badly. Wallet packages are NAMED after custody concepts —
+# `eth-hd-keyring`, `@metamask/keyring-api`, `@scure/bip39`, `eth-simple-keyring`
+# — so "Bump @metamask/eth-simple-keyring from 6.0.0 to 6.0.1" matches the
+# key_material vocabulary and is protected from the very filter meant to drop
+# it. Left alone this floods the corpus with routine version bumps presented as
+# key-material fixes.
+#
+# So a version bump is decided on the SHAPE of the title, not its words, and it
+# overrides keyword protection. The one legitimate exception is a bump that
+# cites an advisory id ("Bump h2 for RUSTSEC-2024-0332") — that really is a
+# security fix, and it is still protected below.
+DEP_BUMP_RE = re.compile(
+    r"^\s*(?:chore|deps?|build|ci|fix|feat)?\s*(?:\([^)]*\))?\s*:?\s*"
+    r"(?:bump|upgrade|update)\b[^\n]{0,80}?"
+    r"(?:\bfrom\s+v?\d|\bto\s+v?\d|@[\^~]?\d|\bv?\d+\.\d+)"
+    r"|^\s*(?:deps|dependencies|dependabot|renovate)\b\s*[:\[]"
+    r"|@[\w.@/-]+@[\^~]?\d[\w.-]*\s*(?:->|→|to)\s*[\^~]?\d"
+    r"|^\s*bump\b[^\n]{0,60}\bversion\b"
+    # "chore: update eth-simple-keyring" — no version number, but the object is
+    # a package identifier (scoped, slashed, or hyphenated single token), which
+    # a prose description of a code change never is. Requiring that shape keeps
+    # "chore: update validation logic" out of this rule.
+    r"|^\s*(?:chore|deps?|build|ci)\s*(?:\([^)]*\))?\s*:\s*"
+    r"(?:update|upgrade|bump)\s+`?[@\w][\w.@/-]*[-/@][\w.@/-]*`?\s*(?:\(#\d+\))?\s*$",
+    re.IGNORECASE,
+)
+
 BARE_CVE_TITLE_RE = re.compile(r"^\s*CVE-\d{4}-\d{3,7}\s*$", re.IGNORECASE)
 _ISPEC = _ilu.spec_from_file_location(
     "_wallet_ident", Path(__file__).resolve().parent.parent / "collection" / "wallet_ident.py")
@@ -305,6 +337,15 @@ def build(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     t2_mask = noise_mask & ~protect
     t2_dropped = df[t2_mask]
     df = df[~t2_mask].copy()
+
+    # T2c — version bumps whose PACKAGE NAME carries custody vocabulary.
+    # Decided on title shape, so keyword protection cannot rescue them; only a
+    # cited advisory id can (a bump that fixes a known CVE is a real fix).
+    title2 = df["title"].fillna("")
+    blob2 = title2 + " " + df["description"].fillna("")
+    t2c_mask = title2.str.contains(DEP_BUMP_RE) & ~blob2.str.contains(ADVISORY_ID_RE)
+    t2c_dropped = df[t2c_mask]
+    df = df[~t2c_mask].copy()
 
     # T2b — drop NVD substring-match false positives (unrelated CVEs)
     t2b_mask = pd.Series(

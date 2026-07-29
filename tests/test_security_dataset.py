@@ -210,3 +210,44 @@ def test_curated_is_subset_of_raw(df):
     raw = pd.read_parquet(RAW)
     assert len(df) < len(raw)
     assert set(df["id"]) <= set(raw["id"])
+
+
+# ---------------------------------------------------------------------------
+# Regression: T2c — dep bumps whose PACKAGE NAME is custody vocabulary
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("title", [
+    "Bump @metamask/eth-simple-keyring from 6.0.0 to 6.0.1 (#288)",
+    "deps: @metamask/eth-hd-keyring@^6.0.0->^7.0.1 (#275)",
+    "chore: bump `@metamask/keyring-api` to ^3.0.0 (#344)",
+    "chore: update eth-simple-keyring (#171)",
+    "deps: bump @scure/bip39 to 1.2.0",
+])
+def test_dependency_bumps_are_dropped(title):
+    """Wallet packages are NAMED after custody concepts.
+
+    "keyring", "bip39" and "seed" appear in package names, so a routine version
+    bump matches the key_material vocabulary and gets protected by the very
+    filter meant to drop it. T2c decides on title SHAPE and overrides keyword
+    protection.
+    """
+    assert gate.DEP_BUMP_RE.search(title), title
+    assert not gate.ADVISORY_ID_RE.search(title)
+
+
+@pytest.mark.parametrize("title", [
+    "Validate seed across all wordlists (#77)",
+    "do not allow re-initialization of keyring instance (#55)",
+    "Convert private key to hex string before concatenation",
+    "integrate MM @scure/bip39 fork once released (#67)",
+    "chore: update validation logic",
+    "fix: update keyring unlock to clear the seed",
+])
+def test_real_fixes_survive_the_dep_bump_rule(title):
+    assert not gate.DEP_BUMP_RE.search(title), title
+
+
+def test_advisory_citing_bump_is_kept():
+    """"Bump h2 for RUSTSEC-2024-0332" IS a security fix and must survive."""
+    t = "Bump h2 for RUSTSEC-2024-0332"
+    assert gate.DEP_BUMP_RE.search(t) and gate.ADVISORY_ID_RE.search(t)
