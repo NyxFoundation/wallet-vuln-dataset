@@ -494,3 +494,49 @@ def test_direct_pulls_filter_is_boundary_anchored():
 ])
 def test_boundary_matching_across_call_sites(text, should_match):
     assert bool(vocab.matches(text, vocab._CORE_SEARCH_TERMS)) is should_match
+
+
+# ---------------------------------------------------------------------------
+# Regression: EVERY per-crawler domain list must be registry-derived
+# ---------------------------------------------------------------------------
+# This bug class recurred four times because each crawler carries its own list
+# and they serve different roles — what to match, where to search, what to
+# iterate. Fixing one and testing only that one gave false confidence twice.
+# This table enumerates all of them.
+
+CRAWLER_LISTS = [
+    ("collection/crawl_wallet_past_fixes.py", "WALLET_CONFIG"),
+    ("collection/local_diffs.py",              "WALLET_REPOS"),
+    ("collection/mine_stealth_prs.py",         "WALLET_REPOS"),
+    ("collection/mine_direct_pulls.py",        "WALLET_REPOS"),
+    ("collection/crawl_ghsa_advisories.py",    "WALLET_REPOS"),
+    ("collection/crawl_cross_wallet.py",       "WALLET_REPOS"),
+    ("collection/crawl_cross_wallet.py",       "CLIENT_NAMES"),
+    ("collection/crawl_standards_divergence.py", "CLIENT_PATTERNS"),
+    ("collection/crawl_cve.py",                "CLIENT_KEYWORDS"),
+    ("collection/crawl_cve.py",                "CLIENT_IDENT"),
+    ("collection/crawl_osv.py",                "CLIENT_PACKAGES"),
+    ("collection/crawl_rustsec.py",            "RUST_CLIENT_CRATES"),
+    ("collection/crawl_govulncheck.py",        "GO_MODULES"),
+]
+
+
+@pytest.mark.parametrize("module,attr", CRAWLER_LISTS)
+def test_every_crawler_list_is_registry_derived(module, attr):
+    """No crawler may key a domain list on anything outside the registry.
+
+    crawl_cve.CLIENT_KEYWORDS was the fourth instance found: it held the 11
+    Ethereum clients AND decided which wallets `--wallet all` iterates, so the
+    NVD stage queried geth/besu/teku and wrote zero rows for every real wallet.
+    """
+    mod = _load(module.split("/")[-1][:-3] + "_" + attr.lower(), module)
+    keys = set(getattr(mod, attr))
+    stray = keys - set(wallets.WALLET_CONFIG)
+    assert not stray, f"{module}::{attr} has non-registry keys: {sorted(stray)[:8]}"
+    assert not (ETH_CLIENT_SLUGS & keys)
+
+
+def test_cve_stage_iterates_the_whole_registry():
+    """--wallet all must cover all 181 repos, not a subset."""
+    mod = _load("crawl_cve_iter", "collection/crawl_cve.py")
+    assert len(mod.CLIENT_KEYWORDS) == len(wallets.WALLET_CONFIG)

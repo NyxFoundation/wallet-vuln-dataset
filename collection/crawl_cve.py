@@ -29,18 +29,35 @@ from urllib.request import Request, urlopen
 from urllib.error import URLError
 from urllib.parse import urlencode
 
+import importlib.util as _iluc
+from pathlib import Path as _Pc
+_WSC = _iluc.spec_from_file_location("_wallets", _Pc(__file__).resolve().parent / "wallets.py")
+_wal = _iluc.module_from_spec(_WSC); _WSC.loader.exec_module(_wal)  # type: ignore
+
+# NVD search keywords per wallet — the THIRD per-crawler list of this kind
+# (after CLIENT_NAMES = what to match, and WALLET_REPOS = where to search).
+# It also determines which wallets `--wallet all` iterates, so while it held
+# the 11 Ethereum clients the NVD stage queried geth/besu/teku and wrote zero
+# rows for every actual wallet.
+#
+# Keywords are the product name as NVD would phrase it, derived from the repo
+# name and owner. Ambiguity is handled downstream: wallet_ident.names_wallet()
+# requires the advisory description to name the wallet before a bare-CVE row is
+# accepted, which is what stops "safe"/"frame"/"edge" matching everything.
+def _nvd_keywords(slug: str) -> list[str]:
+    owner, name = _wal.WALLET_CONFIG[slug]["repo"].split("/", 1)
+    name_l, owner_l = name.lower(), owner.lower()
+    cands = {
+        slug.replace("-", " "),
+        name_l.replace("-", " "),
+        f"{owner_l} {name_l}".replace("-", " "),
+    }
+    # NVD keyword search needs >=3 chars to be useful
+    return sorted(c for c in cands if len(c) >= 4)
+
+
 CLIENT_KEYWORDS: dict[str, list[str]] = {
-    "geth":       ["go-ethereum", "go ethereum", "geth"],
-    "nethermind": ["nethermind"],
-    "besu":       ["hyperledger besu", "besu"],
-    "erigon":     ["erigon"],
-    "reth":       ["reth paradigm", "reth ethereum"],
-    "lighthouse": ["lighthouse sigma prime", "sigp lighthouse"],
-    "lodestar":   ["lodestar chainsafe", "chainsafe lodestar"],
-    "nimbus":     ["nimbus-eth2", "nimbus eth2", "status nimbus"],
-    "prysm":      ["prysm prysmatic", "prysmatic prysm"],
-    "teku":       ["teku consensys", "consensys teku"],
-    "grandine":   ["grandine"],
+    s: _nvd_keywords(s) for s in _wal.WALLET_CONFIG
 }
 
 NVD_BASE = "https://services.nvd.nist.gov/rest/json/cves/2.0"
@@ -135,6 +152,8 @@ import importlib.util as _ilu
 from pathlib import Path as _P
 _ISPEC = _ilu.spec_from_file_location("_wallet_ident", _P(__file__).resolve().parent / "wallet_ident.py")
 _ident = _ilu.module_from_spec(_ISPEC); _ISPEC.loader.exec_module(_ident)  # type: ignore
+_WSC = _ilu.spec_from_file_location("_wallets", _P(__file__).resolve().parent / "wallets.py")
+_wal = _ilu.module_from_spec(_WSC); _WSC.loader.exec_module(_wal)  # type: ignore
 CLIENT_IDENT: dict[str, str] = _ident.CVE_IDENT
 
 
