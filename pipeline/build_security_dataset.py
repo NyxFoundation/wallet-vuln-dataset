@@ -502,6 +502,24 @@ def main() -> int:
     a = ap.parse_args()
 
     df = pd.read_parquet(a.inp)
+
+    # REDACTION RUNS FIRST, before any scoring or gating.
+    #
+    # It used to run just before writing, which broke the dataset's central
+    # promise: the curated table is derived DETERMINISTICALLY from the text it
+    # ships. Scoring unredacted text and publishing redacted text meant five
+    # rows qualified on evidence the reader cannot see, and re-running the gate
+    # on the published data produced a different answer. Redacting up front
+    # makes what is scored and what is published the same string.
+    #
+    # See pipeline/redact.py: this corpus quotes commit text verbatim and is a
+    # corpus of security fixes, so "remove the hardcoded seed" commits carry
+    # the seed.
+    _RSPEC = _ilu.spec_from_file_location("_redact", Path(__file__).resolve().parent / "redact.py")
+    _redact = _ilu.module_from_spec(_RSPEC); _RSPEC.loader.exec_module(_redact)  # type: ignore
+    _redaction = _redact.redact_frame(df, columns=("title", "description"))
+    if _redaction:
+        print(f"redacted credential material on input: {_redaction}")
     # Optional: join the learned silent-fix probability (method 1) as a signal.
     if a.silent_fix_csv and a.silent_fix_csv.exists():
         probs = pd.read_csv(a.silent_fix_csv)
@@ -572,18 +590,7 @@ def main() -> int:
         ap.error("--out is required unless --dry-run")
     a.out.parent.mkdir(parents=True, exist_ok=True)
 
-    # REDACTION — must run on every published artifact, not just the parquet.
-    # This corpus quotes commit text verbatim AND is a corpus of security fixes,
-    # so "remove the hardcoded seed" commits carry the seed. GitHub push
-    # protection caught AWS-key-shaped strings here, but wallet key material
-    # (mnemonics, xprv, WIF, raw hex keys) is the class that actually matters.
-    # See pipeline/redact.py for why "it is already public" is not a defence.
-    _RSPEC = _ilu.spec_from_file_location("_redact", Path(__file__).resolve().parent / "redact.py")
-    _redact = _ilu.module_from_spec(_RSPEC); _RSPEC.loader.exec_module(_redact)  # type: ignore
-    redaction = _redact.redact_frame(sec)
-    if redaction:
-        print(f"redacted credential material: {redaction}")
-    report["redaction"] = redaction
+    report["redaction"] = _redaction
 
     sec.to_parquet(a.out, index=False)
     print(f"\nwrote {len(sec)} rows -> {a.out}")

@@ -17,7 +17,7 @@ retargeted from a *protocol* threat model to a **custody** threat model.
 import pandas as pd
 df = pd.read_parquet("data/wallet_vulns.parquet")
 
-df[df.authority_tier != "C_candidate"]   # the essential slice (8,597 rows)
+df[df.authority_tier != "C_candidate"]   # the essential slice (17,028 rows)
 df[df.confidence == "high"]              # strongest evidence only
 ```
 
@@ -25,24 +25,24 @@ df[df.confidence == "high"]              # strongest evidence only
 
 | | rows |
 |---|---:|
-| raw snapshot (all repos) | 89,335 |
-| curated (security-only) | **26,047** |
-| └ essential slice (tier A ∪ B) | **16,077** |
-| by tier | A_authoritative 1,079 · B_corroborated 14,998 · C_candidate 9,970 |
-| by confidence | high 9,091 · medium 15,817 · low 1,139 |
-| by severity | Critical 1 · High 82 · Medium 12 · Low 52 · Info 10,370 · Unrated 15,530 |
+| raw snapshot (all repos) | 90,223 |
+| curated (security-only) | **26,976** |
+| └ essential slice (tier A ∪ B) | **17,028** |
+| by tier | A_authoritative 2,070 · B_corroborated 14,958 · C_candidate 9,948 |
+| by confidence | high 9,231 · medium 16,606 · low 1,139 |
+| by severity | Critical 1 · High 232 · Medium 854 · Low 52 · Info 10,362 · Unrated 15,475 |
 
-**99% of rows are Info or Unrated**, because almost no wallet fix is ever
+**96% of rows are Info or Unrated**, because almost no wallet fix is ever
 graded by anyone. Unrated is not low impact — it is the absence of a grader.
 
 De-noising before the gate, and what each stage removes:
 
 | Stage | Drops | Rationale |
 |---|---:|---|
-| T2 | 7,362 | CI / docs / dep-bump meta-work (title-anchored) |
-| T2c | 1,113 | version bumps whose **package name** is custody vocabulary (`@metamask/eth-hd-keyring`, `@scure/bip39`) — decided on title shape, overriding keyword protection |
-| T2d | 7,126 | author-declared `build:`/`ci:`/`test:`/`docs:` work, unless it cites an advisory or is real build-integrity work |
-| GATE | 47,687 | no independent security signal fired |
+| T2 | 7,351 | CI / docs / dep-bump meta-work (title-anchored) |
+| T2c | 1,134 | version bumps whose **package name** is custody vocabulary (`@metamask/eth-hd-keyring`, `@scure/bip39`) — decided on title shape, overriding keyword protection |
+| T2d | 7,238 | author-declared `build:`/`ci:`/`test:`/`docs:` work, unless it cites an advisory or is real build-integrity work |
+| GATE | 47,524 | no independent security signal fired |
 
 ## Why this exists (and why CVE lists are the wrong map)
 
@@ -144,8 +144,10 @@ private keys, PEM blocks, and cloud/API tokens. Commit SHAs, lockfile integrity
 hashes and public keys are deliberately left intact — masking those would break
 `fix_commit` joins.
 
-This build masked 69 mnemonics, 21 raw hex private keys, 2 `xprv`, 1 WIF key and
-12 cloud tokens. Most are canonical test material (the BIP-39
+Masking runs on the gate's **input**, before scoring, so the row that ships is
+the row that was scored — an earlier version masked at write time, which meant a
+handful of rows qualified on evidence the reader could not see. This build masked
+69 mnemonics, 21 raw hex private keys, 2 `xprv`, 1 WIF key and 12 cloud tokens. Most are canonical test material (the BIP-39
 `abandon … about` vector is in nearly every wallet's test suite), but the pass
 does not attempt to tell live credentials from dead ones. Counts are recorded
 under `redaction` in [`data/manifest.json`](data/manifest.json).

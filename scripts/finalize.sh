@@ -64,8 +64,21 @@ PY collection/cross_reference.py --in "$TRAIN" \
    --out "$DERIVED/wallet/train.crossref.parquet" --quiet | tail -2
 [ -f "$DERIVED/wallet/train.crossref.parquet" ] && TRAIN="$DERIVED/wallet/train.crossref.parquet"
 
-step "Stage 8: publish raw snapshot"
+step "Stage 8: publish raw snapshot (redacted)"
 mkdir -p data/raw && cp "$TRAIN" data/raw/train.classified.parquet
+# The raw snapshot is PUBLISHED for reproducibility, so it needs the same
+# masking as the curated table. Copying $TRAIN verbatim silently restored the
+# unredacted text once already.
+PY - <<'PYRED'
+import pandas as pd, importlib.util, pathlib
+sp = importlib.util.spec_from_file_location("r", "pipeline/redact.py")
+R = importlib.util.module_from_spec(sp); sp.loader.exec_module(R)
+p = pathlib.Path("data/raw/train.classified.parquet")
+d = pd.read_parquet(p)
+summary = R.redact_frame(d, columns=("title", "description"))
+d.to_parquet(p, index=False)
+print(f"raw snapshot redacted: {summary or 'nothing found'}")
+PYRED
 echo "-> data/raw/train.classified.parquet"
 
 CURATE=(pipeline/build_security_dataset.py
