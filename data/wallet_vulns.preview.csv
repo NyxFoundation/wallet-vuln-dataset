@@ -4452,7 +4452,7 @@ aptos,Unrated,C_candidate,[gha] fix replay-verify run on push & only cancel sche
 aptos,Unrated,C_candidate,[gha] forge continuous summary & trigger on release branch push,https://github.com/aptos-labs/aptos-core/pull/6767
 aptos,Unrated,B_corroborated,[CLI] Add a CLI for explicitly approving execution hash for governance,https://github.com/aptos-labs/aptos-core/pull/6696
 aptos,Unrated,C_candidate,[gha] fix replay verify cadence and job,https://github.com/aptos-labs/aptos-core/pull/6586
-aptos,Unrated,B_corroborated,[aptos-release-builder] Add an option to validate the release process,https://github.com/aptos-labs/aptos-core/pull/6532
+aptos,Unrated,C_candidate,[aptos-release-builder] Add an option to validate the release process,https://github.com/aptos-labs/aptos-core/pull/6532
 aptos,Unrated,B_corroborated,[txn emitter] Improve minting speed and more debug details,https://github.com/aptos-labs/aptos-core/pull/6513
 aptos,Unrated,B_corroborated,fix domain separation bug in Move object ID derivation,https://github.com/aptos-labs/aptos-core/pull/6481
 aptos,Unrated,B_corroborated,brian/debug new stack overflow,https://github.com/aptos-labs/aptos-core/pull/6459
@@ -4591,7 +4591,6 @@ aptos,Unrated,C_candidate,[gas] Source BN254 Fr::one() cost from the correct par
 aptos,Unrated,C_candidate,Add rng parameter to verify method in PVSS trait,https://github.com/aptos-labs/aptos-core/pull/18714
 aptos,Unrated,C_candidate,[aptos-keygen] Make one shared key generator,https://github.com/aptos-labs/aptos-core/pull/1394
 aptos,Unrated,C_candidate,[network] Fix peer selection to rotate through all peers,https://github.com/aptos-labs/aptos-core/pull/332
-aptos,Unrated,C_candidate,[aptos-rosetta] Run aptos-node alongside aptos-rosetta,https://github.com/aptos-labs/aptos-core/pull/1934
 aptos,Unrated,C_candidate,[Txn-emitter] Increase the number of seed accounts for the txn emitter,https://github.com/aptos-labs/aptos-core/pull/1251
 aptos,Unrated,B_corroborated,[Executor-benchmark] Various optimizations to reduce DB creation time ,https://github.com/aptos-labs/aptos-core/pull/1105
 aptos,Unrated,C_candidate,[docker-compose] remove hardcoded seed peer,https://github.com/aptos-labs/aptos-core/pull/78
@@ -4948,7 +4947,6 @@ backpack,Unrated,C_candidate,show recovery phrase,https://github.com/coral-xyz/b
 backpack,Unrated,B_corroborated,updated ledger flows,https://github.com/coral-xyz/backpack/pull/237
 backpack,Unrated,B_corroborated,add copy button to mnemonic input,https://github.com/coral-xyz/backpack/pull/229
 backpack,Unrated,B_corroborated,wip: comms between app & background script,https://github.com/coral-xyz/backpack/pull/228
-backpack,Unrated,B_corroborated,shared wallet management components,https://github.com/coral-xyz/backpack/pull/226
 backpack,Unrated,C_candidate,fix: prevent default on paste if mnemonic,https://github.com/coral-xyz/backpack/pull/201
 backpack,Unrated,C_candidate,mnemonic pasting improvements,https://github.com/coral-xyz/backpack/pull/200
 backpack,Unrated,C_candidate,fix: Add missing dependency to useEffect array in paste handler for mn,https://github.com/coral-xyz/backpack/pull/199
@@ -11597,7 +11595,6 @@ gdk,Info,C_candidate,rust: make decrypt_with_pin consistent with credentials_fro
 gdk,Info,B_corroborated,Validate generated mnemonics before returning them,https://github.com/Blockstream/gdk/commit/a6f19c33c0ea1b72116085a1e18eed780e5eb91e
 gdk,Info,C_candidate,populate addressees field in get_transactions,https://github.com/Blockstream/gdk/commit/4ec859c5b1f4facf9d35623ada19ffdd6e9c34a2
 gdk,Info,B_corroborated,Remove password from session mnemonic login,https://github.com/Blockstream/gdk/commit/6222e4205557a62c1e63c40e9285219de7dc1329
-gdk,Info,B_corroborated,Implement the get_master_blinding_key request and caching,https://github.com/Blockstream/gdk/commit/690776806ef9e5e391ad7c10031eed2d248a289d
 gdk,Info,B_corroborated,2of3: sign recovery key at subaccount creation,https://github.com/Blockstream/gdk/commit/442d05f87c6a5562e72b72166edd5d2baeafa1ab
 gdk,Info,B_corroborated,Use an internal software implementation of the HWW interface (1),https://github.com/Blockstream/gdk/commit/d760e8328e42fc518758f9ea0d087654d7d59320
 gdk,Info,B_corroborated,"add gdk-electrum, squashed commit, see details",https://github.com/Blockstream/gdk/commit/a58a1189f75342a0c4b041d3cc7eab9933ac53a2
@@ -12648,7 +12645,7 @@ lace,Unrated,B_corroborated,[LW-10190] Revamp multi wallet create and restore fl
 lace,Unrated,A_authoritative,chore(deps): bump axios from 0.21.4 to 0.28.0,https://github.com/input-output-hk/lace/pull/1055
 lace,Unrated,B_corroborated,fix: improve mnemonic check on create flow,https://github.com/input-output-hk/lace/pull/992
 lace,Unrated,B_corroborated,feat: revamp forgot password flow,https://github.com/input-output-hk/lace/pull/956
-lace,Unrated,B_corroborated,feat: move the register screen after the mnemonic screen for create an,https://github.com/input-output-hk/lace/pull/945
+lace,Unrated,B_corroborated,feat: XXXXXXX,https://github.com/input-output-hk/lace/pull/945
 lace,Unrated,C_candidate,[LW-9745]: revamp mnemonic verification,https://github.com/input-output-hk/lace/pull/928
 lace,Unrated,B_corroborated,[LW-9877] UI multi wallet issues 2,https://github.com/input-output-hk/lace/pull/927
 lace,Unrated,C_candidate,"feat(core,extension): LW-9743 revamp ""Save your recovery phrase"" scree",https://github.com/input-output-hk/lace/pull/919
@@ -16063,7 +16060,6 @@ metamask,Unrated,C_candidate,Ensure ledger transport preference is set on import
 metamask,Unrated,B_corroborated,"UX improvements to the ""Permission Request"" section on the approve scr",https://github.com/MetaMask/metamask-extension/pull/12553
 metamask,Unrated,C_candidate,Check if ledger was successfully able to establish transport on confir,https://github.com/MetaMask/metamask-extension/pull/12535
 metamask,Unrated,B_corroborated,Reload the ledger bride iframe after switching to webhid in settings,https://github.com/MetaMask/metamask-extension/pull/12512
-metamask,Unrated,C_candidate,Add fixture server substitutions,https://github.com/MetaMask/metamask-extension/pull/12476
 metamask,Unrated,C_candidate,Create function for hardware keyring checking,https://github.com/MetaMask/metamask-extension/pull/12457
 metamask,Unrated,B_corroborated,Fix weth->eth direct wrapping allowance issue,https://github.com/MetaMask/metamask-extension/pull/12405
 metamask,Unrated,B_corroborated,Approve screen header and sub-header improvement,https://github.com/MetaMask/metamask-extension/pull/12360
@@ -21441,7 +21437,6 @@ status-mobile,Unrated,C_candidate,Add seed phrase validation for keycard unblock
 status-mobile,Unrated,A_authoritative,chore(deps): bump @babel/helpers from 7.23.1 to 7.26.10,https://github.com/status-im/status-legacy/pull/22279
 status-mobile,Unrated,C_candidate,Add seed phrase validation for keycard and status-go calls,https://github.com/status-im/status-legacy/pull/22269
 status-mobile,Unrated,B_corroborated,Improve Error Handling Logic in Enter Seed Phrase Screen,https://github.com/status-im/status-legacy/pull/22252
-status-mobile,Unrated,C_candidate,fix Incorrect name and image at Ready to import key pair screen,https://github.com/status-im/status-legacy/pull/22080
 status-mobile,Unrated,B_corroborated,fix: swap fees are not displayed if route estimated time is nil,https://github.com/status-im/status-legacy/pull/22001
 status-mobile,Unrated,C_candidate,Keycard - Import a seed phrase into a new Keycard,https://github.com/status-im/status-legacy/pull/21947
 status-mobile,Unrated,C_candidate,fix Keyboard overlaps suggestion bar and validation errors,https://github.com/status-im/status-legacy/pull/21917
@@ -24227,7 +24222,6 @@ tron-wallet-cli,Unrated,C_candidate,feat(mnemonic): update mnemonic file when ch
 tron-wallet-cli,Unrated,C_candidate,feat(mnemonic): mnemonic file name,https://github.com/tronprotocol/wallet-cli/pull/784
 tron-wallet-cli,Unrated,C_candidate,feat(mnemonic): select mnemonic file  in command: ExportWalletMnemonic,https://github.com/tronprotocol/wallet-cli/pull/783
 tron-wallet-cli,Unrated,C_candidate,feat(trident): remove trident support and fix mnemonic issues,https://github.com/tronprotocol/wallet-cli/pull/780
-tron-wallet-cli,Unrated,C_candidate,Update MultiSignDemo.java,https://github.com/tronprotocol/wallet-cli/pull/506
 tron-wallet-cli,Unrated,C_candidate,upload code for airdrop; with the fix of long overflow;,https://github.com/tronprotocol/wallet-cli/pull/270
 tron-wallet-cli,Unrated,C_candidate,Evan keystore,https://github.com/tronprotocol/wallet-cli/pull/86
 trust-provider,Info,B_corroborated,feat(ethereum): NativeRPC tunnel for CSP-restricted dApps (#764),https://github.com/trustwallet/trust-web3-provider/commit/351c106d163362d72f0dda92721bc37120d56164
@@ -26023,7 +26017,6 @@ zeus,Unrated,B_corroborated,fix: prevent restore stall when LndmobileStopDaemon 
 zeus,Unrated,A_authoritative,chore(deps): bump @xmldom/xmldom from 0.8.12 to 0.8.13,https://github.com/ZeusLN/zeus/pull/4010
 zeus,Unrated,C_candidate,LDK Node: v0.7.0-zeus-vss,https://github.com/ZeusLN/zeus/pull/3966
 zeus,Unrated,A_authoritative,chore(deps): bump @xmldom/xmldom from 0.8.11 to 0.8.12,https://github.com/ZeusLN/zeus/pull/3932
-zeus,Unrated,B_corroborated,Added a submit button for SCB backup screen,https://github.com/ZeusLN/zeus/pull/3898
 zeus,Unrated,A_authoritative,build(deps): bump picomatch from 2.3.1 to 2.3.2 in /zeus_modules/@ligh,https://github.com/ZeusLN/zeus/pull/3891
 zeus,Unrated,A_authoritative,build(deps): bump json from 2.18.0 to 2.19.2,https://github.com/ZeusLN/zeus/pull/3867
 zeus,Unrated,B_corroborated,ux: improve seed recovery clipboard UX and validation,https://github.com/ZeusLN/zeus/pull/3840

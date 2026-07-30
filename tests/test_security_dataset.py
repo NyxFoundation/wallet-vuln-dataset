@@ -540,3 +540,64 @@ def test_cve_stage_iterates_the_whole_registry():
     """--wallet all must cover all 181 repos, not a subset."""
     mod = _load("crawl_cve_iter", "collection/crawl_cve.py")
     assert len(mod.CLIENT_KEYWORDS) == len(wallets.WALLET_CONFIG)
+
+
+# ---------------------------------------------------------------------------
+# Regression: credential material must never reach a published artifact
+# ---------------------------------------------------------------------------
+
+redact = _load("redact", "pipeline/redact.py")
+
+
+@pytest.mark.parametrize("text,kind", [
+    ("leaked AKIAIOSFODNN7EXAMPLE in config", "AWS-KEY-ID"),
+    ("rotate token ghp_16C7e42F292c6912E7710c838347Ae178B4a", "GITHUB-TOKEN"),
+    ("remove hardcoded mnemonic: abandon abandon abandon abandon abandon abandon "
+     "abandon abandon abandon abandon abandon about", "MNEMONIC"),
+    ("private key 0x4c0883a69102937d6231471b5dbb6204fe512961708279a0b0b0e0e0e0e0e0e0",
+     "HEX-PRIVKEY"),
+])
+def test_credential_material_is_masked(text, kind):
+    out, kinds = redact.redact(text)
+    assert kind in kinds, (text, kinds)
+    assert "XXXXXXX" in out
+
+
+@pytest.mark.parametrize("text", [
+    "bump lodash to 4.17.21",
+    "fix_commit 776656df8be551f8454c64d137d1a4b0e0e0aaaa",     # commit SHA
+    "integrity sha512-abcdefghijklmnopqrstuvwxyz0123456789ABCD",  # lockfile hash
+    "derive xpub6CUGRUo from the account node",                 # public key
+])
+def test_non_secrets_are_left_alone(text):
+    """Redacting SHAs would break fix_commit joins; public keys are not secrets."""
+    out, kinds = redact.redact(text)
+    assert kinds == [], (text, kinds)
+    assert out == text
+
+
+def test_gate_applies_redaction_before_writing():
+    src = (ROOT / "pipeline/build_security_dataset.py").read_text()
+    i_redact = src.find("redact_frame")
+    i_write = src.find("sec.to_parquet")
+    assert i_redact != -1, "gate does not redact"
+    assert i_redact < i_write, "redaction must run BEFORE any artifact is written"
+
+
+def test_published_artifacts_carry_no_credential_material(df):
+    """The real gate: whatever is in data/ must be clean.
+
+    GitHub push protection blocked a push over AWS-key-shaped strings, which
+    surfaced that the corpus also carried 61 mnemonics, 17 raw hex private keys,
+    2 xprv and a WIF key — quoted verbatim from commits whose whole purpose was
+    removing them.
+    """
+    found = []
+    for col in ("title", "description"):
+        if col not in df.columns:
+            continue
+        for v in df[col].fillna("").astype(str):
+            _, kinds = redact.redact(v)
+            if kinds:
+                found.extend(kinds)
+    assert not found, f"credential material in published data: {set(found)}"

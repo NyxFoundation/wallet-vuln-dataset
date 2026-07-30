@@ -10,8 +10,8 @@ Built with the same methodology as
 [`NyxFoundation/ethereum-vuln-dataset`](https://github.com/NyxFoundation/ethereum-vuln-dataset),
 retargeted from a *protocol* threat model to a **custody** threat model.
 
-> **Status: interim build.** The stealth-PR stage is still crawling; these numbers
-> come from the advisory + commit-grep + release/changelog slices and will grow.
+> **Status: full crawl complete.** All 181 repos crawled across every slice;
+> `label` / `root_cause` / `pre_fix_code` are being filled in by the labelling pass.
 
 ```python
 import pandas as pd
@@ -25,12 +25,12 @@ df[df.confidence == "high"]              # strongest evidence only
 
 | | rows |
 |---|---:|
-| raw snapshot (all repos) | 46,116 |
-| curated (security-only) | **15,022** |
-| └ essential slice (tier A ∪ B) | **8,597** |
-| by tier | A_authoritative 476 · B_corroborated 8,121 · C_candidate 6,425 |
-| by confidence | high 5,455 · medium 8,762 · low 805 |
-| by severity | Critical 1 · High 82 · Medium 12 · Low 52 · Info 10,391 · Unrated 4,484 |
+| raw snapshot (all repos) | 89,335 |
+| curated (security-only) | **26,047** |
+| └ essential slice (tier A ∪ B) | **16,077** |
+| by tier | A_authoritative 1,079 · B_corroborated 14,998 · C_candidate 9,970 |
+| by confidence | high 9,091 · medium 15,817 · low 1,139 |
+| by severity | Critical 1 · High 82 · Medium 12 · Low 52 · Info 10,370 · Unrated 15,530 |
 
 **99% of rows are Info or Unrated**, because almost no wallet fix is ever
 graded by anyone. Unrated is not low impact — it is the absence of a grader.
@@ -39,10 +39,10 @@ De-noising before the gate, and what each stage removes:
 
 | Stage | Drops | Rationale |
 |---|---:|---|
-| T2 | 2,218 | CI / docs / dep-bump meta-work (title-anchored) |
-| T2c | 486 | version bumps whose **package name** is custody vocabulary (`@metamask/eth-hd-keyring`, `@scure/bip39`) — decided on title shape, overriding keyword protection |
-| T2d | 4,448 | author-declared `build:`/`ci:`/`test:`/`docs:` work, unless it cites an advisory or is real build-integrity work |
-| GATE | 23,942 | no independent security signal fired |
+| T2 | 7,362 | CI / docs / dep-bump meta-work (title-anchored) |
+| T2c | 1,113 | version bumps whose **package name** is custody vocabulary (`@metamask/eth-hd-keyring`, `@scure/bip39`) — decided on title shape, overriding keyword protection |
+| T2d | 7,126 | author-declared `build:`/`ci:`/`test:`/`docs:` work, unless it cites an advisory or is real build-integrity work |
+| GATE | 47,687 | no independent security signal fired |
 
 ## Why this exists (and why CVE lists are the wrong map)
 
@@ -133,6 +133,22 @@ explicitly:
   are in the registry alongside the wallets themselves.
 
 Defined in [`collection/wallet_vocab.py`](collection/wallet_vocab.py).
+
+## Credential masking
+
+The corpus quotes commit text verbatim and is a corpus of *security fixes*, so a
+commit whose purpose was "remove the hardcoded test seed" tends to contain the
+seed. Every published column is therefore masked to `XXXXXXX` before writing
+([`pipeline/redact.py`](pipeline/redact.py)): mnemonics, `xprv`/WIF/raw-hex
+private keys, PEM blocks, and cloud/API tokens. Commit SHAs, lockfile integrity
+hashes and public keys are deliberately left intact — masking those would break
+`fix_commit` joins.
+
+This build masked 69 mnemonics, 21 raw hex private keys, 2 `xprv`, 1 WIF key and
+12 cloud tokens. Most are canonical test material (the BIP-39
+`abandon … about` vector is in nearly every wallet's test suite), but the pass
+does not attempt to tell live credentials from dead ones. Counts are recorded
+under `redaction` in [`data/manifest.json`](data/manifest.json).
 
 ## Reproduce
 

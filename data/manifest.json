@@ -1,6 +1,6 @@
 {
   "domain": "ethereum",
-  "n_rows": 26054,
+  "n_rows": 26047,
   "schema": [
     "id",
     "source_platform",
@@ -31,36 +31,36 @@
     "t2d_meta_prefix_dropped": 7126,
     "t2b_nvd_fp_dropped": 0,
     "after_t1": 73734,
-    "security_rows": 26054,
-    "low_signal_dropped": 47680,
+    "security_rows": 26047,
+    "low_signal_dropped": 47687,
     "by_confidence": {
-      "medium": 15823,
-      "high": 9092,
+      "medium": 15817,
+      "high": 9091,
       "low": 1139
     },
     "by_authority_tier": {
-      "B_corroborated": 15002,
-      "C_candidate": 9973,
+      "B_corroborated": 14998,
+      "C_candidate": 9970,
       "A_authoritative": 1079
     },
     "by_n_signals": {
-      "1": 10004,
-      "2": 12186,
-      "3": 3464,
+      "1": 10001,
+      "2": 12181,
+      "3": 3465,
       "4": 384,
       "5": 16
     },
     "by_source": {
       "brave-wallet": 1927,
-      "metamask": 1531,
+      "metamask": 1530,
       "metamask-mobile": 969,
       "sui": 855,
-      "aptos": 743,
+      "aptos": 742,
       "bitcoin-core": 733,
       "bitgo": 659,
       "onekey-app": 611,
       "trezor-suite": 521,
-      "status-mobile": 512,
+      "status-mobile": 511,
       "metamask-core": 497,
       "ledger-live": 487,
       "status-desktop": 453,
@@ -92,8 +92,8 @@
       "onekey-firmware": 181,
       "bitcoinjs-lib": 173,
       "mycrypto": 171,
-      "zeus": 170,
       "talisman": 169,
+      "zeus": 169,
       "bip39-tool": 166,
       "keystone3": 164,
       "alphawallet-android": 163,
@@ -104,8 +104,8 @@
       "coldcard": 132,
       "eth-phishing-detect": 132,
       "bitpay-wallet": 129,
-      "backpack": 128,
       "sparrow": 128,
+      "backpack": 127,
       "safe-modules": 127,
       "yoroi": 122,
       "metamask-snaps": 118,
@@ -115,7 +115,7 @@
       "freighter": 109,
       "passport": 107,
       "ethereumjs": 106,
-      "gdk": 105,
+      "gdk": 104,
       "daedalus": 103,
       "librustzcash": 103,
       "turnkey": 102,
@@ -135,8 +135,8 @@
       "reown-appkit": 76,
       "web3js": 76,
       "lace": 72,
-      "tron-wallet-cli": 71,
       "safe-contracts": 70,
+      "tron-wallet-cli": 70,
       "breez": 67,
       "trezor-connect": 66,
       "ledger-sdk": 65,
@@ -227,8 +227,8 @@
       "webauthn-owner-plugin": 1
     },
     "by_severity": {
-      "Unrated": 15536,
-      "Info": 10371,
+      "Unrated": 15530,
+      "Info": 10370,
       "High": 82,
       "Low": 52,
       "Medium": 12,
@@ -237,12 +237,13 @@
     "by_score": {
       "0.0": 1061,
       "0.3": 82,
-      "0.5": 6418,
-      "0.8": 9401,
-      "0.9": 8076,
+      "0.5": 6419,
+      "0.8": 9394,
+      "0.9": 8075,
       "1.0": 1016
     },
-    "residual_boilerplate_fp": 0
+    "residual_boilerplate_fp": 0,
+    "redaction": {}
   },
   "source": "11 Ethereum execution + consensus wallets (past security fixes)"
 }

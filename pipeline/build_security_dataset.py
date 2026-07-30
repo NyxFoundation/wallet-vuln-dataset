@@ -571,6 +571,20 @@ def main() -> int:
     if not a.out:
         ap.error("--out is required unless --dry-run")
     a.out.parent.mkdir(parents=True, exist_ok=True)
+
+    # REDACTION — must run on every published artifact, not just the parquet.
+    # This corpus quotes commit text verbatim AND is a corpus of security fixes,
+    # so "remove the hardcoded seed" commits carry the seed. GitHub push
+    # protection caught AWS-key-shaped strings here, but wallet key material
+    # (mnemonics, xprv, WIF, raw hex keys) is the class that actually matters.
+    # See pipeline/redact.py for why "it is already public" is not a defence.
+    _RSPEC = _ilu.spec_from_file_location("_redact", Path(__file__).resolve().parent / "redact.py")
+    _redact = _ilu.module_from_spec(_RSPEC); _RSPEC.loader.exec_module(_redact)  # type: ignore
+    redaction = _redact.redact_frame(sec)
+    if redaction:
+        print(f"redacted credential material: {redaction}")
+    report["redaction"] = redaction
+
     sec.to_parquet(a.out, index=False)
     print(f"\nwrote {len(sec)} rows -> {a.out}")
 
