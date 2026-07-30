@@ -112,10 +112,30 @@ assumed.
 | canonical PR/issue crawl | 5,299 | |
 | commit-grep | 29,277 | 22% survive de-noise + scoring |
 | release notes + changelogs | 2,169 | |
-| stealth PRs | ~830/repo | only **8%** score on title |
+| stealth PRs | 53,286 | 181/181 repos; only **10%** score on title, but **78%** of those are new |
+| direct_pulls | ~1,600/repo | most exhaustive, most redundant — **30%** new |
 
 **The advisory slice is 16 rows.** That single number is the argument for
 everything else in this directory.
+
+**direct_pulls is the weakest slice, and the pagination sleep — not the rate
+limit — was its cost.** It paginates every closed PR per repo and title-filters,
+so it is the most exhaustive slice and the most redundant. Measured on the five
+largest repos (the MetaMask family):
+
+| | rows |
+|---|---:|
+| raw rows | 8,140 |
+| scoring rows | 1,410 |
+| **not already in commit-grep OR stealth** | **418 (30%)** |
+
+30% marginal, against stealth's 78%. It is kept because it is the only slice
+that actually walks *all* closed PRs, but its `sleep_between` default of 1.0s
+was pure waste: this endpoint is on the `core` limit (5,000/hr = 1.4 req/s) and
+a running crawl measured 4999/5000 remaining. Large repos have hundreds of pages
+(metamask ~300), so the sleep alone cost ~10 min/repo. Lowered to 0.35s
+(override with `DIRECT_PAGE_SLEEP`), cutting the stage from ~17h to ~11h with no
+loss of coverage; `gh_rate` still backs off if a limit is genuinely hit.
 
 **Stealth PRs look wasteful and are not.** Only 8% of stealth rows score at all
 — dependabot PR bodies quote the security advisory of the dependency they bump,

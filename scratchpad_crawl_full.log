@@ -42,3 +42,6 @@
     [stealth] 120/181 (ok=120 fail=0)
     [stealth] 140/181 (ok=140 fail=0)
     [stealth] 160/181 (ok=160 fail=0)
+    [stealth] 180/181 (ok=180 fail=0)
+    [stealth] done (ok=181 fail=0)
+>>> [direct] per-wallet over 181 repos: PY collection/mine_direct_pulls.py --wallet @WALLET --out-dir /home/gohan/workspace/wallet-vuln-dataset/scratchpad_crawl/supp --max-pages 0

@@ -229,7 +229,7 @@ def mine_wallet(
     wallet_slug: str,
     *,
     max_pages: int | None = None,
-    sleep_between: float = 1.0,
+    sleep_between: float = float(__import__("os").environ.get("DIRECT_PAGE_SLEEP", "0.35")),
 ) -> list[dict]:
     """Paginate all closed PRs for one wallet and return security-relevant rows.
 
@@ -237,6 +237,13 @@ def mine_wallet(
         wallet_slug:    Key in WALLET_REPOS.
         max_pages:      Stop after this many pages (None = paginate to end).
         sleep_between:  Seconds to sleep between page fetches (rate-limit guard).
+                        Default 0.35s, not 1.0s: this endpoint is on the `core`
+                        limit (5,000/hr = 1.4 req/s), and a measured run sat at
+                        4999/5000 remaining — the sleep, not the quota, was the
+                        bottleneck. Large repos have hundreds of pages
+                        (metamask ~300), so 1.0s cost ~10 min/repo of pure
+                        waiting. Override with DIRECT_PAGE_SLEEP. gh_rate still
+                        backs off if a limit is genuinely hit.
 
     Returns:
         Deduplicated list of row dicts ready to write to CSV.
