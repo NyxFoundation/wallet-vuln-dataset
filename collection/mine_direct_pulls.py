@@ -225,6 +225,24 @@ def _pr_to_row(pr: dict, wallet_slug: str) -> dict | None:
     }
 
 
+# Hard ceiling on pagination, applied even when --max-pages is 0 ("uncapped").
+#
+# Uncapped means unbounded on repos with automated PR floods.
+# MetaMask/eth-phishing-detect has **255,610 closed PRs** (~2,556 pages) because
+# every blocklist domain addition is a PR — a page walk there costs ~45 min and
+# yields no security fixes at all. brave-core (380 pages), metamask-extension
+# (271) and bitcoin (242) are large for real reasons but still dominate the
+# stage's wall-clock.
+#
+# The reference client build had exactly this guard (PR_PAGE_CAP = 2000, "geth
+# has ~30k closed PRs; paginating the full list would burn rate-limit"); it was
+# simply absent from this crawler. 150 pages = the 15,000 most recent closed
+# PRs per repo, which is past the point of diminishing returns for every repo in
+# the registry — and the other slices (commit-grep, stealth) are not page-bound,
+# so deep history is still covered by them.
+PAGE_CEILING = int(__import__("os").environ.get("DIRECT_PAGE_CEILING", "150"))
+
+
 def mine_wallet(
     wallet_slug: str,
     *,
@@ -314,6 +332,13 @@ def mine_wallet(
         if len(prs) < 100:
             # Partial page = last page
             print(f"  [{wallet_slug}] partial page ({len(prs)} < 100); done", file=sys.stderr)
+            break
+
+        if page >= PAGE_CEILING:
+            print(f"  [{wallet_slug}] hit PAGE_CEILING ({PAGE_CEILING} pages = "
+                  f"{PAGE_CEILING * 100} PRs); stopping. Deeper history is still "
+                  f"covered by commit-grep and stealth, which are not page-bound.",
+                  file=sys.stderr)
             break
 
         page += 1

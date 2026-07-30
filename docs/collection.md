@@ -130,7 +130,23 @@ largest repos (the MetaMask family):
 | **not already in commit-grep OR stealth** | **418 (30%)** |
 
 30% marginal, against stealth's 78%. It is kept because it is the only slice
-that actually walks *all* closed PRs, but its `sleep_between` default of 1.0s
+that actually walks *all* closed PRs.
+
+**"Uncapped" pagination is unbounded, not thorough.** `--max-pages 0` had no
+ceiling, and `MetaMask/eth-phishing-detect` has **255,610 closed PRs (~2,556
+pages)** because every blocklist domain addition is a PR. The stage sat on that
+one repo for over an hour and would have yielded zero security fixes from it.
+brave-core (380 pages), metamask-extension (271) and bitcoin (242) are large for
+real reasons but still dominate wall-clock.
+
+The reference client build had exactly this guard — `PR_PAGE_CAP = 2000`, "geth
+has ~30k closed PRs; paginating the full list would burn rate-limit" — it was
+simply missing from this crawler. `PAGE_CEILING` now defaults to 150 pages
+(15,000 most recent closed PRs per repo, override with `DIRECT_PAGE_CEILING`).
+Deep history is not lost: commit-grep and stealth are not page-bound and cover
+it.
+
+Its `sleep_between` default of 1.0s
 was pure waste: this endpoint is on the `core` limit (5,000/hr = 1.4 req/s) and
 a running crawl measured 4999/5000 remaining. Large repos have hundreds of pages
 (metamask ~300), so the sleep alone cost ~10 min/repo. Lowered to 0.35s
