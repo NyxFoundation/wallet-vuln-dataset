@@ -44,23 +44,22 @@ from typing import Iterable
 # ---------------------------------------------------------------------------
 # Wallet registry (all 11 in-scope + consensus-specs)
 # ---------------------------------------------------------------------------
-WALLET_REPOS: dict[str, str] = {
-    "geth":       "ethereum/go-ethereum",
-    "nethermind": "NethermindEth/nethermind",
-    "besu":       "hyperledger/besu",
-    "erigon":     "erigontech/erigon",
-    "reth":       "paradigmxyz/reth",
-    "lighthouse": "sigp/lighthouse",
-    "lodestar":   "ChainSafe/lodestar",
-    "nimbus":     "status-im/nimbus-eth2",
-    "prysm":      "prysmaticlabs/prysm",
-    "teku":       "Consensys/teku",
-    "grandine":   "grandinetech/grandine",
-}
+import importlib.util as _ilu7
+from pathlib import Path as _P7
+_WS7 = _ilu7.spec_from_file_location("_wallets", _P7(__file__).resolve().parent / "wallets.py")
+_wal = _ilu7.module_from_spec(_WS7); _WS7.loader.exec_module(_wal)  # type: ignore
+
+# Repos to SEARCH. This was its own hardcoded copy of the 11 Ethereum clients,
+# separate from CLIENT_NAMES (what to search FOR) — which is why fixing only
+# the latter left the stage emitting erigon/teku/lodestar rows.
+WALLET_REPOS: dict[str, str] = {k: v["repo"] for k, v in _wal.WALLET_CONFIG.items()}
 
 # Extra repos that reference multiple wallet names in integration context
+# Standards repos: the wallet analogue of ethereum/consensus-specs.
 EXTRA_REPOS: dict[str, str] = {
-    "consensus-specs": "ethereum/consensus-specs",
+    "bips":  "bitcoin/bips",
+    "slips": "satoshilabs/slips",
+    "eips":  "ethereum/EIPs",
 }
 
 # Aliases per wallet slug — any of these appearing in a foreign PR body

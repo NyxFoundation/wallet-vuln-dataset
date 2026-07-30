@@ -435,6 +435,33 @@ def test_cross_and_standards_crawlers_know_only_wallets(module):
     assert not (ETH_CLIENT_SLUGS & set(names))
 
 
+ETH_UPSTREAM_REPOS = ["ethereum/go-ethereum", "erigontech/erigon", "sigp/lighthouse",
+                      "ChainSafe/lodestar", "Consensys/teku", "prysmaticlabs/prysm",
+                      "ethereum/consensus-specs", "ethereum/execution-specs",
+                      "ethereum/execution-apis"]
+
+
+@pytest.mark.parametrize("module,attr", [
+    ("collection/crawl_cross_wallet.py", "WALLET_REPOS"),
+    ("collection/crawl_cross_wallet.py", "EXTRA_REPOS"),
+    ("collection/crawl_standards_divergence.py", "SPEC_REPOS"),
+])
+def test_crawler_repo_lists_contain_no_ethereum_upstreams(module, attr):
+    """The repos a crawler SEARCHES are a separate list from what it searches FOR.
+
+    Fixing CLIENT_NAMES alone left crawl_cross_wallet's own hardcoded
+    WALLET_REPOS pointing at the 11 Ethereum clients, so the stage still emitted
+    193 rows sourced from erigon/teku/lodestar/nimbus/reth/geth. The earlier test
+    passed throughout, because it only checked CLIENT_NAMES — this one checks the
+    search targets.
+    """
+    mod = _load(module.split("/")[-1][:-3], module)
+    val = getattr(mod, attr)
+    repos = set(val.values()) if isinstance(val, dict) else set(val)
+    stray = repos & set(ETH_UPSTREAM_REPOS)
+    assert not stray, f"{attr} still searches Ethereum upstreams: {sorted(stray)}"
+
+
 def test_cross_wallet_severity_signals_are_custody_not_consensus():
     mod = _load("crawl_cross_wallet", "collection/crawl_cross_wallet.py")
     sig = [s.lower() for s in mod.HIGH_SEVERITY_SIGNALS]

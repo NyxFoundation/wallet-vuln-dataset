@@ -41,15 +41,18 @@ from pathlib import Path
 # Configuration
 # ---------------------------------------------------------------------------
 
+# The standards a WALLET must implement correctly. Ethereum consensus/execution
+# specs are irrelevant here; BIPs and SLIPs define key derivation, mnemonics and
+# PSBT, and the EIP/ERC repos carry EIP-712/155/1271/2612/4337.
 SPEC_REPOS = [
-    "ethereum/consensus-specs",
-    "ethereum/execution-specs",
+    "bitcoin/bips",
+    "satoshilabs/slips",
     "ethereum/EIPs",
-    "ethereum/execution-apis",
+    "ethereum/ERCs",
 ]
 
 # For ethereum/consensus-specs we also search issues (not just PRs).
-ISSUES_REPO = "ethereum/consensus-specs"
+ISSUES_REPO = "bitcoin/bips"
 
 # Each logical term maps to 3-4 surface variants.  We query each variant
 # separately and deduplicate afterwards — this is the key insight from the

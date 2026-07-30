@@ -56,3 +56,10 @@
     [direct] 180/181 (ok=179 fail=1)
     [direct] done (ok=180 fail=1)
 >>> [cross] PY collection/crawl_cross_wallet.py --out-dir /home/gohan/workspace/wallet-vuln-dataset/scratchpad_crawl/supp
+    [cross] ok
+>>> [standards] PY collection/crawl_standards_divergence.py --out-dir /home/gohan/workspace/wallet-vuln-dataset/scratchpad_crawl/supp --max-per-term 0
+    [standards] FAILED (rc=143) — see /home/gohan/workspace/wallet-vuln-dataset/scratchpad_crawl/logs/standards.log
+    |       --archived                Filter based on the repository archived state {true|false}
+    |       --assignee string         Filter by assignee
+    |       --auth
+>>> [cve] PY collection/crawl_cve.py --wallet all --out-dir /home/gohan/workspace/wallet-vuln-dataset/scratchpad_crawl/cve
