@@ -1,6 +1,6 @@
 {
   "domain": "ethereum",
-  "n_rows": 26976,
+  "n_rows": 26507,
   "schema": [
     "id",
     "source_platform",
@@ -10,17 +10,24 @@
     "title",
     "description",
     "source_url",
-    "introduced_in_commit",
     "domain",
     "scraped_at",
     "stride",
-    "cwe_top25",
     "evidence",
     "security_score",
-    "fix_commit",
     "confidence",
     "n_signals",
-    "authority_tier"
+    "authority_tier",
+    "layer",
+    "label",
+    "root_cause",
+    "attack_path",
+    "files_changed",
+    "pre_fix_code",
+    "post_fix_code",
+    "fix_commit",
+    "introduced_in_commit",
+    "cwe_top25"
   ],
   "build": {
     "raw_rows": 90223,
@@ -31,7 +38,7 @@
     "t2d_meta_prefix_dropped": 7238,
     "t2b_nvd_fp_dropped": 0,
     "after_t1": 74500,
-    "security_rows": 26976,
+    "security_rows": 26507,
     "low_signal_dropped": 47524,
     "by_confidence": {
       "medium": 16606,
@@ -39,9 +46,9 @@
       "low": 1139
     },
     "by_authority_tier": {
-      "B_corroborated": 14958,
-      "C_candidate": 9948,
-      "A_authoritative": 2070
+      "B_corroborated": 14624,
+      "C_candidate": 9822,
+      "A_authoritative": 2061
     },
     "by_n_signals": {
       "1": 9979,
@@ -244,17 +251,9 @@
       "1.0": 1166
     },
     "residual_boilerplate_fp": 0,
-    "redaction": {
-      "MNEMONIC": 69,
-      "rows_touched:title": 2,
-      "HEX-PRIVKEY": 21,
-      "XPRV": 2,
-      "WIF-KEY": 1,
-      "AWS-KEY-ID": 6,
-      "JWT": 5,
-      "SECRET": 1,
-      "rows_touched:description": 102
-    }
+    "labelled": 23577,
+    "deduped_fix_commit": 469,
+    "redaction": {}
   },
   "source": "11 Ethereum execution + consensus wallets (past security fixes)"
 }

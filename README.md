@@ -10,14 +10,14 @@ Built with the same methodology as
 [`NyxFoundation/ethereum-vuln-dataset`](https://github.com/NyxFoundation/ethereum-vuln-dataset),
 retargeted from a *protocol* threat model to a **custody** threat model.
 
-> **Status: full crawl complete.** All 181 repos crawled across every slice;
-> `label` / `root_cause` / `pre_fix_code` are being filled in by the labelling pass.
+> **Status: complete.** All 181 repos crawled across every slice, curated, and
+> enriched with area labels and inline pre/post-fix code.
 
 ```python
 import pandas as pd
 df = pd.read_parquet("data/wallet_vulns.parquet")
 
-df[df.authority_tier != "C_candidate"]   # the essential slice (17,028 rows)
+df[df.authority_tier != "C_candidate"]   # the essential slice (16,687 rows)
 df[df.confidence == "high"]              # strongest evidence only
 ```
 
@@ -26,11 +26,11 @@ df[df.confidence == "high"]              # strongest evidence only
 | | rows |
 |---|---:|
 | raw snapshot (all repos) | 90,223 |
-| curated (security-only) | **26,976** |
-| └ essential slice (tier A ∪ B) | **17,028** |
-| by tier | A_authoritative 2,070 · B_corroborated 14,958 · C_candidate 9,948 |
-| by confidence | high 9,231 · medium 16,606 · low 1,139 |
-| by severity | Critical 1 · High 232 · Medium 854 · Low 52 · Info 10,362 · Unrated 15,475 |
+| curated (security-only) | **26,507** |
+| └ essential slice (tier A ∪ B) | **16,687** |
+| by tier | A_authoritative 2,061 · B_corroborated 14,626 · C_candidate 9,820 |
+| by confidence | high 9,123 · medium 16,259 · low 1,125 |
+| by severity | Critical 1 · High 230 · Medium 854 · Low 50 · Info 9,942 · Unrated 15,430 |
 
 **96% of rows are Info or Unrated**, because almost no wallet fix is ever
 graded by anyone. Unrated is not low impact — it is the absence of a grader.
@@ -133,6 +133,40 @@ explicitly:
   are in the registry alongside the wallets themselves.
 
 Defined in [`collection/wallet_vocab.py`](collection/wallet_vocab.py).
+
+## What the fixes are about
+
+Every row carries a `label` naming the part of the custody chain that broke,
+derived from the diff's changed paths plus the fix text
+([`docs/collection.md`](docs/collection.md)). The distribution:
+
+`key:seed-mnemonic` 3,300 · `key:storage` 2,824 · `network-io` 2,310 · `sign:encoding-malleability` 1,345 · `build-ci` 1,148 · `test` 883 · `key:derivation` 802
+
+`pre_fix_code` / `post_fix_code` hold the before/after hunks inline for
+94% of rows,
+`files_changed` for 95%,
+and `fix_commit` resolves for 67%.
+
+## Files
+
+| File | Size | What |
+|---|---:|---|
+| `data/wallet_vulns.parquet` | 79 MB | **the dataset** — all columns including inline pre/post-fix code |
+| `data/wallet_vulns.preview.csv` | 4.9 MB | 5 key columns, browsable on GitHub |
+| `data/raw/train.classified.parquet` | 31 MB | pre-gate snapshot, for reproducing the curation |
+| `data/manifest.json` | — | per-stage drop counts and redaction tally |
+
+The full CSV export is not committed — at 255 MB it exceeds GitHub's 100 MB file
+limit. Regenerate it in one line:
+
+```python
+pd.read_parquet("data/wallet_vulns.parquet").to_csv("wallet_vulns.csv", index=False)
+```
+
+Inline code is capped at 8 KB and 12 files per row
+(`ROW_CAP_CHARS` / `MAX_FILES_PER_ROW` in `pipeline/enrich_labels.py`). Without a
+per-row cap a single monorepo commit contributed megabytes, the intermediate hit
+16 GB, and the parquet write failed on Arrow's 2 GB-per-column limit.
 
 ## Credential masking
 

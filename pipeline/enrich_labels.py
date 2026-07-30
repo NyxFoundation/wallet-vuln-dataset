@@ -48,6 +48,27 @@ HUNK_RE = re.compile(r"^@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@")
 FILE_CAP_LINES = 400
 FILE_CAP_CHARS = 16000
 
+# Per-ROW cap on the inline code columns. FILE_CAP_* bound each file, but a
+# single monorepo commit can touch hundreds of files, so the row was unbounded:
+# labels.csv reached 16 GB and the parquet write failed outright, because
+# Arrow caps one column at 2^31 bytes ("array cannot contain more than
+# 2147483646 bytes"). The reference client dataset ships ~110 MB in total, so
+# rows this large are not carrying real signal — they are diff dumps.
+ROW_CAP_CHARS = 8_000
+MAX_FILES_PER_ROW = 12
+
+
+def _cap_row_code(blocks: list) -> list:
+    """Trim a row's per-file code blocks to ROW_CAP_CHARS / MAX_FILES_PER_ROW."""
+    out, used = [], 0
+    for b in blocks[:MAX_FILES_PER_ROW]:
+        chunk = json.dumps(b, ensure_ascii=False)
+        if used + len(chunk) > ROW_CAP_CHARS:
+            break
+        out.append(b)
+        used += len(chunk)
+    return out
+
 
 def layer(wallet: str) -> str:
     return _wal.WALLET_CONFIG.get(wallet, {}).get("category", "wallet_sdk")
@@ -574,8 +595,8 @@ def main() -> int:
             "id": r["id"], "layer": lyr, "label": label,
             "root_cause": root_cause, "attack_path": attack_path,
             "files_changed": json.dumps(files, ensure_ascii=False),
-            "pre_fix_code": json.dumps(pre, ensure_ascii=False),
-            "post_fix_code": json.dumps(post, ensure_ascii=False),
+            "pre_fix_code": json.dumps(_cap_row_code(pre), ensure_ascii=False),
+            "post_fix_code": json.dumps(_cap_row_code(post), ensure_ascii=False),
             "fix_commit": fix_sha, "introduced_in_commit": introduced,
             "cwe_top25": "",
         })

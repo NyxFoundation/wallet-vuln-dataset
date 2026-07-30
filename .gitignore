@@ -5,3 +5,9 @@ dist/
 .pytest_cache/
 *.egg-info/
 scratchpad_crawl/
+
+# 16GB intermediate; regenerate with pipeline/enrich_labels.py
+data/labels.csv
+data/wallet_vulns.csv
+scratchpad_*.log
+scratchpad_crawl_full.log
