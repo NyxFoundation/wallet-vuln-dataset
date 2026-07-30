@@ -471,6 +471,27 @@ Output ONLY one JSON object on the last line:
             "attack_path": obj.get("attack_path"), "cwe": cwe}
 
 
+def _write_cache_atomic(path, obj) -> None:
+    """Write via temp file + rename so a kill can never truncate the cache.
+
+    The non-atomic version left a 0-byte diff_cache.json when the labelling run
+    was interrupted, which then crashed every restart.
+    """
+    import os, tempfile
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp = tempfile.mkstemp(dir=str(path.parent), suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            json.dump(obj, fh)
+        os.replace(tmp, path)
+    except BaseException:
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
+        raise
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--in", dest="inp", default=Path("data/wallet_vulns.parquet"), type=Path)
@@ -493,7 +514,19 @@ def main() -> int:
 
     df = pd.read_parquet(a.inp)
     preds = json.loads(a.pred_cache.read_text()) if a.pred_cache.exists() else {}
-    dcache = json.loads(a.diff_cache.read_text()) if a.diff_cache.exists() else {}
+    # A corrupt cache must never break the run. write_text() truncates before
+    # writing, so a process killed mid-checkpoint leaves a 0-byte file — which
+    # then made every subsequent run die on startup instead of just losing the
+    # cache. The cache is a speed optimisation; treat any unreadable state as
+    # "no cache".
+    dcache = {}
+    if a.diff_cache.exists():
+        try:
+            dcache = json.loads(a.diff_cache.read_text())
+        except (json.JSONDecodeError, OSError, UnicodeDecodeError) as exc:
+            print(f"[labels] diff cache unreadable ({exc}); starting fresh",
+                  file=sys.stderr)
+            dcache = {}
 
     rows, metas, n_diff, n_label = [], [], 0, 0
     for i, r in enumerate(df.to_dict("records")):
@@ -550,9 +583,9 @@ def main() -> int:
                       "title": r.get("title"), "description": r.get("description"),
                       "nocommit": not fix_sha})
         if (i + 1) % 200 == 0:
-            a.diff_cache.write_text(json.dumps(dcache))
+            _write_cache_atomic(a.diff_cache, dcache)
             print(f"  [labels] {i+1}/{len(df)}", file=sys.stderr)
-    a.diff_cache.write_text(json.dumps(dcache))
+    _write_cache_atomic(a.diff_cache, dcache)
 
     # --- LLM fallback for rows still "other" -------------------------------
     if a.llm:

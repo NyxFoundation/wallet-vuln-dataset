@@ -609,3 +609,32 @@ def test_wallet_standards_are_covered_by_the_keyword_slices():
     assert terms, "per-repo search terms must be non-empty"
     assert vocab.matches("fix: EIP-712 domain separator missing chainId",
                          vocab.STANDARD_TERMS["eip712"])
+
+
+# ---------------------------------------------------------------------------
+# Regression: a corrupt diff cache must not break the labelling run
+# ---------------------------------------------------------------------------
+
+def test_diff_cache_is_written_atomically():
+    """write_text() truncates before writing.
+
+    A run killed mid-checkpoint left a 0-byte diff_cache.json, and every restart
+    then died on json.loads at startup — a speed cache taking down the pipeline.
+    """
+    src = (ROOT / "pipeline/enrich_labels.py").read_text()
+    assert "a.diff_cache.write_text(json.dumps(dcache))" not in src
+    assert "_write_cache_atomic" in src
+    assert "os.replace(tmp, path)" in src
+
+
+def test_corrupt_diff_cache_is_tolerated(tmp_path):
+    """Any unreadable cache state must degrade to "no cache", not raise."""
+    src = (ROOT / "pipeline/enrich_labels.py").read_text()
+    assert "diff cache unreadable" in src
+    assert "json.JSONDecodeError" in src
+    # and the real thing: json.loads on a truncated file raises the type we catch
+    import json as _json
+    bad = tmp_path / "diff_cache.json"
+    bad.write_text("")
+    with pytest.raises(_json.JSONDecodeError):
+        _json.loads(bad.read_text())
