@@ -422,10 +422,7 @@ ETH_PROTOCOL_TERMS = ["fork choice", "fork_choice", "attestation", "slashing",
                       "sync_committee", "epoch_processing", "bls_verify"]
 
 
-@pytest.mark.parametrize("module", [
-    "collection/crawl_cross_wallet.py",
-    "collection/crawl_standards_divergence.py",
-])
+@pytest.mark.parametrize("module", ["collection/crawl_cross_wallet.py"])
 def test_cross_and_standards_crawlers_know_only_wallets(module):
     """Both shipped fully Ethereum: crawl_cross_wallet searched wallet repos
     for "geth"/"nimbus"/"prysm" and bumped severity on "fork choice"."""
@@ -444,7 +441,6 @@ ETH_UPSTREAM_REPOS = ["ethereum/go-ethereum", "erigontech/erigon", "sigp/lightho
 @pytest.mark.parametrize("module,attr", [
     ("collection/crawl_cross_wallet.py", "WALLET_REPOS"),
     ("collection/crawl_cross_wallet.py", "EXTRA_REPOS"),
-    ("collection/crawl_standards_divergence.py", "SPEC_REPOS"),
 ])
 def test_crawler_repo_lists_contain_no_ethereum_upstreams(module, attr):
     """The repos a crawler SEARCHES are a separate list from what it searches FOR.
@@ -469,11 +465,6 @@ def test_cross_wallet_severity_signals_are_custody_not_consensus():
     assert "seed" in sig and "nonce reuse" in sig
 
 
-def test_standards_terms_are_wallet_standards():
-    mod = _load("crawl_standards_divergence", "collection/crawl_standards_divergence.py")
-    keys = set(mod.SPEC_TERMS)
-    assert {"bip39", "bip32", "eip712", "eip4337", "slip10"} <= keys, sorted(keys)
-    assert not ({"fork_choice", "sync_committee", "epoch_processing"} & keys)
 
 
 def test_direct_pulls_filter_is_boundary_anchored():
@@ -512,7 +503,6 @@ CRAWLER_LISTS = [
     ("collection/crawl_ghsa_advisories.py",    "WALLET_REPOS"),
     ("collection/crawl_cross_wallet.py",       "WALLET_REPOS"),
     ("collection/crawl_cross_wallet.py",       "CLIENT_NAMES"),
-    ("collection/crawl_standards_divergence.py", "CLIENT_PATTERNS"),
     ("collection/crawl_cve.py",                "CLIENT_KEYWORDS"),
     ("collection/crawl_cve.py",                "CLIENT_IDENT"),
     ("collection/crawl_osv.py",                "CLIENT_PACKAGES"),
@@ -601,3 +591,21 @@ def test_published_artifacts_carry_no_credential_material(df):
             if kinds:
                 found.extend(kinds)
     assert not found, f"credential material in published data: {set(found)}"
+
+
+def test_wallet_standards_are_covered_by_the_keyword_slices():
+    """crawl_standards_divergence was dropped, not ported.
+
+    For a client the spec IS the contract, so a consensus-specs divergence is
+    directly a client bug. For a wallet, BIPs/EIPs are documentation repos — a PR
+    there is a spec discussion, not a fix to any wallet. The signal that matters
+    (a wallet admitting non-compliance) comes from STANDARD_TERMS feeding the
+    per-repo search terms, so that path must keep working.
+    """
+    for std in ("bip32", "bip39", "bip44", "bip174", "slip10", "eip712",
+                "eip155", "eip1271", "eip4337", "rfc6979"):
+        assert std in vocab.STANDARD_TERMS, std
+    terms = vocab.search_terms("trezor-firmware", "hardware_firmware", "c")
+    assert terms, "per-repo search terms must be non-empty"
+    assert vocab.matches("fix: EIP-712 domain separator missing chainId",
+                         vocab.STANDARD_TERMS["eip712"])

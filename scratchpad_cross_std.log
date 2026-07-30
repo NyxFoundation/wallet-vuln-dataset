@@ -1,0 +1,11 @@
+=== cross_wallet ===
+  [zeus] query='compatibility in:title': 5 hits, 4 cross-wallet
+[zeus] done — 6 cross-wallet rows from 3 queries
+
+done — 1173 cross-wallet rows -> scratchpad_crawl/supp/cross_client.csv
+=== standards_divergence ===
+[group/issues] standard_divergence: +0 new rows (running total: 0)
+
+[done] 0 rows → scratchpad_crawl/supp/specs_divergence.csv
+[done] manifest → scratchpad_crawl/supp/specs_divergence_manifest.json
+=== BOTH DONE ===

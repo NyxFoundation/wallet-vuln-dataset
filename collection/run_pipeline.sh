@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # run_pipeline.sh — end-to-end orchestrator for the wallet-vuln-dataset.
 #
-# Same ten-stage shape as the ethereum-vuln-dataset pipeline, retargeted to the
-# 157-repo wallet registry (collection/wallets.py).
+# Same staged shape as the ethereum-vuln-dataset pipeline, retargeted to the
+# 181-repo wallet registry (collection/wallets.py).
 #
 #   Stage 1  canonical crawl               -> $WORK/canonical/<wallet>.csv
 #   Stage 2  supplementary crawlers        -> $WORK/supp/*.csv
@@ -16,10 +16,10 @@
 #   Stage 10 area labels + inline pre/post code
 #
 # WHY THE SCALE DIFFERS FROM THE CLIENT BUILD
-#   11 client repos -> 157 wallet repos. The search-heavy per-repo crawlers are
-#   the rate-limit bottleneck (GitHub secondary limits bite well before the
-#   5,000/hr primary limit), so they are TIER-SCOPED: TIER=1 crawls the 41
-#   mass-market repos, TIER=2 adds the significant ones, TIER=3 is all 157.
+#   11 client repos -> 181 wallet repos. The search-heavy per-repo crawlers are
+#   the rate-limit bottleneck (GitHub's search limit is 30 req/min, and a full
+#   crawl issues ~5,500 search calls), so they are TIER-SCOPED: TIER=1 crawls the
+#   46 mass-market repos, TIER=2 adds the significant ones, TIER=3 is all 181.
 #   The advisory crawlers are cheap and always run over the whole registry.
 set -u
 
@@ -107,7 +107,6 @@ if [ "$RUN_HEAVY" = "1" ]; then
   stage_per_wallet stealth PY collection/mine_stealth_prs.py  --wallet @WALLET --out-dir "$SUPP" --max-per-wallet "$CAP"
   stage_per_wallet direct  PY collection/mine_direct_pulls.py --wallet @WALLET --out-dir "$SUPP" --max-pages "$PAGES"
   stage cross     PY collection/crawl_cross_wallet.py         --out-dir "$SUPP"
-  stage standards PY collection/crawl_standards_divergence.py --out-dir "$SUPP" --max-per-term "$CAP"
 fi
 
 # --- Stage 3: CVE advisory DB ----------------------------------------------

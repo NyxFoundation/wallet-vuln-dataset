@@ -23,17 +23,40 @@ crawler hard-codes a repo, keyword, or package name:
 |---|---|
 | Per-repo repo crawl | `crawl_wallet_past_fixes.py`, `crawl_ghsa_advisories.py`, `grep_wallet_commits.py`, `mine_wallet_releases.py`, `mine_stealth_prs.py`, `mine_direct_pulls.py`, `parse_wallet_changelogs.py` |
 | Advisory databases | `crawl_cve.py`, `crawl_osv.py`, `crawl_rustsec.py`, `crawl_govulncheck.py` |
-| Cross-repo / standards | `crawl_cross_wallet.py`, `crawl_standards_divergence.py` |
+| Cross-repo | `crawl_cross_wallet.py` |
 | Merge + enrich | `merge_crawl_csvs.py`, `build_derived.py`, `cross_reference.py`, `blame_walk.py` |
 | Silent-fix classify | `llm_classify_fixes.py` (LLM), `local_diffs.py` (rate-limit-free diffs) |
 | Rate-limit plumbing | `gh_rate.py` |
 | Orchestrator | `run_pipeline.sh` |
 
 Dropped from the client build because they have no wallet analogue:
-`crawl_teku_jira_refs.py` (one client's JIRA) and `extract_nimbus_urgency.py`
-(one client's release-note template). `crawl_specs_divergence.py` became
-`crawl_standards_divergence.py` — the wallet equivalent of spec divergence is
-mis-implementing BIP-32/39/44, SLIP-0010/39, EIP-712/155/1271/4337 or RFC 6979.
+`crawl_teku_jira_refs.py` (one client's JIRA), `extract_nimbus_urgency.py` (one
+client's release-note template), and `crawl_specs_divergence.py`.
+
+**Why specs-divergence was dropped rather than ported.** It was first retargeted
+from `ethereum/consensus-specs` to `bitcoin/bips` + `satoshilabs/slips` +
+`ethereum/EIPs`, then deleted, because the concept does not survive the move.
+For a client, the spec *is* the contract: a consensus-specs divergence is
+directly a client bug. For a wallet, BIPs and EIPs are documentation repos — a
+PR to `bitcoin/bips` is a spec discussion, not a fix to any wallet's code.
+
+The signal that *does* matter — a wallet admitting it was not standard-compliant
+— is already captured, because `wallet_vocab.STANDARD_TERMS` feeds the per-repo
+search terms used by commit-grep and stealth. Measured on the curated corpus:
+
+| standard | rows | | standard | rows |
+|---|---:|---|---|---:|
+| BIP-174 (PSBT) | 662 | | ERC-4337 | 219 |
+| EIP-712 | 511 | | EIP-2612 | 119 |
+| BIP-32 | 335 | | EIP-155 | 89 |
+| BIP-39 | 321 | | EIP-1271 | 69 |
+| BIP-44 | 300 | | SLIP-0039 | 64 |
+| | | | RFC 6979 | 34 |
+
+2,779 curated rows reference a wallet standard, including
+`ledger-app-eth` "Stale schema hash lets EIP-712 metadata signatures apply to a
+different contract" and "Blind-signing bypass in EIP-712 FULL filtering
+activation". Fixing the crawler would have added spec-repo chatter, not fixes.
 
 ## Running it
 
