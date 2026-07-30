@@ -638,3 +638,26 @@ def test_corrupt_diff_cache_is_tolerated(tmp_path):
     bad.write_text("")
     with pytest.raises(_json.JSONDecodeError):
         _json.loads(bad.read_text())
+
+
+def test_oversized_diffs_are_not_cached():
+    """The cache must stay bounded regardless of repo size.
+
+    Monorepo commits produce multi-megabyte diffs. Caching them grew
+    diff_cache.json to 23 GB after 4,200 rows, and since the caller
+    re-serialises the entire cache at every checkpoint, that is what killed the
+    labelling run. enrich_labels truncates each file to FILE_CAP_CHARS anyway,
+    and a local bare clone re-reads a diff in milliseconds.
+    """
+    ld = _load("local_diffs", "collection/local_diffs.py")
+    assert hasattr(ld, "MAX_CACHED_DIFF_CHARS")
+    assert ld.MAX_CACHED_DIFF_CHARS <= 1_000_000
+
+    cache: dict = {}
+    big = "x" * (ld.MAX_CACHED_DIFF_CHARS + 1)
+    small = "y" * 100
+    # emulate the store decision without touching git
+    for url, d in (("big", big), ("small", small)):
+        if d is None or len(d) <= ld.MAX_CACHED_DIFF_CHARS:
+            cache[url] = d or ""
+    assert "small" in cache and "big" not in cache

@@ -151,6 +151,16 @@ def _gh_fallback(url: str, wallet: str) -> str | None:
     return r.stdout if r.returncode == 0 and r.stdout.strip() else None
 
 
+# Diffs above this size are NOT cached. A monorepo commit touching thousands of
+# files yields a multi-megabyte diff; caching those grew the JSON cache to 23 GB
+# after 4,200 rows, and the caller re-serialises the whole cache every
+# checkpoint, which is what killed the labelling run. Nothing is lost by
+# skipping them: enrich_labels truncates every file to FILE_CAP_CHARS anyway,
+# and a local bare clone re-reads a diff in milliseconds. The cache exists to
+# avoid REMOTE fetches, not local ones.
+MAX_CACHED_DIFF_CHARS = 200_000
+
+
 def get_diff_cached(url: str, wallet: str, cache: dict, allow_gh: bool = True) -> str | None:
     """Canonical diff provider: persistent JSON cache -> local git -> gh fallback.
 
@@ -163,7 +173,8 @@ def get_diff_cached(url: str, wallet: str, cache: dict, allow_gh: bool = True) -
     d = diff_for_url(url, wallet)
     if d is None and allow_gh:
         d = _gh_fallback(url, wallet)
-    cache[url] = d or ""
+    if d is None or len(d) <= MAX_CACHED_DIFF_CHARS:
+        cache[url] = d or ""      # oversized diffs re-read from git each time
     return d
 
 

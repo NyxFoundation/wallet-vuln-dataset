@@ -582,7 +582,7 @@ def main() -> int:
         metas.append({"url": url, "layer": lyr, "files": ", ".join(files[:6]),
                       "title": r.get("title"), "description": r.get("description"),
                       "nocommit": not fix_sha})
-        if (i + 1) % 200 == 0:
+        if (i + 1) % 2000 == 0:
             _write_cache_atomic(a.diff_cache, dcache)
             print(f"  [labels] {i+1}/{len(df)}", file=sys.stderr)
     _write_cache_atomic(a.diff_cache, dcache)
