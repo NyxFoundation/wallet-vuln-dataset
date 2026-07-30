@@ -134,13 +134,43 @@ explicitly:
 
 Defined in [`collection/wallet_vocab.py`](collection/wallet_vocab.py).
 
+## Reproduce
+
+The curated table is derived **deterministically** from the raw snapshot — no
+network, no API key:
+
+```bash
+uv run python pipeline/build_security_dataset.py \
+  --in  data/raw/train.classified.parquet \
+  --out data/wallet_vulns.parquet
+uv run --with pytest python -m pytest tests/ -q
+```
+
+To rebuild from an existing crawl (curation + labels, no re-crawling):
+
+```bash
+bash scripts/finalize.sh              # stages 4-10
+SKIP_LABELS=1 bash scripts/finalize.sh   # gate only, fully offline
+```
+
+Re-collecting the raw snapshot is network-bound and slow (~24h for all 181
+repos, dominated by GitHub's 30 req/min search limit):
+
+```bash
+MODE=full TIER=3 bash collection/run_pipeline.sh
+```
+
 ## Repository layout
 
 ```
-collection/   wallets.py (registry) · wallet_vocab.py (threat vocabulary) · crawlers · run_pipeline.sh
+collection/   wallets.py (registry) · wallet_vocab.py (threat vocabulary)
+              wallet_ident.py (package coords) · gh_rate.py (rate limits)
+              crawlers · run_pipeline.sh
 pipeline/     build_security_dataset.py — deterministic gate + tiering
-tests/        quality gates (schema, no-boilerplate, every-row-has-a-signal)
-docs/         methodology, limitations, build reports
+              enrich_labels.py — label / root_cause / attack_path / pre+post code
+scripts/      finalize.sh — rebuild the dataset from an existing crawl
+tests/        quality gates + one regression test per bug that shipped
+docs/         methodology, limitations, measured per-slice yield
 data/         wallet_vulns.parquet (curated) · raw/ · manifest.json
 ```
 
