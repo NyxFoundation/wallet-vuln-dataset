@@ -92,14 +92,27 @@ custody threat model, never an authoritative grade. It never overwrites a real
 `severity`; `severity_source` records the provenance. Treat estimated tiers as a
 triage aid.
 
-## 8. Point-in-time snapshot
+## 8. One repo is deliberately incomplete
+
+`MetaMask/eth-phishing-detect` has **255,610 closed PRs** because every
+blocklist domain addition is a pull request. The `direct_pulls` slice was
+terminated for that repo rather than walking ~2,556 pages that contain no
+security fixes; it is the single `fail=1` in that stage's tally. Its other
+slices (advisories, commit-grep, stealth, releases) completed normally, so the
+repo is present in the corpus — just without an exhaustive PR walk.
+
+`PAGE_CEILING` (150 pages) also truncated the PR walk for `bitcoin-core` and
+`brave-wallet`, which are large for legitimate reasons. For all three, deep
+history is still covered by commit-grep and stealth, which are not page-bound.
+
+## 9. Point-in-time snapshot
 
 The corpus is a crawl, not a live feed. Repos get renamed, transferred and
 deleted; several registry slugs already point at redirect targets rather than
 their historical names. Re-running the pipeline is the only way to refresh, and a
 future run may legitimately return *fewer* rows for a repo that was taken private.
 
-## 9. What this dataset is not
+## 10. What this dataset is not
 
 - **Not a vulnerability database.** Rows are *fixes*, some of which fixed bugs
   that were never exploitable in practice.
