@@ -695,5 +695,7 @@ def test_blame_walk_reads_the_real_registry():
     """
     bw = _load("blame_walk", "collection/blame_walk.py")
     assert len(bw.WALLET_CONFIG) == len(wallets.WALLET_CONFIG)
+    # the loader must resolve a path that exists in THIS repo
     src = (ROOT / "collection/blame_walk.py").read_text()
-    assert "benchmarks" not in src
+    assert 'parents[2] / "benchmarks"' not in src
+    assert '"wallets.py"' in src
