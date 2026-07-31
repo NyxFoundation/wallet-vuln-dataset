@@ -1,4 +1,4 @@
-"""classify_stride_cwe.py — enrich the ethereum train.parquet with STRIDE and
+"""classify_stride_cwe.py — enrich the wallet dataset with STRIDE and
 CWE-Top-25 (2024) classifications using the `claude -p` CLI via ClaudeRunner.
 
 Usage:
@@ -93,30 +93,43 @@ MODEL_ID = "claude-haiku-4-5-20251001"
 DESCRIPTION_MAX_CHARS = 2000
 
 CLASSIFY_PROMPT = """\
-You are a security analyst. Classify the following Ethereum-wallet past-fix record by STRIDE category and CWE-Top-25 (2024) id.
+You are a security analyst. Classify the following crypto-wallet past-fix record by STRIDE category and CWE-Top-25 (2024) id.
+
+The threat model is CUSTODY: what matters is whether a defect could cost a user
+funds, key material, or signing authority. Map the wallet failure onto STRIDE by
+its EFFECT, not its mechanism — a leaked seed is Information Disclosure even
+when the bug is a logging call, and a signature accepted over unapproved data is
+Tampering even when the bug is a parser.
 
 Rules:
 - Output ONLY a single JSON object. No prose, no markdown fences.
 - "stride" must be exactly one of: "Spoofing", "Tampering", "Repudiation", "Information Disclosure", "Denial of Service", "Elevation of Privilege", "Other".
 - "cwe_top25" must be exactly one of the 25 ids in the 2024 CWE-Top-25 list (CWE-79, CWE-787, CWE-89, CWE-352, CWE-22, CWE-125, CWE-78, CWE-416, CWE-862, CWE-434, CWE-94, CWE-20, CWE-77, CWE-287, CWE-269, CWE-502, CWE-200, CWE-863, CWE-918, CWE-119, CWE-476, CWE-798, CWE-190, CWE-400, CWE-306) OR "N/A" if no Top-25 entry fits.
 - If the record is too vague to classify (e.g. a commit subject like "fix bug"), return {"stride": "Other", "cwe_top25": "N/A"}.
+- A dependency bump, CI/docs/test change, or pure refactor is {"stride": "Other", "cwe_top25": "N/A"}.
 
 Examples:
 
-Record: title="DoS via crafted block", description="Specially-crafted block triggers exponential validation cost"
-Output: {"stride": "Denial of Service", "cwe_top25": "CWE-400"}
-
-Record: title="Improper ECIES Public Key Validation in RLPx Handshake", description="A peer can supply a malformed ECIES key during handshake; validation accepts it"
-Output: {"stride": "Spoofing", "cwe_top25": "CWE-287"}
-
-Record: title="Memory leak in eth_getLogs", description="Repeated calls to the eth_getLogs RPC retain block iterator references"
-Output: {"stride": "Denial of Service", "cwe_top25": "CWE-400"}
-
-Record: title="Stack trace leaks peer multiaddr in error response", description="Verbose log path includes the remote peer's multiaddr"
+Record: title="Clear seed phrase from memory after unlock", description="The decrypted mnemonic stayed in a JS string after the vault was unlocked"
 Output: {"stride": "Information Disclosure", "cwe_top25": "CWE-200"}
 
-Record: title="Integer overflow in tx fee calculation", description="64-bit fee math wraps on extreme inputs"
-Output: {"stride": "Tampering", "cwe_top25": "CWE-190"}
+Record: title="EIP-712 domain separator missing chainId", description="A signature collected on one chain replays on another because the domain omitted chainId"
+Output: {"stride": "Tampering", "cwe_top25": "CWE-20"}
+
+Record: title="dapp could bypass origin check via postMessage", description="Any page could reach privileged provider RPC methods without being a connected site"
+Output: {"stride": "Elevation of Privilege", "cwe_top25": "CWE-862"}
+
+Record: title="Nonce reuse in ECDSA signing when RNG fails", description="A repeated k value across two signatures allows private key recovery"
+Output: {"stride": "Information Disclosure", "cwe_top25": "CWE-798"}
+
+Record: title="Out-of-bounds read on zero-length int8 EIP-712 fields", description="Malformed typed data crashes the hardware wallet during display formatting"
+Output: {"stride": "Denial of Service", "cwe_top25": "CWE-125"}
+
+Record: title="Phishing site not matched due to punycode normalisation", description="A homoglyph domain evaded the blocklist and was shown as trusted"
+Output: {"stride": "Spoofing", "cwe_top25": "CWE-20"}
+
+Record: title="Bump lodash from 4.17.20 to 4.17.21", description="Routine dependency update"
+Output: {"stride": "Other", "cwe_top25": "N/A"}
 
 Now classify this record:
 title="{title}"
