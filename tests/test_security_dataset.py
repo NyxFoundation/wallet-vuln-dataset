@@ -684,3 +684,16 @@ def test_silent_fix_prob_is_not_inverted():
     assert "p(this change is a security fix)" in src
     # and disagreeing answers are discarded rather than trusted
     assert "if isfix != (conf > 0.5):" in src
+
+
+def test_blame_walk_reads_the_real_registry():
+    """It pointed at benchmarks/scripts/, the reference repo's layout.
+
+    That path does not exist here, so _load_client_config() hit its `return {}`
+    fallback and blame_walk resolved no repos at all — silently, since an empty
+    registry is not an error.
+    """
+    bw = _load("blame_walk", "collection/blame_walk.py")
+    assert len(bw.WALLET_CONFIG) == len(wallets.WALLET_CONFIG)
+    src = (ROOT / "collection/blame_walk.py").read_text()
+    assert "benchmarks" not in src

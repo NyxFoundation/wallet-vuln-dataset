@@ -83,9 +83,12 @@ def gh_json(path: str, timeout: int = 30):
 # ---------------------------------------------------------------------------
 
 def _load_client_config() -> dict:
+    # The reference build lived at benchmarks/scripts/; that path does not exist
+    # here, so this silently returned {} and blame_walk resolved no repos at all.
+    # Read the registry directly instead.
     import importlib.util
-    crawler_path = Path(__file__).resolve().parents[2] / "benchmarks" / "scripts" / "crawl_wallet_past_fixes.py"
-    spec = importlib.util.spec_from_file_location("_crawl_wallet_past_fixes", crawler_path)
+    crawler_path = Path(__file__).resolve().parent / "wallets.py"
+    spec = importlib.util.spec_from_file_location("_wallets", crawler_path)
     if spec is None or spec.loader is None:
         return {}
     mod = importlib.util.module_from_spec(spec)
