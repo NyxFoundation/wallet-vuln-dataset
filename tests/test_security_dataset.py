@@ -661,3 +661,26 @@ def test_oversized_diffs_are_not_cached():
         if d is None or len(d) <= ld.MAX_CACHED_DIFF_CHARS:
             cache[url] = d or ""
     assert "small" in cache and "big" not in cache
+
+
+# ---------------------------------------------------------------------------
+# Regression: silent_fix_prob semantics
+# ---------------------------------------------------------------------------
+
+def test_silent_fix_prob_is_not_inverted():
+    """`confidence` is p(security fix), so negatives must NOT be flipped.
+
+    The prompt tells the model to emit LOW confidence for refactors. With the
+    old `1 - conf` inversion a CI-only change came back is_security_fix=0,
+    confidence=0.03 and was recorded as silent_fix_prob=0.97 — verified on real
+    output ("CI coverage configuration and test-function renames only; no wallet
+    source" scored 0.97). Applied to the corpus it would have promoted thousands
+    of refactors into the corroborated tier.
+    """
+    src = (ROOT / "collection/llm_classify_fixes.py").read_text()
+    assert "prob = conf if isfix else 1 - conf" not in src
+    assert "prob = conf\n" in src
+    # the prompt must define confidence explicitly, or the bug returns silently
+    assert "p(this change is a security fix)" in src
+    # and disagreeing answers are discarded rather than trusted
+    assert "if isfix != (conf > 0.5):" in src

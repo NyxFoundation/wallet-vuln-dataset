@@ -228,8 +228,11 @@ Reason step by step (Chain-of-Thought):
    local app, or physical device access trigger the pre-fix path (worst case)?
 5. If funds/keys/signing authority are NOT reachable, say so and answer false.
 
-Calibrate: confidence >0.7 only when the diff concretely shows a defect being
-repaired; <0.4 when it is a feature/refactor/vendor/test change.
+`confidence` is NOT your confidence in your own answer. It is
+**p(this change is a security fix)** on a 0.0-1.0 scale, and it must agree with
+`is_security_fix` (>0.5 means true, <0.5 means false). Calibrate: >0.7 only when
+the diff concretely shows a defect being repaired; <0.4 when it is a
+feature/refactor/vendor/test change; ~0.5 when genuinely unsure.
 
 Output ONLY a single JSON object on the last line, no prose after it:
 {{"is_security_fix": true|false, "confidence": 0.0-1.0, "vuln_class": "<key_material|signing|approval|transport|ui_deception|platform|contract|mpc|firmware|supply_chain|dos|memory|other|none>", "reason": "<one sentence>"}}
@@ -343,7 +346,20 @@ def apply_to_dataset(a) -> int:
                 continue
             isfix = bool(pr.get("is_security_fix"))
             conf = float(pr.get("confidence") or 0)
-            prob = conf if isfix else 1 - conf          # p(security fix)
+            # `confidence` IS p(security fix) — see build_prompt. It is not a
+            # self-certainty score, so it must NOT be inverted for negatives.
+            #
+            # The old `1 - conf` inversion was catastrophic here: the prompt
+            # tells the model to emit LOW confidence for refactors, so a
+            # CI-only change came back is_security_fix=0, confidence=0.03 and
+            # was recorded as silent_fix_prob=0.97. Verified on a real sample:
+            # "CI coverage configuration and test-function renames only; no
+            # wallet source" scored 0.97. Left in place it would have promoted
+            # thousands of refactors into the corroborated tier.
+            prob = conf
+            # Cross-check the two fields; disagreement means an unusable answer.
+            if isfix != (conf > 0.5):
+                continue
             if prob >= 0.70:
                 n_fix += 1
             w.writerow([url, f"{prob:.3f}", int(isfix), pr.get("vuln_class", ""),
