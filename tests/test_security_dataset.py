@@ -699,3 +699,17 @@ def test_blame_walk_reads_the_real_registry():
     src = (ROOT / "collection/blame_walk.py").read_text()
     assert 'parents[2] / "benchmarks"' not in src
     assert '"wallets.py"' in src
+
+
+def test_classifier_isolates_per_row_diff_failures():
+    """One unresolvable row must not abort the batch.
+
+    The corpus includes rows sourced from the standards repos (bips/slips/eips)
+    — legitimate cross-wallet search targets, but not wallets, so local_diffs has
+    no clone for them and raises KeyError. Seven such rows killed a 25,472-row
+    classification run at 9,840.
+    """
+    src = (ROOT / "collection/llm_classify_fixes.py").read_text()
+    i_try = src.find("try:\n            diff = local_diffs.get_diff_cached")
+    assert i_try != -1, "diff fetch is not wrapped"
+    assert 'return url, {"skip": "noclone"}' in src

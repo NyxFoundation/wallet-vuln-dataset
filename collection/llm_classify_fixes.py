@@ -316,7 +316,17 @@ def apply_to_dataset(a) -> int:
         url = str(r["source_url"])
         if url in pred_cache:
             return url, pred_cache[url]
-        diff = local_diffs.get_diff_cached(url, r["source_platform"], diff_cache)
+        # One unresolvable row must not kill the batch. The corpus contains rows
+        # sourced from the standards repos (bips/slips/eips) — legitimate search
+        # targets but not wallets, so they have no local clone. Seven such rows
+        # aborted a 25,472-row run at 9,840 with KeyError.
+        try:
+            diff = local_diffs.get_diff_cached(url, r["source_platform"], diff_cache)
+        except KeyError:
+            return url, {"skip": "noclone"}
+        except Exception as exc:
+            print(f"  [apply] diff failed for {url}: {exc}", file=sys.stderr)
+            return url, {"skip": "differror"}
         if not diff:
             return url, {"skip": "nodiff"}
         it = {"title": str(r.get("title") or "")[:200],
