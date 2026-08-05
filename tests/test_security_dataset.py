@@ -861,3 +861,43 @@ def test_unparseable_answers_are_not_cached():
     i = src.find("for url, pred in ex.map(work, rows):")
     block = src[i:i + 600]
     assert "parse_error" in block, "the apply loop caches unparseable answers"
+
+
+# ---------------------------------------------------------------------------
+# Tier A: an advisory against a dependency is not a wallet vulnerability
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("title", [
+    "Fix: GitHub security warning for rubyzip gem CVE-2019-16892",
+    "Fix: vulnerability found by GitHub: CVE-2021-3807",
+    "[CP] Upgrade rails due to CVE-2022-32224",
+    "fix(sdk-core): update protobufjs to fix critical vulnerability",
+    "Update `npm` version (development use only) to not rely on vulnerable version of `got`",
+    "Bump lodash from 4.17.20 to 4.17.21 for CVE-2021-23337",
+])
+def test_dependency_advisories_leave_the_top_tier(title):
+    """713 of 2,009 A_authoritative rows (35.5%) were third-party advisories.
+
+    T2c drops dependency bumps but exempts any citing an advisory id — correct
+    in the client corpus, wrong here, because wallet repos carry large web and
+    CI dependency trees. rails, rubyzip and protobufjs are not custody paths,
+    and `authority_tier` was partly measuring whether Dependabot runs on a repo.
+    """
+    row = {"title": title, "description": "", "severity": "High", "contest": "advisory"}
+    assert gate.advisory_scope(row) == "dependency", title
+    assert gate.authority_tier(row) == "A_dependency"
+
+
+@pytest.mark.parametrize("title", [
+    "Fix nonce reuse in ECDSA signing when RNG fails",
+    "Fix vulnerability in seed derivation path",
+    "contrib: Fix CVE-2018-12356 by hardening the regex",
+    "security: validate EIP-712 domain separator",
+    "Fix out-of-bounds read in typed-data display",
+    "executeUserOp can be used to bypass allowlist prevalidation hook",
+])
+def test_real_wallet_fixes_stay_authoritative(title):
+    """The split must key on the scanner's signature, not on 'fix'+'vulnerability'."""
+    row = {"title": title, "description": "", "severity": "High", "contest": "advisory"}
+    assert gate.advisory_scope(row) == "own_code", title
+    assert gate.authority_tier(row) == "A_authoritative"

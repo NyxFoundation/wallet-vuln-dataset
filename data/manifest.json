@@ -51,9 +51,10 @@
       "low": 992
     },
     "by_authority_tier": {
-      "B_corroborated": 16652,
+      "B_corroborated": 16653,
       "C_candidate": 8034,
-      "A_authoritative": 2053
+      "A_authoritative": 1424,
+      "A_dependency": 628
     },
     "by_n_signals": {
       "1": 8183,

@@ -17,7 +17,8 @@ retargeted from a *protocol* threat model to a **custody** threat model.
 import pandas as pd
 df = pd.read_parquet("data/wallet_vulns.parquet")
 
-df[df.authority_tier != "C_candidate"]   # the essential slice (18,705 rows)
+df[df.authority_tier.isin(["A_authoritative", "B_corroborated"])]  # essential (18,077)
+df[df.authority_tier != "A_dependency"]   # everything except third-party advisories
 df[df.confidence == "high"]              # strongest evidence only
 ```
 
@@ -27,8 +28,8 @@ df[df.confidence == "high"]              # strongest evidence only
 |---|---:|
 | raw snapshot (all repos) | 90,223 |
 | curated (security-only) | **26,739** |
-| └ essential slice (tier A ∪ B) | **18,705** |
-| by tier | A_authoritative 2,053 · B_corroborated 16,652 · C_candidate 8,034 |
+| └ essential slice (A_authoritative ∪ B) | **18,077** |
+| by tier | A_authoritative 1,424 · **A_dependency 628** · B_corroborated 16,653 · C_candidate 8,034 |
 | by confidence | high 9,122 · medium 16,638 · low 979 |
 | by severity | Critical 1 · High 228 · Medium 848 · Low 50 · Info 10,068 · Unrated 15,544 |
 | with a STRIDE category (not `Other`) | 6,530 (24%) |
@@ -36,6 +37,15 @@ df[df.confidence == "high"]              # strongest evidence only
 
 **96% of rows are Info or Unrated**, because almost no wallet fix is ever
 graded by anyone. Unrated is not low impact — it is the absence of a grader.
+
+**`A_dependency` is a real advisory about someone else's code.** 629 of the
+2,053 rows carrying an advisory id (31%) are the repo bumping a dependency that
+had a CVE — `rubyzip`, `rails`, `protobufjs`, `lodash`. The evidence is as
+strong as any tier-A row and the finding is genuine, but rails is not a custody
+path, and only 1.3% of these get a STRIDE category versus 7.1% of the rest.
+Kept, separated, and excluded from the essential slice: undivided, the top tier
+partly measured *whether Dependabot runs on a repo* — the same confound between
+disclosure practice and defect count that this dataset exists to expose.
 
 De-noising before the gate, and what each stage removes:
 

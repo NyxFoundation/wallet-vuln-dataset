@@ -339,11 +339,61 @@ def count_signals(row) -> int:
     return n
 
 
+# An advisory row whose subject is a PACKAGE THE WALLET DEPENDS ON, not the
+# wallet's own code: "Fix: GitHub security warning for rubyzip gem CVE-2019-16892",
+# "[CP] Upgrade rails due to CVE-2022-32224", "update protobufjs to fix critical
+# vulnerability". T2c drops dependency bumps but exempts any that cite an
+# advisory id, because in the client corpus that exemption caught real fixes.
+# Wallet repos carry large web and CI dependency trees, so the exemption instead
+# routed Dependabot's CVE bumps straight into the top tier: 713 of 2,009
+# A_authoritative rows (35.5%) were third-party advisories. rails is not a
+# custody path. Left unsplit, `authority_tier` partly measures whether
+# Dependabot runs on a repo — the same confound this dataset exists to expose.
+# Matched on the SIGNATURE of an automated dependency alert, not on the words
+# "fix" + "vulnerability" — "Fix vulnerability in seed derivation" is a wallet
+# fix and must not land here. What identifies these is that a scanner named the
+# finding: "…by GitHub", "GitHub security warning", "npm audit", or an explicit
+# "update <package> to fix …".
+DEP_ADVISORY_RE = re.compile(
+    r"(?:github|dependabot|snyk|npm audit|yarn audit|renovate)\s+"
+    r"(?:security\s+)?(?:warning|alert|advisor|vulnerabilit)"
+    r"|vulnerabilit(?:y|ies)\s+(?:found\s+)?(?:by|from|in|reported by)\s+"
+    r"(?:github|dependabot|snyk|npm)"
+    r"|(?:fix|resolve|address)\w*\s+vulnerabilit(?:y|ies)\s+by\s+github"
+    r"|\b(?:security\s+)?(?:warning|alert)s?\s+for\s+"
+    r"(?:javascript|ruby|python|go|rust|node)?\s*(?:packages|gems|modules|deps)\b"
+    r"|\b(?:bump|upgrade|update)\b[^\n]{0,80}?\b(?:gem|npm package|dependencies|"
+    r"dependency|to\s+(?:a\s+)?(?:non-)?vulnerable)\b"
+    # "Upgrade rails due to CVE-2022-32224" — a named package plus the reason,
+    # with no version number, so the dep-bump shape rule alone misses it.
+    r"|\b(?:bump|upgrade|update)\s+[`'\"]?[\w@][\w@./-]*[`'\"]?\s+"
+    r"(?:due to|because of|for|to fix|to address|to resolve)\s+"
+    # allow "…to fix CRITICAL vulnerability" / "…for the KNOWN CVE-…"
+    r"(?:(?:the|a|an|critical|high|known|reported|multiple)\s+){0,3}"
+    r"(?:CVE-|GHSA-|RUSTSEC-|vulnerabilit|security)"
+    # "…to not rely on vulnerable version of `got`"
+    r"|\bvulnerable version of\b",
+    re.IGNORECASE,
+)
+
+
+def advisory_scope(row) -> str:
+    """Whether an advisory-bearing row is about the wallet's code or a dependency."""
+    t = str(row["title"] or "")
+    if DEP_BUMP_RE.search(t) or DEP_ADVISORY_RE.search(t):
+        return "dependency"
+    return "own_code"
+
+
 def authority_tier(row) -> str:
     """Coarse provenance class so a consumer can take the *essential* slice.
 
-    A_authoritative — an advisory/CVE/GHSA id or an advisory-rated severity: a
-                      confirmed vulnerability. Near-zero false positives.
+    A_authoritative — an advisory/CVE/GHSA id or an advisory-rated severity, and
+                      the subject is the wallet's OWN code. Near-zero false
+                      positives.
+    A_dependency    — same evidence strength, but the advisory is against a
+                      third-party package the repo bumped. Real, and useless as
+                      a wallet vulnerability: filter it out for custody work.
     B_corroborated  — no id, but >=2 independent signals stack (e.g. strong
                       keyword + sensitive path + linked crash issue).
     C_candidate     — a single heuristic keyword only; broad-recall, noisier.
@@ -353,7 +403,7 @@ def authority_tier(row) -> str:
     contest = str(row.get("contest", "")).lower()
     if (CVE_RE.search(t + " " + d) or s in RATED_SEV
             or "advisory" in contest or "cve" in contest):
-        return "A_authoritative"
+        return "A_dependency" if advisory_scope(row) == "dependency" else "A_authoritative"
     if count_signals(row) >= 2:
         return "B_corroborated"
     return "C_candidate"
@@ -604,7 +654,8 @@ def main() -> int:
             s = 8.0 if str(r.get("pre_fix_code") or "[]") != "[]" else 0.0
             u = str(r.get("source_url") or "")
             s += 4 if ("/pull/" in u or "/commit/" in u) else 0
-            s += {"A_authoritative": 3, "B_corroborated": 2, "C_candidate": 1}.get(r.get("authority_tier"), 0)
+            s += {"A_authoritative": 3, "B_corroborated": 2, "A_dependency": 1.5,
+                  "C_candidate": 1}.get(r.get("authority_tier"), 0)
             s += min(len(str(r.get("description") or "")), 2000) / 1000
             return s
 
