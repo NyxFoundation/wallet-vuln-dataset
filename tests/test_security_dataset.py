@@ -858,9 +858,15 @@ def test_unparseable_answers_are_not_cached():
     """A failed call must stay retryable, not settle as a negative verdict."""
     src = (ROOT / "collection/llm_classify_fixes.py").read_text()
     assert '"parse_error"' in src, "unparseable answers are not marked"
-    i = src.find("for url, pred in ex.map(work, rows):")
-    block = src[i:i + 600]
-    assert "parse_error" in block, "the apply loop caches unparseable answers"
+    # Read the whole loop body rather than a fixed character window — the window
+    # version broke the moment an unrelated comment was added above the check.
+    i = src.find("for url, pred in ex.map(work,")
+    assert i != -1, "apply loop not found"
+    block = src[i:src.find("a.pred_cache.write_text", i)]
+    assert "parse_error" in block and "pred_cache[url] = pred" in block, \
+        "the apply loop caches unparseable answers"
+    guard = block.split("pred_cache[url] = pred")[0]
+    assert "parse_error" in guard, "the failure check does not precede the cache write"
 
 
 # ---------------------------------------------------------------------------
@@ -920,3 +926,25 @@ def test_permanent_clone_failure_is_cached_per_repo():
         "the permanent-failure test is missing"
     assert "timeout" not in body.split("_CLONE_DEAD[wallet] =")[0].split("if re.search")[-1], \
         "a timeout must not be recorded as permanent"
+
+
+def test_llm_endpoint_waits_on_429_instead_of_burning_rows():
+    """429 is "ask again later", not a verdict about the row.
+
+    Ollama Cloud started answering 429 partway through a 62,882-row pass and
+    7,641 rows were recorded as failures before it was noticed. gh_rate.py
+    already encodes this discipline for GitHub — wait on the rate limit, abort on
+    a real auth failure — and the LLM path never got it. The wait must be
+    process-global: backing off one worker while the others keep sending just
+    refreshes the limit.
+    """
+    mod = _load("llm_classify_fixes", "collection/llm_classify_fixes.py")
+    assert hasattr(mod, "_rate_backoff") and hasattr(mod, "_RATE_GATE")
+    src = (ROOT / "collection/llm_classify_fixes.py").read_text()
+    i = src.find("def _call_llm")
+    body = src[i:src.find("\nDIFF_FLUSH_SECONDS", i)]
+    assert "e.code != 429 and e.code < 500" in body, "429/5xx are not retried"
+    assert "_RATE_GATE.wait()" in body, "workers do not park on the shared gate"
+    # An auth failure or a 404 is an answer; retrying it forever is the trap
+    # gh_rate.py was written to avoid.
+    assert "raise" in body.split("e.code < 500")[1][:80], "4xx is not re-raised"

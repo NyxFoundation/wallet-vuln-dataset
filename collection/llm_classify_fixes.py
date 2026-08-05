@@ -29,7 +29,9 @@ import os
 import re
 import subprocess
 import sys
+import threading
 import time
+import urllib.error
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -52,6 +54,42 @@ if not os.environ.get("SSL_CERT_FILE"):
             break
 
 
+# A hosted endpoint answers 429 when the caller is over its quota. That is not a
+# verdict about the row — it is "ask again later" — and treating it as a failed
+# row torched 7,641 rows of a 62,882-row pass before anyone noticed. This is the
+# lesson gh_rate.py already encodes for GitHub ("403 is ambiguous; wait on the
+# rate limit, abort on real auth failure"), which never reached the LLM path.
+#
+# The wait is process-global: when the quota is exhausted, every worker is over
+# it, so backing off one thread while fifteen others keep hammering just refreshes
+# the limit. The first thread to see a 429 parks the whole pool.
+_RATE_GATE = threading.Event()
+_RATE_GATE.set()                      # set == clear to send
+_RATE_LOCK = threading.Lock()
+RATE_MAX_TRIES = 6
+RATE_BASE_SLEEP = 20.0                # doubled per attempt, capped
+RATE_MAX_SLEEP = 600.0
+
+
+def _rate_backoff(attempt: int, retry_after: str | None) -> None:
+    """Park every worker for one backoff interval, then release them together."""
+    delay = min(RATE_BASE_SLEEP * (2 ** attempt), RATE_MAX_SLEEP)
+    if retry_after:
+        try:
+            delay = max(delay, min(float(retry_after), RATE_MAX_SLEEP))
+        except ValueError:
+            pass
+    with _RATE_LOCK:
+        if not _RATE_GATE.is_set():
+            return                     # another thread is already serving the wait
+        _RATE_GATE.clear()
+    try:
+        print(f"  [rate] over quota — pausing all workers {delay:.0f}s", file=sys.stderr)
+        time.sleep(delay)
+    finally:
+        _RATE_GATE.set()
+
+
 def _call_llm(prompt: str) -> str:
     """Return the raw model text for a prompt via the configured engine."""
     eng = ENGINE["engine"]
@@ -63,10 +101,26 @@ def _call_llm(prompt: str) -> str:
         headers = {"Content-Type": "application/json"}
         if ENGINE["api_key"]:
             headers["Authorization"] = f"Bearer {ENGINE['api_key']}"
-        req = urllib.request.Request(ENGINE["base_url"].rstrip("/") + "/chat/completions",
-                                     data=body, headers=headers)
-        with urllib.request.urlopen(req, timeout=300) as r:
-            return json.loads(r.read())["choices"][0]["message"]["content"]
+        last: Exception | None = None
+        for attempt in range(RATE_MAX_TRIES):
+            _RATE_GATE.wait()
+            req = urllib.request.Request(
+                ENGINE["base_url"].rstrip("/") + "/chat/completions",
+                data=body, headers=headers)
+            try:
+                with urllib.request.urlopen(req, timeout=300) as r:
+                    return json.loads(r.read())["choices"][0]["message"]["content"]
+            except urllib.error.HTTPError as e:
+                last = e
+                # 429 = over quota, 5xx = the server's problem. Both are worth
+                # retrying; 401/403/404 are answers and must not be retried.
+                if e.code != 429 and e.code < 500:
+                    raise
+                _rate_backoff(attempt, e.headers.get("Retry-After") if e.headers else None)
+            except (urllib.error.URLError, TimeoutError, ConnectionError) as e:
+                last = e
+                _rate_backoff(attempt, None)
+        raise last if last else RuntimeError("exhausted retries")
     if eng == "ollama":  # native local Ollama
         body = json.dumps({
             "model": ENGINE["model"] or "qwen2.5-coder:7b",
@@ -287,6 +341,13 @@ def classify(it: dict) -> dict:
     try:
         out = _call_llm(prompt)
         obj = _extract_json_object(out)
+        if obj:
+            # Provenance belongs to the PREDICTION, not to whichever run happens
+            # to write the csv later. Reading it off the live ENGINE stamped
+            # 23,777 glm-5.2 answers as "claude-cli-default" when a quota-
+            # interrupted pass was exported with --csv-only.
+            obj["_model"] = ENGINE["model"] or (
+                "claude-cli-default" if ENGINE["engine"] == "claude" else "unknown")
         if not obj:
             # An unparseable answer is a FAILED call, not a negative verdict.
             # Marking it lets the caller refuse to cache it, so a re-run retries.
@@ -371,8 +432,11 @@ def apply_to_dataset(a) -> int:
 
     done = n_bad = 0
     last_diff_flush = time.monotonic()
-    with ThreadPoolExecutor(max_workers=a.workers) as ex:
-        for url, pred in ex.map(work, rows):
+    if getattr(a, "csv_only", False):
+        print(f"[apply] --csv-only: writing from {len(pred_cache)} cached predictions, "
+              f"no model calls", file=sys.stderr)
+    with ThreadPoolExecutor(max_workers=1 if getattr(a, "csv_only", False) else a.workers) as ex:
+        for url, pred in ex.map(work, [] if getattr(a, 'csv_only', False) else rows):
             # Cache answers and permanent skips; never cache a call that failed
             # or came back unparseable, or the next run treats it as settled.
             if isinstance(pred, dict) and ("parse_error" in pred or "error" in pred):
@@ -419,8 +483,8 @@ def apply_to_dataset(a) -> int:
         # built from a mix of them has a gate whose strictness varies by row.
         w.writerow(["source_url", "silent_fix_prob", "is_security_fix", "vuln_class",
                     "model", "prompt_version", "reason"])
-        model_id = ENGINE["model"] or ("claude-cli-default" if ENGINE["engine"] == "claude"
-                                       else "unknown")
+        fallback_model = ENGINE["model"] or ("claude-cli-default"
+                                            if ENGINE["engine"] == "claude" else "unknown")
         for r in rows:
             url = str(r["source_url"]); pr = pred_cache.get(url, {})
             if not isinstance(pr, dict) or "is_security_fix" not in pr:
@@ -444,7 +508,8 @@ def apply_to_dataset(a) -> int:
             if prob >= 0.70:
                 n_fix += 1
             w.writerow([url, f"{prob:.3f}", int(isfix), pr.get("vuln_class", ""),
-                        model_id, PROMPT_VERSION, str(pr.get("reason", ""))[:200]])
+                        pr.get("_model") or fallback_model, PROMPT_VERSION,
+                        str(pr.get("reason", ""))[:200]])
     print(f"[apply] wrote {a.apply_out} — {n_fix} rows with silent_fix_prob>=0.70", file=sys.stderr)
     if n_bad:
         print(f"[apply] {n_bad}/{len(rows)} calls failed or were unparseable and were "
@@ -457,6 +522,9 @@ def main() -> int:
     ap.add_argument("--build-eval", action="store_true")
     ap.add_argument("--run", action="store_true")
     ap.add_argument("--apply", action="store_true", help="classify dataset rows -> silent_fix csv")
+    ap.add_argument("--csv-only", action="store_true",
+                    help="write the csv from the existing --pred-cache and make no model "
+                         "calls: a pass stopped by a quota still yields its artifact")
     ap.add_argument("--tier", default="C_candidate", help="authority_tier to classify (or 'all')")
     ap.add_argument("--apply-out", default=Path("scratchpad_crawl/supp/llm_silent_fix.csv"), type=Path)
     ap.add_argument("--pred-cache", default=Path("scratchpad_crawl/llm_pred_cache.json"), type=Path)
