@@ -112,6 +112,21 @@ deleted; several registry slugs already point at redirect targets rather than
 their historical names. Re-running the pipeline is the only way to refresh, and a
 future run may legitimately return *fewer* rows for a repo that was taken private.
 
+That already happened during this project. `chainapsis/keplr-wallet` was verified
+present when the registry was built and returns **404 today** — the org is still
+there, but the wallet source is gone. The **263 curated rows sourced from it
+remain in the dataset**, which cuts both ways:
+
+- they are now the *only* public record of those fixes, which is an argument for
+  a commit-history corpus over a live-query tool;
+- and they cannot be re-verified, re-diffed, or refreshed. `fix_commit` values
+  for those rows point at commits nobody outside Keplr can fetch, and a
+  reproduction run will report them as failures rather than reproducing them.
+
+Treat a diff-fetch failure on such a row as "the upstream withdrew", not "the
+pipeline broke". `collection/local_diffs.py` records a permanent clone failure
+per *repo* rather than retrying it per row.
+
 ## 10. What this dataset is not
 
 - **Not a vulnerability database.** Rows are *fixes*, some of which fixed bugs

@@ -901,3 +901,22 @@ def test_real_wallet_fixes_stay_authoritative(title):
     row = {"title": title, "description": "", "severity": "High", "contest": "advisory"}
     assert gate.advisory_scope(row) == "own_code", title
     assert gate.authority_tier(row) == "A_authoritative"
+
+
+def test_permanent_clone_failure_is_cached_per_repo():
+    """A repo that 404s cannot be cloned for the next row either.
+
+    `chainapsis/keplr-wallet` was public when the registry was verified and is
+    gone now. Every one of its 263 curated rows re-attempted a full clone
+    against the 404, because the failure was treated as a property of the row.
+    Only PERMANENT answers are remembered — a timeout must stay retryable, or
+    one bad minute writes off a whole repo.
+    """
+    src = (ROOT / "collection/local_diffs.py").read_text()
+    assert "_CLONE_DEAD" in src, "clone failures are not remembered per repo"
+    i = src.find("def ensure_clone")
+    body = src[i:src.find("\ndef ", i + 10)]
+    assert "not found" in body and "Authentication failed" in body, \
+        "the permanent-failure test is missing"
+    assert "timeout" not in body.split("_CLONE_DEAD[wallet] =")[0].split("if re.search")[-1], \
+        "a timeout must not be recorded as permanent"

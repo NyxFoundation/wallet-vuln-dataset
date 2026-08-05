@@ -48,6 +48,10 @@ def repo_path(wallet: str) -> Path:
     return REPO_DIR / f"{wallet}.git"
 
 
+_CLONE_DEAD: dict[str, str] = {}
+_CLONE_DEAD_LOCK = threading.Lock()
+
+
 def ensure_clone(wallet: str, blobless: bool = True) -> Path:
     """Return the bare clone path, cloning it once even under concurrency.
 
@@ -62,6 +66,13 @@ def ensure_clone(wallet: str, blobless: bool = True) -> Path:
     p = repo_path(wallet)
     if (p / "HEAD").exists():
         return p
+    # A repo that cannot be cloned cannot be cloned for the next row either.
+    # `chainapsis/keplr-wallet` went private after it was crawled, and every one
+    # of its 263 curated rows re-attempted a full clone against a 404 — the
+    # failure is a property of the REPO, not of the row that happened to hit it.
+    with _CLONE_DEAD_LOCK:
+        if wallet in _CLONE_DEAD:
+            raise RuntimeError(f"clone unavailable for {wallet}: {_CLONE_DEAD[wallet]}")
     p.parent.mkdir(parents=True, exist_ok=True)
     url = f"https://github.com/{WALLET_REPOS[wallet]}.git"
     staging = p.with_name(f"{p.name}.{os.getpid()}.{threading.get_ident()}.tmp")
@@ -71,7 +82,14 @@ def ensure_clone(wallet: str, blobless: bool = True) -> Path:
     try:
         r = _run(args, timeout=1800)
         if r.returncode != 0:
-            raise RuntimeError(f"clone failed for {wallet}: {r.stderr[:300]}")
+            err = r.stderr[:300]
+            # Only a permanent answer is remembered; a timeout or transport blip
+            # must stay retryable, or one bad minute writes off a whole repo.
+            if re.search(r"not found|does not exist|Access denied|401|403|"
+                         r"could not read Username|Authentication failed", err, re.I):
+                with _CLONE_DEAD_LOCK:
+                    _CLONE_DEAD[wallet] = err.strip().splitlines()[-1][:160]
+            raise RuntimeError(f"clone failed for {wallet}: {err}")
         try:
             os.rename(staging, p)
         except OSError:

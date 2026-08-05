@@ -29,6 +29,7 @@ import os
 import re
 import subprocess
 import sys
+import time
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -81,6 +82,8 @@ def _call_llm(prompt: str) -> str:
     r = subprocess.run(cmd, capture_output=True, text=True, timeout=180,
                        encoding="utf-8", errors="replace")
     return r.stdout.strip()
+
+DIFF_FLUSH_SECONDS = 600  # the diff cache is an optimisation, not the result
 
 DEPBUMP_RE = re.compile(r"\bbump\b|chore\(deps|dependabot|renovate", re.I)
 NONFIX_TITLE_RE = re.compile(
@@ -367,19 +370,40 @@ def apply_to_dataset(a) -> int:
         return url, classify(it)["pred"]
 
     done = n_bad = 0
+    last_diff_flush = time.monotonic()
     with ThreadPoolExecutor(max_workers=a.workers) as ex:
         for url, pred in ex.map(work, rows):
             # Cache answers and permanent skips; never cache a call that failed
             # or came back unparseable, or the next run treats it as settled.
             if isinstance(pred, dict) and ("parse_error" in pred or "error" in pred):
                 n_bad += 1
+                # Not caching a failure is only half the job: a run can fail
+                # every single call and still print an advancing row counter.
+                # 34,000 consecutive failures went unremarked exactly this way.
+                if n_bad <= 5 or n_bad % 200 == 0:
+                    why = pred.get("error") or f"unparseable: {pred.get('parse_error')}"
+                    print(f"  [apply] FAILED ({n_bad} so far): {str(why)[:160]}",
+                          file=sys.stderr)
             else:
                 pred_cache[url] = pred
             done += 1
             if done % 40 == 0:
+                # pred_cache is the work product (megabytes) — checkpoint it often.
+                # diff_cache is only an optimisation and reaches ~700MB, so
+                # re-serialising it every 40 rows costs more than every diff it
+                # saves: throughput collapsed from 379 rows/min to 7. This is the
+                # same defect c56f6a0 fixed in enrich_labels ("it reached 23 GB
+                # and was the real cause of the stage-10 death") — that fix
+                # landed in the sibling script only. Time-based here, because
+                # within one pass each URL is fetched once and the cache only
+                # pays off across runs.
                 a.pred_cache.write_text(json.dumps(pred_cache))
-                a.cache.write_text(json.dumps(diff_cache))
-                print(f"  [apply] {done}/{len(rows)}", file=sys.stderr)
+                now = time.monotonic()
+                if now - last_diff_flush >= DIFF_FLUSH_SECONDS:
+                    a.cache.write_text(json.dumps(diff_cache))
+                    last_diff_flush = now
+                print(f"  [apply] {done}/{len(rows)} "
+                      f"({len(pred_cache)} cached, {n_bad} failed)", file=sys.stderr)
     a.pred_cache.write_text(json.dumps(pred_cache))
     a.cache.write_text(json.dumps(diff_cache))
 
