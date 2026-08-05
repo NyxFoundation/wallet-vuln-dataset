@@ -557,12 +557,29 @@ def main() -> int:
     if _redaction:
         print(f"redacted credential material on input: {_redaction}")
     # Optional: join the learned silent-fix probability (method 1) as a signal.
+    report_models = None
     if a.silent_fix_csv and a.silent_fix_csv.exists():
         probs = pd.read_csv(a.silent_fix_csv)
         probs = probs.dropna(subset=["source_url"]).drop_duplicates("source_url")
         df = df.merge(probs[["source_url", "silent_fix_prob"]], on="source_url", how="left")
         print(f"[silent-fix] joined {probs['silent_fix_prob'].notna().sum()} "
               f"classifier scores", file=sys.stderr)
+        # silent_fix_prob is a gate-ADMITTING signal at >= 0.70, and that number
+        # means different things to different models: on the same 4,000 rows,
+        # glm-5.2 admitted 4.5x what Opus did. A mixed CSV therefore applies a
+        # different admission bar to different rows, which is not a threshold at
+        # all. Say so loudly rather than quietly publishing an uneven gate.
+        if "model" in probs.columns:
+            models = sorted({m for m in probs["model"].dropna().astype(str) if m.strip()})
+            report_models = models
+            if len(models) > 1:
+                print(f"[silent-fix] WARNING: scores come from {len(models)} models "
+                      f"({', '.join(models)}). The 0.70 admission threshold is not "
+                      f"calibrated across them.", file=sys.stderr)
+        else:
+            report_models = ["unrecorded"]
+            print("[silent-fix] WARNING: CSV has no `model` column — provenance of "
+                  "these scores is unknown", file=sys.stderr)
     sec, report = build(df)
 
     # Optional: fold in the id-keyed label enrichment (docs/label_design.md).
@@ -627,6 +644,8 @@ def main() -> int:
     a.out.parent.mkdir(parents=True, exist_ok=True)
 
     report["redaction"] = _redaction
+    if report_models is not None:
+        report["silent_fix_models"] = report_models
 
     sec.to_parquet(a.out, index=False)
     print(f"\nwrote {len(sec)} rows -> {a.out}")

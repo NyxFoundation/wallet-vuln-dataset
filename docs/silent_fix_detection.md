@@ -106,9 +106,58 @@ stacked up (intersection = precision):
 | `B_corroborated` | no id, but ≥ 2 independent signals agree |
 | `C_candidate` | a single signal fired — broad recall, noisier |
 
-`silent_fix_prob ≥ 0.70` counts as one such signal, so the LLM pass mainly
-*promotes* rows the deterministic gate had left in the noisy candidate tier,
-rather than admitting rows on its own authority.
+`silent_fix_prob ≥ 0.70` counts as one such signal — and unlike the other two it
+can admit a row **on its own authority**, which is the whole point: a fix whose
+commit message says "cleanup" fires no keyword and carries no advisory id.
+
+### What the classifier actually recovers (measured)
+
+For most of this dataset's life the classifier had only ever been pointed at
+rows the gate had *already admitted*, where it can only shuffle tiers. Run
+instead against a random 4,000 of the **62,882 rows the gate dropped**:
+
+| | |
+|---|---:|
+| rows scored (`glm-5.2`, 99.5% parse rate) | 3,978 |
+| judged a security fix at any confidence | 300 (7.5%) |
+| **at the ≥ 0.70 admission threshold** | **270 (6.8%)** |
+| at the Opus-calibrated ≥ 0.85 threshold | 106 (2.7%) |
+
+Extrapolated across all 62,882 dropped rows that is **~4,300 recoverable fixes
+at 0.70, ~1,700 at 0.85** — 6–16% on top of the curated corpus, concentrated in
+exactly the custody surfaces the keyword gate is meant to cover (`signing` 93,
+`ui_deception` 60, `key_material` 40 of the 300).
+
+### `silent_fix_prob` is not comparable across models
+
+The same 4,000 rows scored by Opus and by `glm-5.2` agree on `is_security_fix`
+96% of the time, but the disagreements are entirely one-directional: glm flags
+rows Opus does not, never the reverse. At the same 0.70 threshold glm admits
+**4.5×** as many rows; the glm threshold that admits the same *count* as Opus at
+0.70 is **0.85**.
+
+So the number is a per-model quantity, and a CSV that mixes models applies a
+different admission bar to different rows. Every score therefore records the
+`model` and `prompt_version` that produced it, and the gate prints a warning and
+records `silent_fix_models` in the manifest when it is handed a mixed set.
+
+### Two failures that looked like findings
+
+Both were caught by comparing two models on identical rows, which is the cheapest
+audit available and was not being done:
+
+- The response parser was `r'\{[^{}]*"is_security_fix"[^{}]*\}'`, and `[^{}]*`
+  cannot span a nested object. A model that answers with any nested field
+  produced no match and the empty result was cached as that row's verdict. On a
+  4,000-row Opus run this discarded **3,328 of them (83%)**, and the surviving
+  17% was reported as a measured recovery rate of 0.6% — an eleven-fold
+  understatement of the 6.8% above.
+- The STRIDE classifier cached a failed call as `Other`/`N/A`, which is also a
+  valid answer. A run in which 73% of the calls failed reported itself as
+  `n_classified: 26507, n_failed: 0`.
+
+Both now refuse to cache a failure, so a re-run retries it, and both report the
+count they actually answered.
 
 ## Honest limits
 

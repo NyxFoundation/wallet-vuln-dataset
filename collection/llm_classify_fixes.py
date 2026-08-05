@@ -249,12 +249,45 @@ description: {it['desc']}
 """
 
 
+def _extract_json_object(text: str) -> dict:
+    """Pull the JSON object carrying `is_security_fix` out of a model response.
+
+    The old pattern was r'\\{[^{}]*"is_security_fix"[^{}]*\\}', and [^{}]* cannot
+    span a NESTED object. A model that answers with any nested field — or wraps
+    the object in a fenced block with an example — produced no match, and the
+    caller stored the empty dict as the row's answer. On a 4,000-row Opus run
+    that silently discarded 3,328 of them (83%); the rate looked like a finding
+    about wallets, and was a finding about a regex.
+    """
+    for i, ch in enumerate(text):
+        if ch != "{":
+            continue
+        depth = 0
+        for j in range(i, len(text)):
+            if text[j] == "{":
+                depth += 1
+            elif text[j] == "}":
+                depth -= 1
+                if depth == 0:
+                    try:
+                        obj = json.loads(text[i:j + 1])
+                    except json.JSONDecodeError:
+                        break
+                    if isinstance(obj, dict) and "is_security_fix" in obj:
+                        return obj
+                    break
+    return {}
+
+
 def classify(it: dict) -> dict:
     prompt = build_prompt(it)
     try:
         out = _call_llm(prompt)
-        m = re.search(r"\{[^{}]*\"is_security_fix\"[^{}]*\}", out, re.S)
-        obj = json.loads(m.group(0)) if m else {}
+        obj = _extract_json_object(out)
+        if not obj:
+            # An unparseable answer is a FAILED call, not a negative verdict.
+            # Marking it lets the caller refuse to cache it, so a re-run retries.
+            obj = {"parse_error": (out or "")[:200]}
     except Exception as e:
         obj = {"error": str(e)}
     return {**it, "pred": obj}
@@ -333,10 +366,15 @@ def apply_to_dataset(a) -> int:
               "desc": str(r.get("description") or "")[:600], "diff": _diff_doc(diff)}
         return url, classify(it)["pred"]
 
-    done = 0
+    done = n_bad = 0
     with ThreadPoolExecutor(max_workers=a.workers) as ex:
         for url, pred in ex.map(work, rows):
-            pred_cache[url] = pred
+            # Cache answers and permanent skips; never cache a call that failed
+            # or came back unparseable, or the next run treats it as settled.
+            if isinstance(pred, dict) and ("parse_error" in pred or "error" in pred):
+                n_bad += 1
+            else:
+                pred_cache[url] = pred
             done += 1
             if done % 40 == 0:
                 a.pred_cache.write_text(json.dumps(pred_cache))
@@ -349,7 +387,16 @@ def apply_to_dataset(a) -> int:
     n_fix = 0
     with a.apply_out.open("w", newline="", encoding="utf-8") as fh:
         w = csv.writer(fh)
-        w.writerow(["source_url", "silent_fix_prob", "is_security_fix", "vuln_class", "reason"])
+        # `model` is not decoration. Measured on the same 4,000 gate-dropped rows,
+        # Opus and glm-5.2 agree on is_security_fix 96% of the time, but every
+        # disagreement runs one way: glm flags rows Opus does not, never the
+        # reverse, and at the 0.70 admission threshold it admits 4.5x as many.
+        # silent_fix_prob is therefore NOT comparable across models — a corpus
+        # built from a mix of them has a gate whose strictness varies by row.
+        w.writerow(["source_url", "silent_fix_prob", "is_security_fix", "vuln_class",
+                    "model", "prompt_version", "reason"])
+        model_id = ENGINE["model"] or ("claude-cli-default" if ENGINE["engine"] == "claude"
+                                       else "unknown")
         for r in rows:
             url = str(r["source_url"]); pr = pred_cache.get(url, {})
             if not isinstance(pr, dict) or "is_security_fix" not in pr:
@@ -373,8 +420,11 @@ def apply_to_dataset(a) -> int:
             if prob >= 0.70:
                 n_fix += 1
             w.writerow([url, f"{prob:.3f}", int(isfix), pr.get("vuln_class", ""),
-                        str(pr.get("reason", ""))[:200]])
+                        model_id, PROMPT_VERSION, str(pr.get("reason", ""))[:200]])
     print(f"[apply] wrote {a.apply_out} — {n_fix} rows with silent_fix_prob>=0.70", file=sys.stderr)
+    if n_bad:
+        print(f"[apply] {n_bad}/{len(rows)} calls failed or were unparseable and were "
+              f"NOT cached — re-run to retry", file=sys.stderr)
     return 0
 
 

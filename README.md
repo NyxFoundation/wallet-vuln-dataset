@@ -17,7 +17,7 @@ retargeted from a *protocol* threat model to a **custody** threat model.
 import pandas as pd
 df = pd.read_parquet("data/wallet_vulns.parquet")
 
-df[df.authority_tier != "C_candidate"]   # the essential slice (16,687 rows)
+df[df.authority_tier != "C_candidate"]   # the essential slice (18,705 rows)
 df[df.confidence == "high"]              # strongest evidence only
 ```
 
@@ -26,11 +26,13 @@ df[df.confidence == "high"]              # strongest evidence only
 | | rows |
 |---|---:|
 | raw snapshot (all repos) | 90,223 |
-| curated (security-only) | **26,507** |
-| └ essential slice (tier A ∪ B) | **16,687** |
-| by tier | A_authoritative 2,061 · B_corroborated 14,626 · C_candidate 9,820 |
-| by confidence | high 9,123 · medium 16,259 · low 1,125 |
-| by severity | Critical 1 · High 230 · Medium 854 · Low 50 · Info 9,942 · Unrated 15,430 |
+| curated (security-only) | **26,739** |
+| └ essential slice (tier A ∪ B) | **18,705** |
+| by tier | A_authoritative 2,053 · B_corroborated 16,652 · C_candidate 8,034 |
+| by confidence | high 9,122 · medium 16,638 · low 979 |
+| by severity | Critical 1 · High 228 · Medium 848 · Low 50 · Info 10,068 · Unrated 15,544 |
+| with a STRIDE category (not `Other`) | 6,530 (24%) |
+| with a CWE-Top-25 id | 6,161 (23%) |
 
 **96% of rows are Info or Unrated**, because almost no wallet fix is ever
 graded by anyone. Unrated is not low impact — it is the absence of a grader.
@@ -39,6 +41,7 @@ De-noising before the gate, and what each stage removes:
 
 | Stage | Drops | Rationale |
 |---|---:|---|
+| T0 | 7 | rows from repos outside `collection/wallets.py`. The registry is the only authority on scope, and this runs regardless of which crawler produced the row — four separate crawlers had shipped with the reference project's repo lists |
 | T2 | 7,351 | CI / docs / dep-bump meta-work (title-anchored) |
 | T2c | 1,134 | version bumps whose **package name** is custody vocabulary (`@metamask/eth-hd-keyring`, `@scure/bip39`) — decided on title shape, overriding keyword protection |
 | T2d | 7,238 | author-declared `build:`/`ci:`/`test:`/`docs:` work, unless it cites an advisory or is real build-integrity work |
@@ -140,12 +143,12 @@ Every row carries a `label` naming the part of the custody chain that broke,
 derived from the diff's changed paths plus the fix text
 ([`docs/collection.md`](docs/collection.md)). The distribution:
 
-`key:seed-mnemonic` 3,300 · `key:storage` 2,824 · `network-io` 2,310 · `sign:encoding-malleability` 1,345 · `build-ci` 1,148 · `test` 883 · `key:derivation` 802
+`key:seed-mnemonic` 3,304 · `key:storage` 2,831 · `network-io` 2,328 · `sign:encoding-malleability` 1,354 · `build-ci` 1,154 · `test` 890
 
 `pre_fix_code` / `post_fix_code` hold the before/after hunks inline for
-94% of rows,
-`files_changed` for 95%,
-and `fix_commit` resolves for 67%.
+91% of rows, `files_changed` for 95%, and `fix_commit` now resolves for **100%**
+— it was 67% until `_resolve_pr_ref` stopped silently returning None on clones
+that had never fetched `refs/pull/*`.
 
 ## Files
 

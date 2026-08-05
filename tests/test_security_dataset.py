@@ -820,3 +820,44 @@ def test_pr_ref_resolution_fetches_on_demand():
     i = src.find("def _resolve_pr_ref")
     body = src[i:src.find("\ndef ", i + 10)]
     assert "fetch" in body and "origin" in body, "_resolve_pr_ref cannot fetch a missing ref"
+
+
+def test_silent_fix_scores_record_their_model():
+    """silent_fix_prob is not comparable across models, so provenance is required.
+
+    Measured on the same 4,000 gate-dropped rows, Opus and glm-5.2 agree on
+    is_security_fix 96% of the time — but every disagreement runs one way (glm
+    flags rows Opus does not, never the reverse), and at the 0.70 admission
+    threshold glm admits 4.5x as many. A CSV that mixes models applies a
+    different admission bar to different rows.
+    """
+    src = (ROOT / "collection/llm_classify_fixes.py").read_text()
+    assert '"model", "prompt_version"' in src, "apply CSV has no model provenance"
+    gate_src = (ROOT / "pipeline/build_security_dataset.py").read_text()
+    assert "silent_fix_models" in gate_src, "the gate does not record which models scored"
+
+
+@pytest.mark.parametrize("response", [
+    '{"is_security_fix": true, "confidence": 0.8, "vuln_class": "signing", "detail": {"cwe": "CWE-20"}}',
+    'Here is my answer:\n```json\n{"is_security_fix": false, "confidence": 0.1, "meta": {"a": 1}}\n```',
+    '{"is_security_fix": true, "confidence": 0.9}',
+])
+def test_classifier_parses_nested_json(response):
+    """r'\\{[^{}]*"is_security_fix"[^{}]*\\}' cannot span a nested object.
+
+    Any answer carrying a nested field produced no match, and the empty dict was
+    cached as that row's verdict. On a 4,000-row run it discarded 3,328 of them
+    (83%) — and the surviving 17% was then reported as a measured recovery rate.
+    """
+    mod = _load("llm_classify_fixes", "collection/llm_classify_fixes.py")
+    obj = mod._extract_json_object(response)
+    assert "is_security_fix" in obj, f"failed to parse: {response[:60]}"
+
+
+def test_unparseable_answers_are_not_cached():
+    """A failed call must stay retryable, not settle as a negative verdict."""
+    src = (ROOT / "collection/llm_classify_fixes.py").read_text()
+    assert '"parse_error"' in src, "unparseable answers are not marked"
+    i = src.find("for url, pred in ex.map(work, rows):")
+    block = src[i:i + 600]
+    assert "parse_error" in block, "the apply loop caches unparseable answers"
