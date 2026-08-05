@@ -58,6 +58,16 @@ _VSPEC = _ilu.spec_from_file_location(
     "_wallet_vocab", Path(__file__).resolve().parent.parent / "collection" / "wallet_vocab.py")
 _vocab = _ilu.module_from_spec(_VSPEC); _VSPEC.loader.exec_module(_vocab)  # type: ignore
 
+DOMAIN = "wallet"
+
+
+def _wallet_registry() -> frozenset[str]:
+    """The slugs this dataset covers — collection/wallets.py is the only authority."""
+    spec = _ilu.spec_from_file_location(
+        "_wallets", Path(__file__).resolve().parent.parent / "collection" / "wallets.py")
+    mod = _ilu.module_from_spec(spec); spec.loader.exec_module(mod)  # type: ignore
+    return frozenset(mod.WALLET_CONFIG)
+
 # --- T1: release-note / urgency boilerplate (not a fix) --------------------
 BOILERPLATE_RE = re.compile(
     r"critical update required"
@@ -359,6 +369,24 @@ def build(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     # external `normalize` collection step unnecessary — see run_pipeline.sh.)
     df["stride"] = df["stride"].fillna("Other").replace({"": "Other", "nan": "Other"})
     df["cwe_top25"] = df["cwe_top25"].fillna("N/A").replace({"": "N/A", "nan": "N/A"})
+    # T0 — every row must come from a repo this project actually claims to cover.
+    # Contamination from the reference project's repo lists reached the published
+    # corpus four separate times, and each fix patched one crawler. This is the
+    # check that does not care which crawler leaked: the registry is the only
+    # authority on what a wallet repo is, and it runs on the way OUT.
+    registry = _wallet_registry()
+    t0_mask = ~df["source_platform"].fillna("").astype(str).isin(registry)
+    t0_dropped = df[t0_mask]
+    if len(t0_dropped):
+        print(f"[T0] dropped {len(t0_dropped)} off-registry rows: "
+              f"{sorted(set(t0_dropped['source_platform']))}", file=sys.stderr)
+    df = df[~t0_mask].copy()
+
+    # The domain column is stamped by the crawlers, and merge_crawl_csvs used to
+    # default it to the reference project's domain. Rows that survive T0 are by
+    # definition wallet rows, so say so rather than trusting the stamp.
+    df["domain"] = DOMAIN
+
     blob = df["title"].fillna("").astype(str) + " " + df["description"].fillna("").astype(str)
 
     # T1
@@ -404,6 +432,10 @@ def build(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     df = df[~t2d_mask].copy()
 
     # T2b — drop NVD substring-match false positives (unrelated CVEs)
+    # dtype is explicit: an empty list gives an object-dtype Series, and pandas
+    # reads `df[object_series]` as a COLUMN selector, not a row mask — so an
+    # upstream stage that empties the frame silently returns a frame with zero
+    # columns and the next stage dies on a missing 'title'.
     t2b_mask = pd.Series(
         [
             _nvd_false_positive(t, d, p)
@@ -414,6 +446,7 @@ def build(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
             )
         ],
         index=df.index,
+        dtype=bool,
     )
     t2b_dropped = df[t2b_mask]
     df = df[~t2b_mask].copy()
@@ -461,6 +494,9 @@ def build(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
 
     report = {
         "raw_rows": int(n_raw),
+        "t0_off_registry_dropped": int(len(t0_dropped)),
+        "t0_dropped_by_source": {k: int(v) for k, v in
+                                 t0_dropped["source_platform"].value_counts().items()},
         "t1_boilerplate_dropped": int(len(t1_dropped)),
         "t1_dropped_by_source": {k: int(v) for k, v in t1_dropped["source_platform"].value_counts().items()},
         "t2_noise_dropped": int(len(t2_dropped)),
@@ -609,12 +645,18 @@ def main() -> int:
     print(f"wrote {csv_path} + {a.out.with_suffix('.preview.csv')}")
 
     manifest_path = a.manifest or a.out.with_name("manifest.json")
+    # Read the domain off the data, never a literal: the ported manifest claimed
+    # "ethereum" / "11 Ethereum execution + consensus wallets" for a 181-repo
+    # wallet corpus for the whole life of this dataset.
+    _domains = sorted({d for d in sec.get("domain", pd.Series(dtype=str))
+                       .dropna().astype(str) if d.strip()})
     manifest = {
-        "domain": "ethereum",
+        "domain": _domains[0] if len(_domains) == 1 else _domains,
         "n_rows": int(len(sec)),
         "schema": list(sec.columns),
         "build": report,
-        "source": "11 Ethereum execution + consensus wallets (past security fixes)",
+        "source": f"{sec['source_platform'].nunique()} wallet / custody repositories "
+                  f"(past security fixes)",
     }
     manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
     print(f"wrote manifest -> {manifest_path}")

@@ -123,6 +123,34 @@ Two guards now, both required:
 `tests/test_security_dataset.py` asserts the pulls endpoint never returns and
 that no single repo exceeds 25% of the corpus.
 
+### The reference project's identity leaks in through a different door each time
+
+Four separate fixes went out for the same bug class — a crawler that kept the
+Ethereum-client coordinates it was ported with. Each fix patched one crawler and
+added a test for that crawler, and the next full run surfaced another:
+`crawl_rustsec` (reth/lighthouse crates), `crawl_govulncheck` (geth/prysm Go
+modules), `crawl_cross_wallet` (searched the 11 clients), `crawl_cve`
+(`CLIENT_KEYWORDS`). A fifth then turned up in the published data itself:
+`merge_crawl_csvs` defaulted every supplementary row's `domain` to the literal
+`"ethereum"`, so **90% of the published corpus described itself as an Ethereum
+dataset**, and `manifest.json` announced `"11 Ethereum execution + consensus
+wallets"` for a 181-repo wallet corpus.
+
+Patching the Nth crawler is not a fix for this, because the defect is that each
+crawler is trusted to know what this project covers. The gate now enforces it on
+the way **out**, where there is only one door:
+
+- **T0** drops any row whose `source_platform` is not in `collection/wallets.py`
+  — the registry is the sole authority on what a wallet repo is, and it does not
+  matter which crawler produced the row. It caught seven `eips` rows (spec-repo
+  PRs, left behind when the standards slice was deleted) still in the published
+  corpus.
+- The gate then **stamps** `domain` itself on the survivors instead of trusting
+  the crawler's value, and the manifest reads its `domain` and `source` off the
+  data rather than from a literal.
+- `merge_crawl_csvs` inherits the domain from the table it merges into, and
+  refuses to guess when that table is ambiguous.
+
 ## Measured yield per slice
 
 Numbers from the current build, so the cost of each stage is visible rather than

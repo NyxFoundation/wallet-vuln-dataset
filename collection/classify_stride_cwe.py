@@ -92,6 +92,35 @@ CWE_TOP25_IDS = frozenset(
 MODEL_ID = "claude-haiku-4-5-20251001"
 DESCRIPTION_MAX_CHARS = 2000
 
+# Engine selection, mirroring collection/llm_classify_fixes.py. This is a bulk
+# labelling pass over 26k rows — it does not need a frontier model, and running
+# it through `claude -p` with no --model silently inherits whatever
+# ~/.claude/settings.json says, which is how a sibling script sent 4,000 diffs
+# to Opus. Pin the engine explicitly, always.
+ENGINE = {"engine": "claude", "model": "", "base_url": "", "api_key": ""}
+
+if not os.environ.get("SSL_CERT_FILE"):
+    for _ca in ("/etc/ssl/certs/ca-certificates.crt", "/etc/pki/tls/certs/ca-bundle.crt"):
+        if os.path.exists(_ca):
+            os.environ["SSL_CERT_FILE"] = _ca
+            break
+
+
+def _call_openai_compatible(prompt: str, timeout: float) -> str:
+    """POST to an OpenAI-compatible /chat/completions endpoint (Ollama Cloud, vLLM…)."""
+    import urllib.request
+    body = json.dumps({
+        "model": ENGINE["model"], "temperature": 0,
+        "messages": [{"role": "user", "content": prompt}],
+    }).encode()
+    headers = {"Content-Type": "application/json"}
+    if ENGINE["api_key"]:
+        headers["Authorization"] = f"Bearer {ENGINE['api_key']}"
+    req = urllib.request.Request(ENGINE["base_url"].rstrip("/") + "/chat/completions",
+                                 data=body, headers=headers)
+    with urllib.request.urlopen(req, timeout=timeout) as r:
+        return json.loads(r.read())["choices"][0]["message"]["content"]
+
 CLASSIFY_PROMPT = """\
 You are a security analyst. Classify the following crypto-wallet past-fix record by STRIDE category and CWE-Top-25 (2024) id.
 
@@ -184,6 +213,76 @@ def build_prompt_for_row(row: dict) -> str:
     return CLASSIFY_PROMPT.replace("{title}", title).replace("{description}", description)
 
 
+# The corpus is 26k rows and one `claude -p` process per row is ~10s of pure
+# subprocess overhead each. Batching packs many records into one call against the
+# SAME rubric — the rubric is single-sourced from CLASSIFY_PROMPT rather than
+# copied, so the two paths can never drift apart.
+_BATCH_MARKER = "Now classify this record:"
+# 40% of this corpus has a description longer than 600 chars, and the description
+# is what separates "fix bug" from a classifiable record — cap generously and take
+# a smaller batch instead.
+_BATCH_DESC_CHARS = 1400
+
+
+def build_prompt_for_batch(rows: list[dict]) -> str:
+    """Build one prompt classifying ``rows`` together; the model returns an array."""
+    rubric = CLASSIFY_PROMPT.split(_BATCH_MARKER)[0].rstrip()
+    records = []
+    for i, row in enumerate(rows):
+        title = str(row.get("title", "") or "").replace("\n", " ")[:300]
+        desc = str(row.get("description", "") or "").replace("\n", " ")[:_BATCH_DESC_CHARS]
+        records.append(f'{i}. title="{title}" description="{desc}"')
+    body = "\n".join(records)
+    return (
+        f"{rubric}\n\n"
+        f"Now classify ALL {len(rows)} records below.\n"
+        f'Output ONLY a JSON array of exactly {len(rows)} objects, in the same order, '
+        f'each {{"i": <index>, "stride": ..., "cwe_top25": ...}}. No prose, no fences.\n\n'
+        f"{body}\n\nOutput:"
+    )
+
+
+def parse_batch(text: str, n: int) -> list[dict]:
+    """Parse a batch response into exactly ``n`` classifications.
+
+    Any record the model skipped, mislabelled, or emitted out of range falls back
+    to Other/N-A — a short or scrambled array degrades that record only, never the
+    whole batch.
+    """
+    cleaned = text.strip()
+    if cleaned.startswith("```"):
+        lines = cleaned.splitlines()[1:]
+        if lines and lines[-1].strip() == "```":
+            lines = lines[:-1]
+        cleaned = "\n".join(lines).strip()
+    start, end = cleaned.find("["), cleaned.rfind("]")
+    out = [{"stride": "Other", "cwe_top25": "N/A"} for _ in range(n)]
+    if start < 0 or end <= start:
+        return out
+    try:
+        arr = json.loads(cleaned[start:end + 1])
+    except json.JSONDecodeError:
+        return out
+    if not isinstance(arr, list):
+        return out
+    for pos, obj in enumerate(arr):
+        if not isinstance(obj, dict):
+            continue
+        try:
+            i = int(obj.get("i", pos))
+        except (TypeError, ValueError):
+            i = pos
+        if not 0 <= i < n:
+            continue
+        stride = obj.get("stride", "Other")
+        cwe = obj.get("cwe_top25", "N/A")
+        out[i] = {
+            "stride": stride if stride in STRIDE_VALUES else "Other",
+            "cwe_top25": cwe if cwe in CWE_TOP25_IDS else "N/A",
+        }
+    return out
+
+
 # ---------------------------------------------------------------------------
 # claude -p invocation (single row)
 # ---------------------------------------------------------------------------
@@ -211,13 +310,20 @@ def _build_env() -> dict[str, str]:
     return env
 
 
-async def _classify_row_async(
-    row: dict,
+async def _run_claude_async(
+    prompt: str,
     semaphore: asyncio.Semaphore,
-    row_index: int,
-) -> tuple[int, dict]:
-    """Invoke `claude -p --stream-json` for one row; return (row_index, classification)."""
-    prompt = build_prompt_for_row(row)
+    tag: str,
+    timeout: float = 120.0,
+) -> str:
+    """Run ``prompt`` through the configured engine; return raw text ('' on failure)."""
+    if ENGINE["engine"] == "openai":
+        async with semaphore:
+            try:
+                return await asyncio.to_thread(_call_openai_compatible, prompt, timeout)
+            except Exception as exc:
+                logger.warning("%s: %s: %s", tag, type(exc).__name__, str(exc)[:200])
+                return ""
 
     async with semaphore:
         # Write prompt to temp file to avoid shell quoting issues on Windows
@@ -238,7 +344,7 @@ async def _classify_row_async(
                     _CLAUDE_BIN,
                     "--dangerously-skip-permissions",
                     "--output-format", "json",
-                    "--model", MODEL_ID,
+                    "--model", ENGINE["model"] or MODEL_ID,
                     "--max-turns", "1",
                     "--input-format", "text",
                     "-p",
@@ -249,7 +355,7 @@ async def _classify_row_async(
                     _CLAUDE_BIN,
                     "--dangerously-skip-permissions",
                     "--output-format", "json",
-                    "--model", MODEL_ID,
+                    "--model", ENGINE["model"] or MODEL_ID,
                     "--max-turns", "1",
                     "-p", prompt,
                 ]
@@ -269,15 +375,15 @@ async def _classify_row_async(
                 finally:
                     proc.stdin.close()
 
-            stdout_data, _ = await asyncio.wait_for(
-                proc.communicate(), timeout=120
+            stdout_data, stderr_data = await asyncio.wait_for(
+                proc.communicate(), timeout=timeout
             )
         except asyncio.TimeoutError:
-            logger.warning("row %d timed out", row_index)
-            return row_index, {"stride": "Other", "cwe_top25": "N/A"}
+            logger.warning("%s timed out", tag)
+            return ""
         except Exception as exc:
-            logger.warning("row %d subprocess error: %s", row_index, exc)
-            return row_index, {"stride": "Other", "cwe_top25": "N/A"}
+            logger.warning("%s subprocess error: %s", tag, exc)
+            return ""
         finally:
             try:
                 os.unlink(prompt_path)
@@ -285,8 +391,10 @@ async def _classify_row_async(
                 pass
 
         if proc.returncode != 0:
-            logger.warning("row %d: claude exited %d", row_index, proc.returncode)
-            return row_index, {"stride": "Other", "cwe_top25": "N/A"}
+            err = (stderr_data or b"").decode("utf-8", errors="replace").strip()[-400:]
+            logger.warning("%s: claude exited %d: %s", tag, proc.returncode,
+                           err or "(no stderr)")
+            return ""
 
         # Parse stream-json output: find result event
         text = ""
@@ -317,8 +425,39 @@ async def _classify_row_async(
             if raw:
                 text = raw
 
-        classification = parse_classification(text)
-        return row_index, classification
+        return text
+
+
+async def _classify_row_async(
+    row: dict,
+    semaphore: asyncio.Semaphore,
+    row_index: int,
+) -> tuple[int, dict]:
+    """Classify one row; return (row_index, classification)."""
+    text = await _run_claude_async(build_prompt_for_row(row), semaphore, f"row {row_index}")
+    return row_index, parse_classification(text)
+
+
+async def _classify_batch_async(
+    rows: list[dict],
+    semaphore: asyncio.Semaphore,
+    indices: list[int],
+) -> list[tuple[int, dict]]:
+    """Classify a batch of rows in one call; return [(row_index, classification)].
+
+    An empty response means the CALL failed, which is not the same fact as "the
+    model classified this as Other". Conflating the two cached 1,617 failed
+    batches as valid Other/N-A answers and a 27%-complete run reported itself as
+    26,507/26,507 classified. Failures return nothing, so nothing is cached and
+    the next run retries them.
+    """
+    text = await _run_claude_async(
+        build_prompt_for_batch(rows), semaphore,
+        f"batch {indices[0]}..{indices[-1]}", timeout=300.0,
+    )
+    if not text.strip():
+        return []
+    return list(zip(indices, parse_batch(text, len(rows))))
 
 
 # ---------------------------------------------------------------------------
@@ -334,6 +473,8 @@ def classify(
     dry_run: bool = False,
     max_rows: int = 0,
     manifest_path: Path | None = None,
+    batch_size: int = 1,
+    cache_path: Path | None = None,
 ) -> dict:
     """Classify every row in ``parquet_in`` and write ``parquet_out``.
 
@@ -378,7 +519,8 @@ def classify(
             "n_rows": n_rows,
             "n_classified": 0,
             "n_failed": 0,
-            "model": MODEL_ID,
+            "model": ENGINE["model"] or MODEL_ID,
+            "engine": ENGINE["engine"],
             "started_at": started_at,
             "ended_at": ended_at,
             "dry_run": True,
@@ -388,28 +530,70 @@ def classify(
         return manifest
 
     # --- Live path: drive N concurrent claude -p calls ---
-    async def _run_all() -> list[tuple[int, dict]]:
-        semaphore = asyncio.Semaphore(workers)
-        tasks = [
-            _classify_row_async(row, semaphore, i)
-            for i, row in enumerate(rows)
-        ]
-        return await asyncio.gather(*tasks)
+    # Resume from cache first. A 26k-row run is hours long; without this, any
+    # interruption throws away every completed call.
+    cache: dict[str, dict] = {}
+    if cache_path and cache_path.exists():
+        try:
+            cache = json.loads(cache_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            cache = {}
+    keys = [str(r.get("id") or i) for i, r in enumerate(rows)]
+    todo = [i for i, k in enumerate(keys) if k not in cache]
+    logger.info("%d rows, %d cached, %d to classify (batch=%d, workers=%d)",
+                n_rows, n_rows - len(todo), len(todo), batch_size, workers)
 
-    results = asyncio.run(_run_all())
+    def _flush() -> None:
+        if not cache_path:
+            return
+        tmp = cache_path.with_suffix(".tmp")
+        tmp.write_text(json.dumps(cache), encoding="utf-8")
+        os.replace(tmp, cache_path)
+
+    async def _run_all() -> None:
+        semaphore = asyncio.Semaphore(workers)
+        chunks = [todo[i:i + batch_size] for i in range(0, len(todo), batch_size)]
+        coros = [
+            _classify_batch_async([rows[i] for i in idxs], semaphore, idxs)
+            if batch_size > 1 else
+            _classify_row_async(rows[idxs[0]], semaphore, idxs[0])
+            for idxs in chunks
+        ]
+        done = failed = 0
+        for fut in asyncio.as_completed(coros):
+            res = await fut
+            pairs = res if isinstance(res, list) else [res]
+            if not pairs:
+                failed += 1
+            for row_index, classification in pairs:
+                cache[keys[row_index]] = classification
+            done += 1
+            if done % 20 == 0:
+                _flush()
+                logger.info("  %d/%d batches (%d rows cached, %d calls failed)",
+                            done, len(chunks), len(cache), failed)
+        _flush()
+        if failed:
+            logger.warning("%d/%d batches failed and were NOT cached — re-run to retry",
+                           failed, len(chunks))
+
+    if todo:
+        asyncio.run(_run_all())
+
+    results = [(i, cache.get(k, {"stride": "Other", "cwe_top25": "N/A"}))
+               for i, k in enumerate(keys)]
+    n_unanswered = sum(1 for k in keys if k not in cache)
 
     for row_index, classification in results:
         stride = classification.get("stride", "Other")
         cwe = classification.get("cwe_top25", "N/A")
-        # Count classified vs failed
-        if stride != "Other" or cwe != "N/A":
-            n_classified += 1
-        else:
-            # "Other"/"N/A" might be a valid classification OR a failure default;
-            # we count it as classified (not failed) since we got a response.
-            n_classified += 1
         stride_col[row_index] = stride
         cwe_col[row_index] = cwe
+    # A row counts as classified only if the model actually answered for it. The
+    # old accounting incremented on every row either way, so a run in which 73%
+    # of the calls failed still reported n_rows == n_classified, n_failed == 0.
+    n_classified = n_rows - n_unanswered
+    n_failed = n_unanswered
 
     ended_at = datetime.now(timezone.utc).isoformat()
 
@@ -426,7 +610,8 @@ def classify(
         "n_rows": n_rows,
         "n_classified": n_classified,
         "n_failed": n_failed,
-        "model": MODEL_ID,
+        "model": ENGINE["model"] or MODEL_ID,
+        "engine": ENGINE["engine"],
         "started_at": started_at,
         "ended_at": ended_at,
         "dry_run": False,
@@ -491,9 +676,35 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Cap number of rows classified (0 = no cap; useful for smoke runs)",
     )
     p.add_argument(
+        "--batch",
+        dest="batch_size",
+        type=int,
+        default=1,
+        help="Records per claude -p call (default: 1). >1 packs a batch into one "
+             "prompt and parses a JSON array — ~20x cheaper on a 26k-row corpus",
+    )
+    p.add_argument(
+        "--cache",
+        dest="cache_path",
+        default=None,
+        help="Resumable id->classification JSON cache; re-running skips cached rows",
+    )
+    p.add_argument(
+        "--engine", choices=["claude", "openai"], default="claude",
+        help="claude = `claude -p` subprocess; openai = any OpenAI-compatible "
+             "/chat/completions endpoint (Ollama Cloud, vLLM, LM Studio)",
+    )
+    p.add_argument("--model", default="",
+                   help="model id for the chosen engine (claude engine defaults "
+                        f"to {MODEL_ID}; NEVER leave the claude engine unpinned)")
+    p.add_argument("--base-url", default="https://ollama.com/v1",
+                   help="base url for --engine openai")
+    p.add_argument("--api-key-env", default="OLLAMA_API_KEY",
+                   help="env var holding the api key for --engine openai")
+    p.add_argument(
         "--dry-run",
         action="store_true",
-        help="Skip claude -p calls; fill all rows with Other/N/A defaults",
+        help="Skip model calls; fill all rows with Other/N/A defaults",
     )
     return p
 
@@ -507,6 +718,20 @@ def main(argv: list[str] | None = None) -> None:
     parquet_out = Path(args.parquet_out)
     manifest_path = Path(args.manifest_path) if args.manifest_path else None
 
+    ENGINE["engine"] = args.engine
+    ENGINE["base_url"] = args.base_url
+    ENGINE["api_key"] = os.environ.get(args.api_key_env, "")
+    if args.engine == "openai":
+        if not args.model:
+            parser.error("--engine openai requires --model (e.g. glm-5.2)")
+        if not ENGINE["api_key"]:
+            parser.error(f"${args.api_key_env} is not set")
+        ENGINE["model"] = args.model
+        logger.info("engine=openai model=%s base_url=%s", args.model, args.base_url)
+    else:
+        ENGINE["model"] = args.model or MODEL_ID
+        logger.info("engine=claude model=%s", ENGINE["model"])
+
     manifest = classify(
         parquet_in,
         parquet_out,
@@ -514,6 +739,8 @@ def main(argv: list[str] | None = None) -> None:
         dry_run=args.dry_run,
         max_rows=args.max_rows,
         manifest_path=manifest_path,
+        batch_size=max(1, args.batch_size),
+        cache_path=Path(args.cache_path) if args.cache_path else None,
     )
 
     print(json.dumps(manifest, indent=2))

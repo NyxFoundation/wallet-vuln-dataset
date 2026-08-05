@@ -22,9 +22,12 @@ CLI:
 from __future__ import annotations
 
 import argparse
+import os
 import re
+import shutil
 import subprocess
 import sys
+import threading
 from pathlib import Path
 
 import importlib.util as _ilu
@@ -46,16 +49,38 @@ def repo_path(wallet: str) -> Path:
 
 
 def ensure_clone(wallet: str, blobless: bool = True) -> Path:
+    """Return the bare clone path, cloning it once even under concurrency.
+
+    Callers are thread pools, and two workers reaching the same cold repo both
+    saw "no clone" and both ran `git clone` into the same path: the loser died
+    with "destination path already exists and is not an empty directory", which
+    the caller records as a permanently failed diff. Clone into a private
+    directory and rename it into place, so the loser simply adopts the winner's
+    clone. The rename is also what makes the path safe to read from ANOTHER
+    process — a half-written clone is never visible under the final name.
+    """
     p = repo_path(wallet)
     if (p / "HEAD").exists():
         return p
     p.parent.mkdir(parents=True, exist_ok=True)
     url = f"https://github.com/{WALLET_REPOS[wallet]}.git"
-    args = ["git", "clone", "--bare"] + (["--filter=blob:none"] if blobless else []) + [url, str(p)]
+    staging = p.with_name(f"{p.name}.{os.getpid()}.{threading.get_ident()}.tmp")
+    args = (["git", "clone", "--bare"] + (["--filter=blob:none"] if blobless else [])
+            + [url, str(staging)])
     print(f"[local_diffs] cloning {url} (bare{'/blobless' if blobless else ''})…", file=sys.stderr)
-    r = _run(args, timeout=1800)
-    if r.returncode != 0:
-        raise RuntimeError(f"clone failed for {wallet}: {r.stderr[:300]}")
+    try:
+        r = _run(args, timeout=1800)
+        if r.returncode != 0:
+            raise RuntimeError(f"clone failed for {wallet}: {r.stderr[:300]}")
+        try:
+            os.rename(staging, p)
+        except OSError:
+            # Another worker got there first; its clone is as good as ours.
+            if not (p / "HEAD").exists():
+                raise
+    finally:
+        if staging.exists():
+            shutil.rmtree(staging, ignore_errors=True)
     return p
 
 
@@ -84,11 +109,24 @@ def warm_prs(wallet: str) -> None:
           + ("" if r.returncode == 0 else " (some conflicts skipped)"), file=sys.stderr)
 
 
-def _resolve_pr_ref(p: Path, n: str) -> str | None:
-    """PR head ref, tolerating both layouts (refs/pull/N/head and refs/pull/N)."""
+def _resolve_pr_ref(p: Path, n: str, fetch: bool = True) -> str | None:
+    """PR head ref, tolerating both layouts (refs/pull/N/head and refs/pull/N).
+
+    A plain clone has no `refs/pull/*` — GitHub does not advertise them — so on a
+    clone that has not been through `warm-prs` this returned None for every PR
+    and every caller read that as "no such fix commit", silently. `get_pr_diff`
+    already fetched the ref on demand; this did not, and the two disagreeing is
+    what left 327 rows with no `fix_commit` and therefore un-de-duplicated.
+    """
     for ref in (f"refs/pull/{n}/head", f"refs/pull/{n}"):
         if _run(["git", "-C", str(p), "rev-parse", "--verify", "--quiet", ref]).returncode == 0:
             return ref
+    if not fetch:
+        return None
+    target = f"refs/pull/{n}/head"
+    if _run(["git", "-C", str(p), "fetch", "--quiet", "origin", f"{target}:{target}"],
+            timeout=300).returncode == 0:
+        return target
     return None
 
 

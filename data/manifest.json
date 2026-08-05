@@ -1,6 +1,6 @@
 {
-  "domain": "ethereum",
-  "n_rows": 26507,
+  "domain": "wallet",
+  "n_rows": 26514,
   "schema": [
     "id",
     "source_platform",
@@ -14,6 +14,7 @@
     "scraped_at",
     "stride",
     "evidence",
+    "silent_fix_prob",
     "security_score",
     "confidence",
     "n_signals",
@@ -31,31 +32,35 @@
   ],
   "build": {
     "raw_rows": 90223,
+    "t0_off_registry_dropped": 7,
+    "t0_dropped_by_source": {
+      "eips": 7
+    },
     "t1_boilerplate_dropped": 0,
     "t1_dropped_by_source": {},
     "t2_noise_dropped": 7351,
     "t2c_dep_bump_dropped": 1134,
     "t2d_meta_prefix_dropped": 7238,
     "t2b_nvd_fp_dropped": 0,
-    "after_t1": 74500,
-    "security_rows": 26507,
+    "after_t1": 74493,
+    "security_rows": 26514,
     "low_signal_dropped": 47524,
     "by_confidence": {
-      "medium": 16606,
-      "high": 9231,
+      "medium": 16600,
+      "high": 9230,
       "low": 1139
     },
     "by_authority_tier": {
-      "B_corroborated": 14624,
-      "C_candidate": 9822,
-      "A_authoritative": 2061
+      "B_corroborated": 14639,
+      "C_candidate": 9821,
+      "A_authoritative": 2054
     },
     "by_n_signals": {
-      "1": 9979,
-      "2": 12684,
-      "3": 3755,
-      "4": 536,
-      "5": 22
+      "1": 9976,
+      "2": 12667,
+      "3": 3752,
+      "4": 551,
+      "5": 23
     },
     "by_source": {
       "brave-wallet": 1981,
@@ -216,7 +221,6 @@
       "lit-peer": 9,
       "zerion-sdk": 8,
       "openfort-signer": 7,
-      "eips": 7,
       "openfort-contracts": 7,
       "alchemy-light": 5,
       "scure-bip39": 5,
@@ -237,23 +241,23 @@
     "by_severity": {
       "Unrated": 15475,
       "Info": 10362,
-      "Medium": 854,
-      "High": 232,
+      "Medium": 848,
+      "High": 231,
       "Low": 52,
       "Critical": 1
     },
     "by_score": {
-      "0.0": 1564,
-      "0.3": 252,
+      "0.0": 1561,
+      "0.3": 249,
       "0.5": 6427,
       "0.8": 9502,
       "0.9": 8065,
-      "1.0": 1166
+      "1.0": 1165
     },
     "residual_boilerplate_fp": 0,
-    "labelled": 23577,
-    "deduped_fix_commit": 469,
+    "labelled": 23570,
+    "deduped_fix_commit": 455,
     "redaction": {}
   },
-  "source": "11 Ethereum execution + consensus wallets (past security fixes)"
+  "source": "174 wallet / custody repositories (past security fixes)"
 }

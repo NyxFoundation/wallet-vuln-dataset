@@ -713,3 +713,110 @@ def test_classifier_isolates_per_row_diff_failures():
     i_try = src.find("try:\n            diff = local_diffs.get_diff_cached")
     assert i_try != -1, "diff fetch is not wrapped"
     assert 'return url, {"skip": "noclone"}' in src
+
+
+# ---------------------------------------------------------------------------
+# Regression: the published corpus must not claim the reference project's domain
+# ---------------------------------------------------------------------------
+
+def test_gate_stamps_the_wallet_domain():
+    """The domain column said 'ethereum' for 90% of the published corpus.
+
+    merge_crawl_csvs defaulted `domain` to a literal "ethereum" for every CSV
+    row that omitted it — which is every supplementary crawl (commit-grep,
+    stealth PRs, releases, changelogs). The gate now stamps the domain itself
+    from rows it has already confirmed are registry repos.
+    """
+    pd = pytest.importorskip("pandas")
+    slug = sorted(wallets.WALLET_CONFIG)[0]
+    df = pd.DataFrame([{
+        "id": "x1", "source_platform": slug, "issue_id": "1",
+        "title": "fix: seed phrase leaked into the debug log",
+        "description": "the decrypted mnemonic was written to console",
+        "source_url": f"https://github.com/x/y/pull/1", "severity": "High",
+        "domain": "ethereum", "stride": "Other", "cwe_top25": "N/A",
+    }])
+    sec, _ = gate.build(df)
+    assert set(sec["domain"]) == {"wallet"}, "gate did not restamp the domain"
+
+
+def test_gate_drops_off_registry_rows():
+    """T0: a row from a repo outside collection/wallets.py cannot be published.
+
+    Four separate crawlers shipped with the reference project's repo lists, and
+    each fix patched one crawler. This gate does not care which crawler leaked —
+    seven `eips` rows (spec-repo PRs, kept after the standards slice was deleted)
+    were still in the published corpus when it was added.
+    """
+    pd = pytest.importorskip("pandas")
+    rows = [{
+        "id": "x1", "source_platform": "eips", "issue_id": "1",
+        "title": "fix: seed phrase leaked into the debug log",
+        "description": "the decrypted mnemonic was written to console",
+        "source_url": "https://github.com/ethereum/EIPs/pull/1", "severity": "High",
+        "domain": "wallet", "stride": "Other", "cwe_top25": "N/A",
+    }]
+    sec, report = gate.build(pd.DataFrame(rows))
+    assert len(sec) == 0, "off-registry row survived the gate"
+    assert report["t0_off_registry_dropped"] == 1
+
+
+def test_merge_crawl_csvs_has_no_hardcoded_domain():
+    """The supplementary CSVs carry no domain; the fallback must be inherited.
+
+    A literal default is what produced 23,739 rows stamped 'ethereum'.
+    """
+    src = (ROOT / "collection/merge_crawl_csvs.py").read_text()
+    assert '"ethereum"' not in src, "merge_crawl_csvs still hardcodes a domain"
+    merge = _load("merge_crawl_csvs", "collection/merge_crawl_csvs.py")
+    import inspect
+    assert "domain" in inspect.signature(merge.load_csv).parameters
+
+
+def test_manifest_does_not_describe_the_reference_project():
+    """manifest.json claimed domain 'ethereum' and '11 Ethereum ... wallets'."""
+    import json
+    manifest_path = ROOT / "data" / "manifest.json"
+    if not manifest_path.exists():
+        pytest.skip("manifest not built yet")
+    m = json.loads(manifest_path.read_text())
+    assert m["domain"] == "wallet", m["domain"]
+    assert "Ethereum" not in m.get("source", ""), m.get("source")
+
+
+def test_published_rows_all_claim_the_wallet_domain(df):
+    assert set(df["domain"].dropna().unique()) == {"wallet"}
+
+
+def test_published_rows_are_all_registry_repos(df):
+    stray = set(df["source_platform"]) - set(wallets.WALLET_CONFIG)
+    assert not stray, f"off-registry sources in the published corpus: {sorted(stray)}"
+
+
+def test_clone_is_concurrency_safe():
+    """Two workers reaching the same cold repo both ran `git clone` into it.
+
+    The loser died with "destination path already exists and is not an empty
+    directory", and the caller recorded that row's diff as permanently failed.
+    The clone must land via a rename from a private staging path, which also
+    keeps a half-written clone invisible to a second PROCESS reading the dir.
+    """
+    src = (ROOT / "collection/local_diffs.py").read_text()
+    i = src.find("def ensure_clone")
+    body = src[i:src.find("\ndef ", i + 10)]
+    assert "os.rename(staging, p)" in body, "clone does not land atomically"
+    assert "str(staging)" in body, "git clone still writes straight to the final path"
+
+
+def test_pr_ref_resolution_fetches_on_demand():
+    """A clone that never went through `warm-prs` has no refs/pull/*.
+
+    _resolve_pr_ref returned None for every PR on such a clone and every caller
+    read that as "this row has no fix commit" — silently. get_pr_diff already
+    fetched the ref on demand; the two disagreeing left 327 rows with no
+    fix_commit, which in turn left them un-de-duplicated in the published table.
+    """
+    src = (ROOT / "collection/local_diffs.py").read_text()
+    i = src.find("def _resolve_pr_ref")
+    body = src[i:src.find("\ndef ", i + 10)]
+    assert "fetch" in body and "origin" in body, "_resolve_pr_ref cannot fetch a missing ref"

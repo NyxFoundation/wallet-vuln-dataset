@@ -5,7 +5,7 @@ account-abstraction,contract:initialization,missing_input_validation,unknown,Unr
 account-abstraction,contract:erc4337,missing_replay_protection,unknown,Unrated,B_corroborated,Fix/verifying paymaster,https://github.com/eth-infinitism/account-abstraction/pull/184
 alchemy-modular,contract:access-control,broken_access_control,hostile_network_or_rpc,High,A_authoritative,Non-SMA and Webauthn Account Security Advisory,https://github.com/alchemyplatform/modular-account/security/advisories/GHSA-56r6-ccm5-8hg3
 alchemy-modular,contract:erc4337,missing_input_validation,malicious_pairing_session,Low,A_authoritative,executeUserOp can be used to bypass allowlist prevalidation hook,https://github.com/alchemyplatform/modular-account/security/advisories/GHSA-jhp7-7cq9-m4pv
-alchemy-modular,contract:reentrancy,reentrancy,unknown,Unrated,C_candidate,fix: [quantstamp-18] clear plugin data early in uninstallPlugin,https://github.com/alchemyplatform/modular-account/pull/25
+alchemy-modular,contract:reentrancy,reentrancy,unknown,Unrated,B_corroborated,fix: [quantstamp-18] clear plugin data early in uninstallPlugin,https://github.com/alchemyplatform/modular-account/pull/25
 alchemy-modular,contract:access-control,missing_input_validation,malformed_input,Unrated,C_candidate,fix: skip fuzz on coverage,https://github.com/alchemyplatform/modular-account/pull/238
 alchemy-modular,contract:erc4337,missing_input_validation,malicious_pairing_session,Unrated,C_candidate,feat: hook mem management,https://github.com/alchemyplatform/modular-account/pull/219
 alphawallet-android,network-io,other,hostile_network_or_rpc,Unrated,B_corroborated,Fix crash issues,https://github.com/AlphaWallet/alpha-wallet-android/pull/3315
@@ -293,7 +293,7 @@ biconomy-scw,contract:reentrancy,missing_replay_protection,malicious_pairing_ses
 bisq,other,other,unknown,High,A_authoritative,"creating altcoin offer not throwing error during previously set high
 s",https://github.com/bisq-network/bisq/commit/aecd5366921a10d9764fc999a5dfc8e9ae2a281c
 bisq,other,missing_input_validation,unknown,Info,B_corroborated,Fix BSQ swap buyer tx fee theft vulnerability,https://github.com/bisq-network/bisq/commit/efd590b9e735fe1e52f43cfb8cf3347fd7709977
-bisq,network-io,resource_exhaustion,hostile_network_or_rpc,Unrated,C_candidate,Add dos protection,https://github.com/bisq-network/bisq/pull/5026
+bisq,network-io,resource_exhaustion,hostile_network_or_rpc,Unrated,B_corroborated,Add dos protection,https://github.com/bisq-network/bisq/pull/5026
 bisq,ui:transaction-preview,integer_overflow_underflow,unknown,Info,B_corroborated,Fix BSQ swap take-offer crash by clamping BTC miner contribution at 0,https://github.com/bisq-network/bisq/commit/5a75a48785a2c97ff51593f5de60db906c20c3a0
 bisq,transport:provider-injection,other,hostile_network_or_rpc,Info,B_corroborated,Fix crash due to broken filter provided nodes merge,https://github.com/bisq-network/bisq/commit/f82cf97d589b5e78000d01262510dc1570d79c38
 bisq,transport:provider-injection,missing_input_validation,unknown,Info,B_corroborated,TxValidator: Fix crash on missing vin[0].prevout,https://github.com/bisq-network/bisq/commit/516d3c8d7dfc524048d35addf90ec7952bf27f8c
@@ -308,7 +308,6 @@ bitbox-app,test,unsafe_initialization_or_upgrade,unknown,Info,B_corroborated,bac
 bitbox-app,metrics-observability,other,unknown,Info,B_corroborated,scripts: fix run_regtest.sh electrs panic,https://github.com/BitBoxSwiss/bitbox-wallet-app/commit/18615b2453452fdc7d9551c5b881d3be5d620eac
 bitbox-app,storage,crypto_misuse,unknown,Info,B_corroborated,backend/btc: do not panic when retrieving transactions,https://github.com/BitBoxSwiss/bitbox-wallet-app/commit/52da637577bc39d9b4871c03e0c2c28d58a4ff68
 bitbox-app,key:storage,other,unknown,Info,B_corroborated,backend/devices/keystore: don't panic if previous output missing,https://github.com/BitBoxSwiss/bitbox-wallet-app/commit/22c8867d7b609f6242306406d1d587da16448bd8
-bitbox-app,key:storage,other,unknown,Unrated,C_candidate,backend/btc/client: make TransactionGet sync and remove one panic,https://github.com/BitBoxSwiss/bitbox-wallet-app/pull/1681
 bitbox-app,transport:rpc-surface,missing_origin_authorization,malformed_input,Unrated,C_candidate,"logging: don't panic, truncate and rotate",https://github.com/BitBoxSwiss/bitbox-wallet-app/pull/1142
 bitbox-app,other,other,unknown,Info,B_corroborated,frontend: fix mobile fullscreen account selector crash,https://github.com/BitBoxSwiss/bitbox-wallet-app/commit/b7cd2a7ec6d52579d98d455f030a53fa2dbd1c9e
 bitbox-app,other,resource_exhaustion,unknown,Info,B_corroborated,"ipadOS: fix crash when clicking ""export logs""",https://github.com/BitBoxSwiss/bitbox-wallet-app/commit/d02c344633aaf1015257d33bac22e03b9389b6a8
@@ -342,7 +341,7 @@ bitcoin-core,other,resource_exhaustion,unknown,Unrated,C_candidate,special case 
 bitcoin-core,other,missing_input_validation,unknown,Unrated,C_candidate,Bugfix CValidationResult for BIP30 + add DoS,https://github.com/bitcoin/bitcoin/pull/2279
 bitcoin-core,other,resource_exhaustion,unknown,Unrated,C_candidate,"Prevent fingerprinting, disk-DoS with compact blocks",https://github.com/bitcoin/bitcoin/pull/8408
 bitcoin-core,sign:curve-primitives,signature_verification_flaw,hostile_network_or_rpc,Unrated,B_corroborated,ECDSA signature optimization and more DoS prevention,https://github.com/bitcoin/bitcoin/pull/1349
-bitcoin-core,other,resource_exhaustion,unknown,Unrated,C_candidate,Prevent DOS attacks on in-flight data structures,https://github.com/bitcoin/bitcoin/pull/5507
+bitcoin-core,other,resource_exhaustion,unknown,Unrated,B_corroborated,Prevent DOS attacks on in-flight data structures,https://github.com/bitcoin/bitcoin/pull/5507
 bitcoin-core,other,resource_exhaustion,unknown,Unrated,C_candidate,Do not invoke DoS for non-canonical sigs,https://github.com/bitcoin/bitcoin/pull/2540
 bitcoin-core,other,resource_exhaustion,unknown,Unrated,C_candidate,Remove P2SH transition code: P2SH violations may cause DoS trigger,https://github.com/bitcoin/bitcoin/pull/1710
 bitcoin-core,other,resource_exhaustion,malicious_pairing_session,Unrated,B_corroborated,Do not invoke anti-DoS system for invalid BIP16 transactions,https://github.com/bitcoin/bitcoin/pull/896
@@ -2107,7 +2106,6 @@ monero,other,other,unknown,Info,B_corroborated,import_multisig_info: fix sanity 
 monero,other,other,unknown,Info,C_candidate,"easylogging++: do not use crash log code on android, etc",https://github.com/monero-project/monero/commit/dff97112c88b9599e52f670ebb174b9fdd8890fe
 monero,crypto-primitives,missing_input_validation,unknown,Info,B_corroborated,blockchain: fix crash checking pre-validated txids,https://github.com/monero-project/monero/commit/e457aa51f40cd8eb9f02b8d8322d0fe4566014c9
 monero,other,other,unknown,Info,C_candidate,fixed an LMDB issue on OpenBSD (#2699) which leads to a crash in moner,https://github.com/monero-project/monero/commit/f946bb7be6ec434dddf9a5d2fb1903609a514dd2
-monero,other,other,unknown,Unrated,B_corroborated,mlog: possible logging crash fix when rotating logs,https://github.com/monero-project/monero/pull/2189
 monero,crypto-primitives,crypto_misuse,unknown,Info,B_corroborated,cryptonote_protocol_handler: fix crash in debug log,https://github.com/monero-project/monero/commit/6fc2dc3927b2d561566202b6b9ecc5e889960c72
 monero,other,unsafe_initialization_or_upgrade,unknown,Info,B_corroborated,Prevent crash if performing certain actions before wallet is initializ,https://github.com/monero-project/monero/commit/71f8249a084c087e1badbad4591829a07fe13b64
 monero,other,unsafe_initialization_or_upgrade,malicious_pairing_session,Info,B_corroborated,daemon: fix crash on exit when mining,https://github.com/monero-project/monero/commit/cf2e75ebb310f619e7598b7981f471ad7e788ce4
@@ -5385,6 +5383,7 @@ bitbox-app,transport:walletconnect,improper_state_update,malicious_pairing_sessi
 bitbox-app,transport:rpc-surface,other,hostile_network_or_rpc,Info,C_candidate,bitboxbase: Improve rpc method error handling,https://github.com/BitBoxSwiss/bitbox-wallet-app/commit/670f23c2deeefcfe2180dedcd1ccba8f573ffa50
 bitbox-app,transport:walletconnect,race_condition,malicious_pairing_session,Info,C_candidate,"client: take minimum relay fee if electrumX return fee=-1, revisited",https://github.com/BitBoxSwiss/bitbox-wallet-app/commit/1cf897a423cab8fde600352303ab8c1d4b1ae3d0
 bitbox-app,transport:walletconnect,unsafe_initialization_or_upgrade,malicious_pairing_session,Info,C_candidate,base-backend: refactor initial connection and noise pairing,https://github.com/BitBoxSwiss/bitbox-wallet-app/commit/f12b1d77d5517c981cefb5cd33e5a9f2f6286b70
+bitbox-app,key:storage,other,unknown,Info,C_candidate,backend/btc: remove one panic,https://github.com/BitBoxSwiss/bitbox-wallet-app/commit/9a3c53e6cc847cf8fc861db0df6b35e7313fdca5
 bitbox-app,other,other,unknown,Info,C_candidate,backend/server: panic logging,https://github.com/BitBoxSwiss/bitbox-wallet-app/commit/1081f5514f22c727a2c3af13b3ec42e98bc753c6
 bitbox-app,other,other,unknown,Info,B_corroborated,btc/handlers: avoid panic,https://github.com/BitBoxSwiss/bitbox-wallet-app/commit/e4cc4a3ba4e8c7bcf8bcdef3131f3667e36516be
 bitbox-app,other,other,compromised_host,Info,C_candidate,backend: no panic when device unplugged during init,https://github.com/BitBoxSwiss/bitbox-wallet-app/commit/b36de5ea227ec93ef381e1f09741c7f1c526c1ba
@@ -6499,6 +6498,7 @@ bitcore,crypto-primitives,other,unknown,Info,C_candidate,rename keybuf -> cipher
 bitcore,other,other,unknown,Info,C_candidate,Add toBufferNoPadding method to private key,https://github.com/bitpay/bitcore/commit/e9d1237228ec17858dc40d11c2383d24ba55f911
 bitcore,other,other,malicious_deeplink_or_qr,Info,C_candidate,removed private key address and qr in jsx,https://github.com/bitpay/bitcore/commit/de08b1bf1be668a250d8569a5ad2fee935e15e5f
 bitcore,key:entropy-rng,other,unknown,Info,C_candidate,Fix creation of a randomn testnet private key,https://github.com/bitpay/bitcore/commit/d5f76e8517ff17ee50e2cd08afd1975bdaa56993
+bitcore,other,other,unknown,Info,C_candidate,Add option to create private key from hex,https://github.com/bitpay/bitcore/commit/f8397a617ef4b64a7aead3df269135bbf3ecc41d
 bitcore,network-io,other,hostile_network_or_rpc,Info,C_candidate,add network detection in private key and tests,https://github.com/bitpay/bitcore/commit/807a72666ceee93d81c9824d0e0e5a6d61ae5c54
 bitcore,other,other,unknown,Info,C_candidate,Handle edge case that invalid private key is derived,https://github.com/bitpay/bitcore/commit/0906d988ca40e59207e5dc4b927d1f864f31083c
 bitcore,other,other,unknown,Info,C_candidate,"Private Key: Fix bug with tests and missing ""new""",https://github.com/bitpay/bitcore/commit/7d15b2bf0f0db3a8aa61b71d0003a072cf119028
@@ -6521,6 +6521,7 @@ bitcore,key:seed-mnemonic,weak_key_generation,unknown,Info,C_candidate,rm lodash
 bitcore,key:seed-mnemonic,weak_key_generation,malicious_peer,Info,C_candidate,"update imports - cli, client, libs, mnemonic, node",https://github.com/bitpay/bitcore/commit/ef8faa7bc69bec8b8f48ca238f0297baa8917c51
 bitcore,key:seed-mnemonic,weak_key_generation,unknown,Info,C_candidate,"feedback: cleanup, mnemonic check, CWC BI & tests",https://github.com/bitpay/bitcore/commit/d5d2195a8520c16b0f4649c2b3aa46874f2b793a
 bitcore,key:seed-mnemonic,weak_key_generation,unknown,Info,C_candidate,add all opts to mnemonic key creation,https://github.com/bitpay/bitcore/commit/e3fcdc4fa934207b651709e09ea4c4ee5148059d
+bitcore,key:seed-mnemonic,weak_key_generation,unknown,Info,C_candidate,use Mnemonic object,https://github.com/bitpay/bitcore/commit/a8a8f22c783eee218f838a53c97c0981fddd56ed
 bitcore,key:seed-mnemonic,weak_key_generation,unknown,Info,C_candidate,add toHDPrivateKey to mnemonic lib,https://github.com/bitpay/bitcore/commit/dbd5a010126b11d5425959fee7bd15b15db9493c
 bitcore,key:seed-mnemonic,weak_key_generation,unknown,Info,C_candidate,remake bitcore-mnemonic package-lock,https://github.com/bitpay/bitcore/commit/a32bfeefdd817a27699120eb2ebcf3ab277e48f6
 bitcore,key:seed-mnemonic,weak_key_generation,unknown,Info,C_candidate,Add 'packages/bitcore-mnemonic/' from commit '025d19a61fd8233c6c82ca91,https://github.com/bitpay/bitcore/commit/ad11b89667d04e880bd05101e06fe8d83b59aba0
@@ -6620,7 +6621,6 @@ bitcore,key:seed-mnemonic,weak_key_generation,hostile_network_or_rpc,Unrated,B_c
 bitcore,key:seed-mnemonic,weak_key_generation,unknown,Unrated,C_candidate,[BWC] Add missing options on mnemonic key creation,https://github.com/bitpay/bitcore/pull/3978
 bitcore,transport:provider-injection,missing_input_validation,unknown,Unrated,B_corroborated,"[CLI] Add command mode, erc20 support, message signing",https://github.com/bitpay/bitcore/pull/3977
 bitcore,key:seed-mnemonic,weak_key_generation,unknown,Unrated,B_corroborated,[BWC] Fix mnemonic decrypt after merge from master,https://github.com/bitpay/bitcore/pull/3976
-bitcore,key:seed-mnemonic,weak_key_generation,unknown,Unrated,C_candidate,[BWC] Bug Fix use Mnemonic object,https://github.com/bitpay/bitcore/pull/3943
 bitcore,other,other,unknown,Unrated,B_corroborated,[BCW] Make bitcore-wallet private to bypass publish,https://github.com/bitpay/bitcore/pull/3933
 bitcore,key:seed-mnemonic,weak_key_generation,unknown,Unrated,C_candidate,DNM: Ed25519 seed,https://github.com/bitpay/bitcore/pull/3891
 bitcore,key:seed-mnemonic,weak_key_generation,unknown,Unrated,C_candidate,[Mnemonic] Support ed25519 seeds,https://github.com/bitpay/bitcore/pull/3888
@@ -6648,7 +6648,6 @@ bitcore,key:seed-mnemonic,weak_key_generation,unknown,Unrated,C_candidate,browse
 bitcore,sign:bitcoin-sighash,crypto_misuse,unknown,Unrated,B_corroborated,fix nhashtype not getting set by sighash.sign,https://github.com/bitpay/bitcore/pull/1278
 bitcore,serialization,serialization_bug,unknown,Unrated,B_corroborated,Improvements to Transaction,https://github.com/bitpay/bitcore/pull/1028
 bitcore,sign:nonce,missing_origin_authorization,unknown,Unrated,B_corroborated,Fixed deterministicK() to match python-ecdsa,https://github.com/bitpay/bitcore/pull/884
-bitcore,other,other,unknown,Unrated,C_candidate,Add functionality to create private key from a hex string,https://github.com/bitpay/bitcore/pull/678
 bitcore,other,signature_verification_flaw,unknown,Unrated,C_candidate,PublicKey: Add test to verify that both uncompressed an compressed key,https://github.com/bitpay/bitcore/pull/666
 bitcore,network-io,other,malicious_peer,Unrated,B_corroborated,allowing sign keys to be strings,https://github.com/bitpay/bitcore/pull/550
 bitcore,other,other,unknown,Unrated,C_candidate,WIP: Automatically Set Public Keys,https://github.com/bitpay/bitcore/pull/472
@@ -7101,7 +7100,7 @@ bitgo,mpc:keygen-refresh,weak_key_generation,unknown,Unrated,B_corroborated,fix(
 bitgo,sign:curve-primitives,other,unknown,Unrated,B_corroborated,feat(sdk-core): BG-49288 core implement ecdsa signing,https://github.com/BitGo/BitGoJS/pull/2469
 bitgo,test,other,unknown,Unrated,B_corroborated,fix(sdk-core): fix ecdsa signing timeouts,https://github.com/BitGo/BitGoJS/pull/2461
 bitgo,sign:curve-primitives,other,unknown,Unrated,B_corroborated,feat(account-lib): add support for ecdsa sigining and verification tss,https://github.com/BitGo/BitGoJS/pull/2413
-bitgo,sign:curve-primitives,unsafe_initialization_or_upgrade,unknown,Unrated,B_corroborated,[Snyk] Upgrade secp256k1 from 4.0.2 to 4.0.3,https://github.com/BitGo/BitGoJS/pull/2376
+bitgo,network-io,unsafe_initialization_or_upgrade,unknown,Unrated,B_corroborated,[Snyk] Upgrade @hashgraph/sdk from 2.3.0 to 2.14.2,https://github.com/BitGo/BitGoJS/pull/2374
 bitgo,sign:curve-primitives,other,unknown,Unrated,B_corroborated,feat(account-lib): add support for ecdsa signing and verification tss,https://github.com/BitGo/BitGoJS/pull/2340
 bitgo,mpc:secret-share,crypto_misuse,unknown,Unrated,B_corroborated,feat(account-lib): add support for ecdsa keyshare generation tss,https://github.com/BitGo/BitGoJS/pull/2314
 bitgo,key:storage,missing_origin_authorization,unknown,Unrated,B_corroborated,fix(bitgo): attempt to sign using fallback derivation for v1 wallet,https://github.com/BitGo/BitGoJS/pull/2254
@@ -7353,10 +7352,10 @@ bitpay-wallet,other,weak_key_generation,unknown,Unrated,B_corroborated,"Fix: ""e
 bitpay-wallet,transport:provider-injection,weak_key_generation,unknown,Unrated,C_candidate,"Feat: ""Start using eth"" card implemented",https://github.com/bitpay/wallet/pull/10217
 bitpay-wallet,transport:provider-injection,weak_key_generation,unknown,Unrated,B_corroborated,"Fix: go to ""add wallet"" before ""join page"" using the general scan",https://github.com/bitpay/wallet/pull/10079
 bitpay-wallet,key:seed-mnemonic,weak_key_generation,unknown,Unrated,B_corroborated,Mnemonic recover tool,https://github.com/bitpay/wallet/pull/9977
-bitpay-wallet,key:derivation,weak_key_generation,unknown,Unrated,B_corroborated,Feature/create eth wallet + address,https://github.com/bitpay/wallet/pull/9958
+bitpay-wallet,key:derivation,weak_key_generation,unknown,Unrated,B_corroborated,WIP: Feature/create eth wallet & addresses,https://github.com/bitpay/wallet/pull/9887
 bitpay-wallet,key:backup-restore,weak_key_generation,unknown,Unrated,C_candidate,Single Seed,https://github.com/bitpay/wallet/pull/9870
 bitpay-wallet,network-io,weak_key_generation,malformed_input,Unrated,C_candidate,Pre-Single Seed,https://github.com/bitpay/wallet/pull/9749
-bitpay-wallet,key:backup-restore,weak_key_generation,unknown,Unrated,C_candidate,WIP [Feat] single seed,https://github.com/bitpay/wallet/pull/9690
+bitpay-wallet,key:backup-restore,weak_key_generation,unknown,Unrated,C_candidate,Feat/single seed,https://github.com/bitpay/wallet/pull/9744
 bitpay-wallet,key:storage,weak_key_generation,malicious_pairing_session,Unrated,C_candidate,[WIP] Single Seed Design,https://github.com/bitpay/wallet/pull/9573
 bitpay-wallet,transport:provider-injection,other,unknown,Unrated,B_corroborated,"Chore/packages: update dependencies due to ""npm audit"" suggestions",https://github.com/bitpay/wallet/pull/9394
 bitpay-wallet,key:backup-restore,crypto_misuse,unknown,Unrated,B_corroborated,fix import BCH wallet from private key,https://github.com/bitpay/wallet/pull/6814
@@ -7809,7 +7808,6 @@ bnb-tss-lib,mpc:keygen-refresh,other,unknown,Info,B_corroborated,ecdsa: use a ra
 bnb-tss-lib,mpc:keygen-refresh,other,unknown,Info,B_corroborated,ecdsa: re-index input data for the given signing parties,https://github.com/bnb-chain/tss-lib/commit/51d303152b320d6b2ab935f653aee00d9eef3dd3
 bnb-tss-lib,sign:curve-primitives,race_condition,unknown,Info,B_corroborated,ecdsa/signing: fix a race bug in round 1,https://github.com/bnb-chain/tss-lib/commit/a2c27b4effb974214b1fa8b4895b4fbdda7b91f4
 bnb-tss-lib,sign:bitcoin-sighash,crypto_misuse,unknown,Info,B_corroborated,schnorr: update standard proofs for signing,https://github.com/bnb-chain/tss-lib/commit/c8535dddd77f4242ab2b7c2399faa8a5c413398f
-bnb-tss-lib,mpc:proofs,missing_input_validation,unknown,Info,B_corroborated,implement basic validate for signing round messages,https://github.com/bnb-chain/tss-lib/commit/07c6150cf8398d7ec9abb6f80e0db830cb999a0f
 bnb-tss-lib,mpc:secret-share,broken_access_control,unknown,Info,B_corroborated,Do not normalize IDs of Shamir's Secret Sharing,https://github.com/bnb-chain/tss-lib/commit/2718fca7e5b4dbe3f51760ce91240f4c6a209854
 bnb-tss-lib,mpc:keygen-refresh,other,unknown,Info,B_corroborated,keygen: add ecdsa sign test,https://github.com/bnb-chain/tss-lib/commit/fc36e46e9f460bd9f6428923bcdb0f7227bab2d3
 bnb-tss-lib,mpc:keygen-refresh,signature_verification_flaw,malformed_input,Info,B_corroborated,Improve DLN proof verification performance for large signing groups (#,https://github.com/bnb-chain/tss-lib/commit/14e70f2891f45aed785ab78ba9ecb8197a5674d1
@@ -7845,6 +7843,7 @@ bnb-tss-lib,mpc:keygen-refresh,signature_verification_flaw,unknown,Unrated,B_cor
 bnb-tss-lib,mpc:keygen-refresh,missing_origin_authorization,unknown,Unrated,B_corroborated,Fix a bug of addition law of elliptic curve groups,https://github.com/bnb-chain/tss-lib/pull/81
 bnb-tss-lib,mpc:keygen-refresh,crypto_misuse,unknown,Unrated,B_corroborated,R4R gomobile bindings,https://github.com/bnb-chain/tss-lib/pull/65
 bnb-tss-lib,sign:encoding-malleability,other,unknown,Unrated,B_corroborated,[R4R] fix recover byte calculation,https://github.com/bnb-chain/tss-lib/pull/57
+bnb-tss-lib,mpc:proofs,missing_input_validation,unknown,Unrated,B_corroborated,[R4R] implement basic validate for signing round messages,https://github.com/bnb-chain/tss-lib/pull/23
 bnb-tss-lib,mpc:keygen-refresh,crypto_misuse,unknown,Unrated,B_corroborated,Parent package for ecdsa,https://github.com/bnb-chain/tss-lib/pull/21
 bnb-tss-lib,mpc:keygen-refresh,crypto_misuse,unknown,Unrated,B_corroborated,"vss: correct some 1...t ranges, naming refactor",https://github.com/bnb-chain/tss-lib/pull/20
 bnb-tss-lib,mpc:keygen-refresh,race_condition,unknown,Unrated,B_corroborated,[R4R] ensstential changes for tss client,https://github.com/bnb-chain/tss-lib/pull/19
@@ -10187,13 +10186,6 @@ edge,transport:provider-injection,other,malformed_input,Medium,A_authoritative,A
 edge,transport:webview,supply_chain_compromise,unknown,Medium,A_authoritative,Plugin interface and simplex integration,https://github.com/EdgeApp/edge-react-gui/pull/646
 edge,platform:auth-lock,crypto_misuse,unknown,Medium,A_authoritative,Touch id integration,https://github.com/EdgeApp/edge-react-gui/pull/136
 edge,network-io,other,malformed_input,Medium,A_authoritative,Go back to `runOnJS` for Android compatibility,https://github.com/EdgeApp/edge-react-gui/pull/5850
-eips,crypto-primitives,broken_access_control,unknown,Medium,A_authoritative,Update EIP-7708: Soldøgn Interop Breakout Decisions,https://github.com/ethereum/EIPs/pull/11596
-eips,network-io,broken_access_control,unknown,Medium,A_authoritative,Update EIP-7723: update SFI definition based on ACDT#74,https://github.com/ethereum/EIPs/pull/11475
-eips,crypto-primitives,broken_access_control,unknown,Medium,A_authoritative,Update EIP-2926: Move to Draft,https://github.com/ethereum/EIPs/pull/9927
-eips,other,improper_state_update,unknown,Medium,A_authoritative,Update EIP-8038: correct terminology in EIP-8038 backwards compatibili,https://github.com/ethereum/EIPs/pull/10553
-eips,approval:allowance,excessive_spend_authority,unknown,High,A_authoritative,Update new design for better compatibility,https://github.com/ethereum/EIPs/pull/6417
-eips,other,other,unknown,Medium,A_authoritative,EIP-6059: Add a note about inter-contract compatibility of EIP-6059,https://github.com/ethereum/EIPs/pull/6173
-eips,network-io,missing_input_validation,unknown,Medium,A_authoritative,Add note on future compatibility,https://github.com/ethereum/EIPs/pull/4443
 electrum,sign:encoding-malleability,other,unknown,High,A_authoritative,Add audio modem integration for transaction sending & receiving,https://github.com/spesmilo/electrum/pull/964
 electrum,network-io,broken_access_control,unknown,Medium,A_authoritative,KeepKey Integration,https://github.com/spesmilo/electrum/pull/1391
 electrum,other,other,unknown,Medium,A_authoritative,New firmware integration,https://github.com/spesmilo/electrum/pull/1044
@@ -11129,8 +11121,15 @@ eclair,key:seed-mnemonic,weak_key_generation,unknown,Unrated,B_corroborated,Adde
 eclair,serialization,crypto_misuse,hostile_network_or_rpc,Unrated,B_corroborated,Use a separate `htlc_key` to sign 2nd stage htlc txs,https://github.com/ACINQ/eclair/pull/213
 eclair,sign:encoding-malleability,crypto_misuse,unknown,Unrated,B_corroborated,Re-send htlc/sigs after `funding_locked`,https://github.com/ACINQ/eclair/pull/169
 eclair,sign:encoding-malleability,crypto_misuse,hostile_network_or_rpc,Unrated,B_corroborated,Added support for UpdateFee,https://github.com/ACINQ/eclair/pull/29
+eclair,network-io,serialization_bug,malformed_input,Info,B_corroborated,Fixed memory leak and reduce memory usage (#365),https://github.com/ACINQ/eclair/releases/tag/v0.2-alpha9
+eclair,other,unhandled_error_or_nil,unknown,Info,B_corroborated,Fixed race condition on payment handler init (#1208),https://github.com/ACINQ/eclair/releases/tag/v0.3.3
+eclair,other,unsafe_initialization_or_upgrade,unknown,Info,B_corroborated,Fix race condition in router tests (#1392),https://github.com/ACINQ/eclair/releases/tag/v0.4
+eclair,key:backup-restore,race_condition,unknown,Info,B_corroborated,c0103170 Fix race condition on early connection failure (#1430),https://github.com/ACINQ/eclair/releases/tag/v0.4.1
+eclair,other,race_condition,malicious_peer,Info,B_corroborated,bffb7a3f Fix race condition in integration test (#1564),https://github.com/ACINQ/eclair/releases/tag/v0.5.0
 eclair,other,race_condition,malicious_peer,Info,B_corroborated,Fix race condition between outgoing payment and peer disconnection (#1,https://github.com/ACINQ/eclair/releases/tag/v0.5.1
 eclair,other,race_condition,malicious_peer,Info,B_corroborated,"Fix race condition between `update_fee` and `shutdown`, which could le",https://github.com/ACINQ/eclair/releases/tag/v0.5.1
+eclair,metrics-observability,race_condition,malicious_pairing_session,Info,B_corroborated,9c4ab7d9 Fix HTLC fulfill race condition in integration spec (#1666),https://github.com/ACINQ/eclair/releases/tag/v0.5.1
+eclair,network-io,race_condition,malicious_pairing_session,Info,B_corroborated,ea8f94022 Fix potential race condition in node-relay (#1716),https://github.com/ACINQ/eclair/releases/tag/v0.6.0
 eclair,other,other,unknown,Info,B_corroborated,"This releases fixes a known vulnerability, makes several performance i",https://github.com/ACINQ/eclair/releases/tag/v0.6.2
 eclair,network-io,resource_exhaustion,unknown,Info,C_candidate,"We also make plugins more powerful, introduce mitigations against vari",https://github.com/ACINQ/eclair/releases/tag/v0.9.0
 eclair,key:derivation,crypto_misuse,malicious_pairing_session,Unrated,B_corroborated,Simplify channel keys management,https://github.com/ACINQ/eclair/pull/3064
@@ -13402,6 +13401,7 @@ lace,key:derivation,incorrect_key_derivation,unknown,Unrated,B_corroborated,fix:
 leather,key:kdf,other,unknown,High,A_authoritative,add resolution for pbkdf2 to fix critical vulnerability ([f213435](htt,https://github.com/leather-io/extension/blob/dev/CHANGELOG.md#L166
 leather,ui:transaction-preview,user_deception,unknown,Info,B_corroborated,security vulnerability with ip pkg in storybook ([85d34b3](https://git,https://github.com/leather-io/extension/blob/dev/CHANGELOG.md#L1076
 leather,network-io,other,unknown,Info,B_corroborated,fix audit vulnerability ([f577570](https://github.com/leather-wallet/e,https://github.com/leather-io/extension/blob/dev/CHANGELOG.md#L1566
+leather,network-io,other,unknown,Info,B_corroborated,new pop up window extension crash ([2eeb416](https://github.com/hirosy,https://github.com/leather-io/extension/blob/dev/CHANGELOG.md#L4318
 leather,ui:display-integrity,user_deception,unknown,Info,B_corroborated,prismjs vulnerability ([0dbc1d7](https://github.com/hirosystems/stacks,https://github.com/leather-io/extension/blob/dev/CHANGELOG.md#L4618
 leather,network-io,other,unknown,Info,B_corroborated,security vulnerability from audit ([c80cd98](https://github.com/hirosy,https://github.com/leather-io/extension/blob/dev/CHANGELOG.md#L4717
 leather,network-io,other,unknown,Info,B_corroborated,security vulnerability ([c9dd7f0](https://github.com/hirosystems/stack,https://github.com/leather-io/extension/blob/dev/CHANGELOG.md#L4757
@@ -13656,6 +13656,7 @@ ledger-app-eth,sign:blind-signing,user_deception,unknown,Unrated,C_candidate,Rew
 ledger-app-eth,sign:typed-data,unsafe_initialization_or_upgrade,unknown,Unrated,B_corroborated,Fix uninitialized UI buffer for EIP-712,https://github.com/LedgerHQ/app-ethereum/pull/616
 ledger-app-eth,other,excessive_spend_authority,unknown,Unrated,B_corroborated,NFT on other chains,https://github.com/LedgerHQ/app-ethereum/pull/466
 ledger-app-eth,test,other,unknown,Unrated,A_authoritative,Bump word-wrap from 1.2.3 to 1.2.4 in /tests/zemu,https://github.com/LedgerHQ/app-ethereum/pull/454
+ledger-app-eth,sign:typed-data,other,unknown,Unrated,B_corroborated,Better EIP-191 error handling,https://github.com/LedgerHQ/app-ethereum/pull/402
 ledger-app-eth,test,untrusted_code_execution,unknown,Unrated,A_authoritative,Bump json5 from 2.2.0 to 2.2.3 in /tests/zemu,https://github.com/LedgerHQ/app-ethereum/pull/393
 ledger-app-eth,sign:typed-data,user_deception,physical_device_access,Unrated,B_corroborated,EIP-712 verbose mode fix,https://github.com/LedgerHQ/app-ethereum/pull/378
 ledger-app-eth,sign:typed-data,other,unknown,Unrated,B_corroborated,New CAL test key for CI,https://github.com/LedgerHQ/app-ethereum/pull/375
@@ -15694,6 +15695,8 @@ metamask-sdk,build-ci,other,unknown,Info,B_corroborated,[FIX] reconnect on crash
 metamask-sdk,sign:blind-signing,signature_verification_flaw,unknown,Unrated,B_corroborated,feat: add personal sign functionality to next playground,https://github.com/MetaMask/metamask-sdk/pull/1258
 metamask-sdk,transport:provider-injection,unsafe_initialization_or_upgrade,unknown,Unrated,B_corroborated,Fix: Elliptic dep issue,https://github.com/MetaMask/metamask-sdk/pull/1239
 metamask-sdk,network-io,unsafe_initialization_or_upgrade,unknown,Unrated,B_corroborated,Fix elliptic resolution,https://github.com/MetaMask/metamask-sdk/pull/1237
+metamask-sdk,sign:replay-protection,missing_replay_protection,hostile_network_or_rpc,Unrated,C_candidate,Release 101.0.0,https://github.com/MetaMask/metamask-sdk/pull/1123
+metamask-sdk,sign:replay-protection,missing_replay_protection,hostile_network_or_rpc,Unrated,C_candidate,Release 100.0.0,https://github.com/MetaMask/metamask-sdk/pull/1117
 metamask-sdk,sign:verification,signature_verification_flaw,unknown,Unrated,B_corroborated,chore: add support for 'siwe' in devnext,https://github.com/MetaMask/metamask-sdk/pull/980
 metamask-sdk,sign:replay-protection,missing_replay_protection,hostile_network_or_rpc,Unrated,B_corroborated,Release 34.0.0,https://github.com/MetaMask/metamask-sdk/pull/453
 metamask-sdk,sign:replay-protection,missing_replay_protection,hostile_network_or_rpc,Unrated,B_corroborated,feat: rpc read only calls and infura provider,https://github.com/MetaMask/metamask-sdk/pull/353
@@ -17345,6 +17348,7 @@ monero,other,integer_overflow_underflow,unknown,Info,C_candidate,epee get_ns_cou
 monero,network-io,missing_bounds_check,malformed_input,Info,B_corroborated,miniupnpc: quick fix for buffer overflow,https://github.com/monero-project/monero/commit/234f576565b9841b0085cc33d7e727afcdd43571
 monero,other,reentrancy,unknown,Info,B_corroborated,easylogging++: fix crash with reentrant logging,https://github.com/monero-project/monero/commit/92e6b7df2c816dc4b0a075b0d2fafbc5dc018bbb
 monero,serialization,serialization_bug,malicious_peer,Info,C_candidate,p2p: fix GCC 9.1 crash,https://github.com/monero-project/monero/commit/2cbe75661cb957f7be409a9e22df97d96329c5c8
+monero,other,other,unknown,Info,B_corroborated,mlog: fix crash accessing stale data when rotating logs,https://github.com/monero-project/monero/commit/335fc8ab23d506d2d895c47526065d2fc66ea55e
 monero,other,other,unknown,Info,B_corroborated,Fix crash in std::map for connections_map,https://github.com/monero-project/monero/commit/11d555cebe70053479f8c7ce8a8a993821b634b9
 monero,other,other,unknown,Info,B_corroborated,"Don't try to create wallet-dir when it's not given, don't crash if wal",https://github.com/monero-project/monero/commit/2183ade0c4e9cd7e923d325a97ff3ddfdc9fc941
 monero,other,other,unknown,Info,B_corroborated,Fix startup crash when using a locale boost does not like,https://github.com/monero-project/monero/commit/f3724aef881ff2fdada98eddc792059e4e18c1c8
@@ -19698,6 +19702,7 @@ rainbow,platform:mobile-hardening,other,malicious_signing_request,Unrated,B_corr
 rainbow,other,integer_overflow_underflow,unknown,Unrated,C_candidate,fix lp badge gradient overflow and android shadows,https://github.com/rainbow-me/rainbow/pull/6296
 rainbow,platform:mobile-hardening,excessive_spend_authority,malicious_local_app,Unrated,C_candidate,Fix approval + swaps,https://github.com/rainbow-me/rainbow/pull/6259
 rainbow,platform:mobile-hardening,excessive_spend_authority,malicious_local_app,Unrated,C_candidate,@matthew/fix overflow context menu,https://github.com/rainbow-me/rainbow/pull/6139
+rainbow,platform:mobile-hardening,missing_replay_protection,malicious_local_app,Unrated,B_corroborated,"Revert ""Fix crash due to failed estimated gas limit (#6055)""",https://github.com/rainbow-me/rainbow/pull/6124
 rainbow,sign:replay-protection,missing_replay_protection,malicious_pairing_session,Unrated,B_corroborated,Update arbitrum default back to mainnet for WC message signing,https://github.com/rainbow-me/rainbow/pull/6122
 rainbow,platform:mobile-hardening,other,malicious_local_app,Unrated,B_corroborated,fix crash on dapp browser tx,https://github.com/rainbow-me/rainbow/pull/6117
 rainbow,key:storage,missing_replay_protection,malicious_local_app,Unrated,B_corroborated,Fix wrong messages during MWP Flow,https://github.com/rainbow-me/rainbow/pull/6094
@@ -22638,6 +22643,7 @@ sui,key:memory-hygiene,missing_input_validation,hostile_network_or_rpc,Unrated,B
 sui,network-io,missing_input_validation,hostile_network_or_rpc,Unrated,C_candidate,[suiop] Validate pulumi project name,https://github.com/MystenLabs/sui/pull/17875
 sui,ui:transaction-preview,weak_key_generation,hostile_network_or_rpc,Unrated,C_candidate,Increase checkpoint timeout,https://github.com/MystenLabs/sui/pull/17831
 sui,sign:encoding-malleability,missing_input_validation,hostile_network_or_rpc,Unrated,B_corroborated,[bridge] allow offline signing for committee registration,https://github.com/MystenLabs/sui/pull/17799
+sui,sign:encoding-malleability,broken_access_control,unknown,Unrated,B_corroborated,[cherrypick] Fix crash recovery when no commit info was flushed (#1771,https://github.com/MystenLabs/sui/pull/17721
 sui,key:storage,missing_input_validation,hostile_network_or_rpc,Unrated,C_candidate,add default aes to keystore..,https://github.com/MystenLabs/sui/pull/17384
 sui,build-ci,excessive_spend_authority,hostile_network_or_rpc,Unrated,B_corroborated,Update changesets-ci.yml,https://github.com/MystenLabs/sui/pull/17367
 sui,ui:transaction-preview,weak_key_generation,unknown,Unrated,C_candidate,Add script to search for failing seeds,https://github.com/MystenLabs/sui/pull/17364
@@ -25798,6 +25804,7 @@ web3j,key:seed-mnemonic,weak_key_generation,unknown,Unrated,B_corroborated,Mnemo
 web3j,key:entropy-rng,unhandled_error_or_nil,unknown,Info,B_corroborated,Potential SecureRandom vulnerability on Android (https://github.com/we,https://github.com/LFDT-web3j/web3j/releases/tag/v3.0.1
 web3j,serialization,race_condition,unknown,Info,B_corroborated,updates besu version to avoid log4shell vulnerability. by @SweeXordiou,https://github.com/LFDT-web3j/web3j/releases/tag/v4.9.2
 web3j,transport:rpc-surface,unsafe_initialization_or_upgrade,hostile_network_or_rpc,Info,A_authoritative,368 upgrade jnr unixsocket to 0.38.17 (fix CVE-2020-15250) (#1616) by ,https://github.com/LFDT-web3j/web3j/releases/tag/v4.9.2
+web3j,sign:replay-protection,missing_replay_protection,hostile_network_or_rpc,Info,B_corroborated,FIX-1240 - Race condition in java.util.ServiceLoader by @gtebrean in h,https://github.com/LFDT-web3j/web3j/releases/tag/v4.9.2
 web3j,sign:replay-protection,missing_replay_protection,unknown,Unrated,C_candidate,"366 add chainid field, fix chainid calculation",https://github.com/LFDT-web3j/web3j/pull/1608
 web3j,sign:typed-data,serialization_bug,unknown,Unrated,C_candidate,Fix EIP712 encodeType with Array,https://github.com/LFDT-web3j/web3j/pull/1683
 web3j,sign:typed-data,serialization_bug,unknown,Unrated,C_candidate,Fix 1468,https://github.com/LFDT-web3j/web3j/pull/1654

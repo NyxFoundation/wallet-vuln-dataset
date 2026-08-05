@@ -55,7 +55,12 @@ def normalize_severity(s: str) -> str:
     return "Info"
 
 
-def load_csv(csv_path: Path, now: str) -> list[dict]:
+def _fail(msg: str) -> int:
+    print(f"[merge_crawl_csvs] FATAL: {msg}", file=sys.stderr)
+    return 1
+
+
+def load_csv(csv_path: Path, now: str, domain: str) -> list[dict]:
     rows = []
     with open(csv_path, newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
@@ -76,7 +81,7 @@ def load_csv(csv_path: Path, now: str) -> list[dict]:
                 "description": (row.get("description") or "")[:2000].strip(),
                 "source_url": (row.get("source_url") or "").strip(),
                 "introduced_in_commit": (row.get("introduced_in_commit") or "").strip(),
-                "domain": row.get("domain", "ethereum").strip() or "ethereum",
+                "domain": row.get("domain", "").strip() or domain,
                 "scraped_at": row.get("scraped_at", now).strip() or now,
                 "stride": row.get("stride", "Other").strip() or "Other",
                 "cwe_top25": row.get("cwe_top25", "N/A").strip() or "N/A",
@@ -89,26 +94,44 @@ def main() -> int:
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--src-dirs", nargs="+", required=True, type=Path,
                    help="Directories containing *.csv files to merge")
-    p.add_argument("--parquet", default="dataset/ethereum_past_fixes/train.parquet", type=Path)
-    p.add_argument("--out", default="dataset/ethereum_past_fixes/train.parquet", type=Path)
+    p.add_argument("--parquet", default="scratchpad_crawl/derived/wallet/train.parquet", type=Path)
+    p.add_argument("--out", default="scratchpad_crawl/derived/wallet/train.parquet", type=Path)
+    p.add_argument("--domain", default="",
+                   help="domain to stamp on rows whose CSV omits it; "
+                        "default: inherit the target parquet's own domain")
     p.add_argument("--dry-run", action="store_true")
     args = p.parse_args()
 
     now = datetime.now(timezone.utc).isoformat()
+
+    df = pd.read_parquet(args.parquet)
+    print(f"[merge_crawl_csvs] existing parquet: {len(df)} rows", file=sys.stderr)
+
+    # The supplementary CSVs (commit-grep, stealth PRs, releases, changelogs) do
+    # not carry a domain — they are per-wallet crawls. A literal default here
+    # stamped every one of them 'ethereum' and 90% of the published corpus said
+    # so. Inherit the domain of the table we are merging INTO instead, and refuse
+    # to guess when that table is itself ambiguous.
+    domain = args.domain.strip()
+    if not domain:
+        seen = {d for d in df.get("domain", pd.Series(dtype=str)).dropna().astype(str)
+                if d.strip()}
+        if len(seen) != 1:
+            return _fail(f"cannot infer --domain: target parquet has domains {sorted(seen)}")
+        domain = seen.pop()
+    print(f"[merge_crawl_csvs] stamping domain={domain!r} on CSV rows", file=sys.stderr)
+
     all_rows: list[dict] = []
     for src_dir in args.src_dirs:
         if not src_dir.exists():
             print(f"[merge_crawl_csvs] skipping {src_dir} (not found)", file=sys.stderr)
             continue
         for csv_path in sorted(src_dir.glob("*.csv")):
-            rows = load_csv(csv_path, now)
+            rows = load_csv(csv_path, now, domain)
             print(f"[merge_crawl_csvs] {csv_path.name}: {len(rows)} rows", file=sys.stderr)
             all_rows.extend(rows)
 
     print(f"[merge_crawl_csvs] total loaded: {len(all_rows)} rows", file=sys.stderr)
-
-    df = pd.read_parquet(args.parquet)
-    print(f"[merge_crawl_csvs] existing parquet: {len(df)} rows", file=sys.stderr)
 
     existing_ids = set(df["id"].tolist())
     new_rows = [r for r in all_rows if r["id"] not in existing_ids]
