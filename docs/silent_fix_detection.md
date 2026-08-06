@@ -114,19 +114,27 @@ commit message says "cleanup" fires no keyword and carries no advisory id.
 
 For most of this dataset's life the classifier had only ever been pointed at
 rows the gate had *already admitted*, where it can only shuffle tiers. Run
-instead against a random 4,000 of the **62,882 rows the gate dropped**:
+instead against the **62,882 rows the gate dropped**:
 
 | | |
 |---|---:|
-| rows scored (`glm-5.2`, 99.5% parse rate) | 3,978 |
-| judged a security fix at any confidence | 300 (7.5%) |
-| **at the ≥ 0.70 admission threshold** | **270 (6.8%)** |
-| at the Opus-calibrated ≥ 0.85 threshold | 106 (2.7%) |
+| dropped rows scored (`glm-5.2`) | **59,534** (98% of them) |
+| **at the ≥ 0.70 admission threshold** | **3,548 (5.96%)** |
+| of those, surviving de-duplication into the corpus | **3,111** |
 
-Extrapolated across all 62,882 dropped rows that is **~4,300 recoverable fixes
-at 0.70, ~1,700 at 0.85** — 6–16% on top of the curated corpus, concentrated in
-exactly the custody surfaces the keyword gate is meant to cover (`signing` 93,
-`ui_deception` 60, `key_material` 40 of the 300).
+The projection held. A random first sample of 3,978 gave 6.8%; the near-complete
+run gave **5.96%**, and the recovered fixes sit exactly where the keyword gate is
+supposed to be strongest: `signing` 1,093 · `ui_deception` 697 ·
+`key_material` 482 · `transport` 382 · `platform` 250 · `approval` 167.
+
+That is **+11.6% on the curated corpus**, recovered from rows no keyword matched
+and no advisory named — which is the entire premise of the project, finally
+measured rather than assumed.
+
+The last 2% of the dropped pile is unscored: the hosted endpoint's quota
+throttled the tail to ~4 rows/min, and ~80 further admissions were not worth
+hours of waiting. `--csv-only` exports whatever the prediction cache holds, so a
+quota-interrupted pass still yields its artifact.
 
 ### `silent_fix_prob` is not comparable across models
 

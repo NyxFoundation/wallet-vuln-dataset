@@ -66,9 +66,14 @@ if not os.environ.get("SSL_CERT_FILE"):
 _RATE_GATE = threading.Event()
 _RATE_GATE.set()                      # set == clear to send
 _RATE_LOCK = threading.Lock()
-RATE_MAX_TRIES = 6
-RATE_BASE_SLEEP = 20.0                # doubled per attempt, capped
-RATE_MAX_SLEEP = 600.0
+# Tuned against the observed limit: sustained load trips 429 while a single
+# request succeeds, i.e. this is a RATE cap, not a spent daily budget. Escalating
+# to a 600s sleep then cost ten minutes to learn something a 60s probe learns —
+# measured 26 rows/min with ten separate 600s pauses. Probe often, sleep briefly,
+# and take the ceiling low enough that a recovered quota is noticed quickly.
+RATE_MAX_TRIES = 10
+RATE_BASE_SLEEP = 15.0                # doubled per attempt, capped
+RATE_MAX_SLEEP = 90.0
 
 
 def _rate_backoff(attempt: int, retry_after: str | None) -> None:

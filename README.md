@@ -17,7 +17,7 @@ retargeted from a *protocol* threat model to a **custody** threat model.
 import pandas as pd
 df = pd.read_parquet("data/wallet_vulns.parquet")
 
-df[df.authority_tier.isin(["A_authoritative", "B_corroborated"])]  # essential (18,790)
+df[df.authority_tier.isin(["A_authoritative", "B_corroborated"])]  # essential (20,072)
 df[df.authority_tier != "A_dependency"]   # everything except third-party advisories
 df[df.confidence == "high"]              # strongest evidence only
 ```
@@ -27,14 +27,14 @@ df[df.confidence == "high"]              # strongest evidence only
 | | rows |
 |---|---:|
 | raw snapshot (all repos) | 90,223 |
-| curated (security-only) | **27,826** |
-| └ essential slice (A_authoritative ∪ B) | **18,790** |
-| by tier | A_authoritative 1,424 · **A_dependency 628** · B_corroborated 17,366 · C_candidate 8,408 |
-| by confidence | high 9,121 · medium 16,637 · low 2,068 |
-| by severity | Critical 1 · High 228 · Medium 848 · Low 50 · Info 10,068 · Unrated 15,544 |
-| with a STRIDE category (not `Other`) | 6,531 (23%) |
-| with a CWE-Top-25 id | 6,162 (22%) |
-| admitted by the LLM silent-fix classifier alone | **1,087** |
+| curated (security-only) | **29,850** |
+| └ essential slice (A_authoritative ∪ B) | **20,072** |
+| by tier | A_authoritative 1,424 · **A_dependency 628** · B_corroborated 18,648 · C_candidate 9,150 |
+| by confidence | high 9,119 · medium 16,635 · low 4,096 |
+| by severity | Critical 1 · High 228 · Medium 848 · Low 50 · Info 11,642 · Unrated 17,081 |
+| with a STRIDE category (not `Other`) | 6,530 (22%) |
+| with a CWE-Top-25 id | 6,161 (21%) |
+| admitted by the LLM silent-fix classifier alone | **3,111** |
 
 **96% of rows are Info or Unrated**, because almost no wallet fix is ever
 graded by anyone. Unrated is not low impact — it is the absence of a grader.
@@ -154,10 +154,10 @@ Every row carries a `label` naming the part of the custody chain that broke,
 derived from the diff's changed paths plus the fix text
 ([`docs/collection.md`](docs/collection.md)). The distribution:
 
-`key:seed-mnemonic` 3,304 · `key:storage` 2,831 · `network-io` 2,328 · `sign:encoding-malleability` 1,354 · `build-ci` 1,154 · `test` 890
+`key:seed-mnemonic` 3,350 · `key:storage` 2,922 · `network-io` 2,636 · `sign:encoding-malleability` 1,499 · `build-ci` 1,220 · `test` 994
 
 `pre_fix_code` / `post_fix_code` hold the before/after hunks inline for
-91% of rows, `files_changed` for 95%, and `fix_commit` now resolves for **100%**
+92% of rows, `files_changed` for 96%, and `fix_commit` now resolves for **100%**
 — it was 67% until `_resolve_pr_ref` stopped silently returning None on clones
 that had never fetched `refs/pull/*`.
 
