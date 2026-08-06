@@ -948,3 +948,24 @@ def test_llm_endpoint_waits_on_429_instead_of_burning_rows():
     # An auth failure or a 404 is an answer; retrying it forever is the trap
     # gh_rate.py was written to avoid.
     assert "raise" in body.split("e.code < 500")[1][:80], "4xx is not re-raised"
+
+
+def test_patch_id_timeout_kills_the_whole_pipeline():
+    """A timeout must stop the work, not just the shell that launched it.
+
+    subprocess.run(shell=True, timeout=…) kills the shell and returns while the
+    pipeline's children keep going: a `git patch-id` orphaned this way was still
+    consuming a core 30 minutes past its 420s deadline, invisible to the run
+    that had moved on. Backport detection is an optional column, so it must also
+    never take the repo down with it when it fails.
+    """
+    src = (ROOT / "collection/enumerate_commits.py").read_text()
+    i = src.find("def _patch_ids")
+    assert i != -1, "patch-id is not run through the group-killing helper"
+    body = src[i:src.find("\ndef ", i + 10)]
+    assert "start_new_session=True" in body, "the pipeline is not its own process group"
+    assert "killpg" in body, "the timeout does not kill the group"
+    # And the caller must survive its failure.
+    j = src.find('df["is_backport"] = False')
+    assert "except (subprocess.TimeoutExpired, OSError)" in src[j:j + 1200], \
+        "a backport-detection failure still aborts enumeration"

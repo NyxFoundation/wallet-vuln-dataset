@@ -385,6 +385,36 @@ def advisory_scope(row) -> str:
     return "own_code"
 
 
+def security_verdict(row) -> str:
+    """Whether the two LLM passes, read together, deny that this row is a fix.
+
+    `authority_tier` says where a row's evidence came from. This says something
+    different — what the readers of the row concluded — so it is a separate axis
+    rather than another tier value.
+
+    The gate admits on a union of signals, which is the right bias for recall and
+    leaves meta-work behind: 2,214 rows labelled build-ci or test, plus entries
+    like "[Security] Update CODEOWNERS…" and "Added comments referencing multiple
+    CVEs" sitting in the top tier. Two independent readers already judged those —
+    the STRIDE pass (whose rubric explicitly returns Other for a dependency bump,
+    a CI/docs/test change or a pure refactor) and the silent-fix classifier.
+
+    Only their AGREEMENT refutes a row. `stride == Other` alone covers 78% of the
+    corpus and mostly means "the title was too thin to classify", so using it by
+    itself would discard thousands of real fixes.
+
+    `unassessed` is a first-class value, not a gap to hide: a row neither pass has
+    read cannot be refuted, and saying so keeps the coverage visible instead of
+    letting an unscored row look confirmed.
+    """
+    is_fix = row.get("llm_is_security_fix")
+    if is_fix is None or pd.isna(is_fix):
+        return "unassessed"
+    if float(is_fix) == 0.0 and str(row.get("stride") or "Other") == "Other":
+        return "refuted"
+    return "assessed"
+
+
 def authority_tier(row) -> str:
     """Coarse provenance class so a consumer can take the *essential* slice.
 
@@ -540,6 +570,7 @@ def build(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     sec["confidence"] = sec.apply(confidence_tier, axis=1)
     sec["n_signals"] = sec.apply(count_signals, axis=1)
     sec["authority_tier"] = sec.apply(authority_tier, axis=1)
+    sec["security_verdict"] = sec.apply(security_verdict, axis=1)
     sec = sec.drop(columns=["security_relevant"])
 
     report = {
@@ -611,7 +642,11 @@ def main() -> int:
     if a.silent_fix_csv and a.silent_fix_csv.exists():
         probs = pd.read_csv(a.silent_fix_csv)
         probs = probs.dropna(subset=["source_url"]).drop_duplicates("source_url")
-        df = df.merge(probs[["source_url", "silent_fix_prob"]], on="source_url", how="left")
+        keep = ["source_url", "silent_fix_prob"]
+        if "is_security_fix" in probs.columns:
+            probs = probs.rename(columns={"is_security_fix": "llm_is_security_fix"})
+            keep.append("llm_is_security_fix")
+        df = df.merge(probs[keep], on="source_url", how="left")
         print(f"[silent-fix] joined {probs['silent_fix_prob'].notna().sum()} "
               f"classifier scores", file=sys.stderr)
         # silent_fix_prob is a gate-ADMITTING signal at >= 0.70, and that number
