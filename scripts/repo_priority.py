@@ -11,9 +11,10 @@ the front of a queue where they yield ~2%.
 So this prints both, and leaves the decision explicit. A repo is skipped on
 evidence — "2,016 commits judged, 41 hits" — not because it looked big.
 
-`cost` is the count of commits that would actually be sent to the model:
-enumerate_commits keeps roughly 54% of history after dropping merges,
-source-free commits and oversized diffs.
+`cost` is the count of commits that would actually be sent to the model.
+enumerate_commits keeps 63-84% of history (pooled 77%, measured over seven
+repos) after dropping merges, source-free commits and oversized diffs — so this
+is an estimate, and a repo already enumerated reports its true count instead.
 
     uv run python scripts/repo_priority.py                  # the table
     uv run python scripts/repo_priority.py --top 10 --slugs # feed the sweep
@@ -32,7 +33,15 @@ from pathlib import Path
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parent.parent
-KEEP_SHARE = 0.54  # measured: merges + source-free + oversized drop ~46%
+# Measured across seven fully-enumerated repos: 63%-84%, pooled 77%.
+#
+# The first estimate was 54%, from multiplying two rates sampled on one repo
+# (80% non-merge x 67% touching source). They are not independent — a non-merge
+# commit is far more likely to touch source — so the product understated the
+# real keep rate by a third, and every cost in this table with it. The spread
+# tracks language mix: electrum is almost entirely Python and keeps 84%, while
+# a JS monorepo full of lockfiles and configs keeps 63%.
+KEEP_SHARE = 0.77
 
 
 def _load(name: str, rel: str):
@@ -105,7 +114,18 @@ def main() -> int:
             "commits": commit_count(slug),
         })
     df = pd.DataFrame(rows).sort_values("stars", ascending=False)
+    # A repo that has actually been enumerated knows its own cost; only guess
+    # for the rest.
+    import glob as _glob
+    known = {}
+    for pq in _glob.glob(str(ROOT / "scratchpad_crawl/allcommits/*.parquet")):
+        slug = Path(pq).stem
+        try:
+            known[slug] = len(pd.read_parquet(pq, columns=["id"]))
+        except Exception:
+            pass
     df["cost"] = (df.commits * KEEP_SHARE).round().astype("Int64").where(df.commits > 0)
+    df["cost"] = df.apply(lambda r: known.get(r.slug, r["cost"]), axis=1).astype("Int64")
     if a.top:
         df = df.head(a.top)
 
