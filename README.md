@@ -17,7 +17,7 @@ retargeted from a *protocol* threat model to a **custody** threat model.
 import pandas as pd
 df = pd.read_parquet("data/wallet_vulns.parquet")
 
-df[df.authority_tier.isin(["A_authoritative", "B_corroborated"])]  # essential (21,303)
+df[df.authority_tier.isin(["A_authoritative", "B_corroborated"])]  # essential (22,133)
 df[df.security_verdict != "refuted"]      # drop what two LLM passes both deny
 df[df.authority_tier != "A_dependency"]   # everything except third-party advisories
 df[df.confidence == "high"]              # strongest evidence only
@@ -28,16 +28,16 @@ df[df.confidence == "high"]              # strongest evidence only
 | | rows |
 |---|---:|
 | raw snapshot (all repos) | 90,223 |
-| curated (security-only) | **31,583** |
-| └ essential slice (A_authoritative ∪ B) | **21,303** |
-| by tier | A_authoritative 1,421 · **A_dependency 628** · B_corroborated 19,882 · C_candidate 9,652 |
+| curated (security-only) | **33,744** |
+| └ essential slice (A_authoritative ∪ B) | **22,133** |
+| by tier | A_authoritative 1,421 · **A_dependency 628** · B_corroborated 20,712 · C_candidate 10,983 |
 | by confidence | high 9,119 · medium 16,635 · low 4,096 |
 | by severity | Critical 1 · High 228 · Medium 848 · Low 50 · Info 11,642 · Unrated 17,081 |
 | with a STRIDE category (not `Other`) | 6,530 (22%) |
 | with a CWE-Top-25 id | 6,161 (21%) |
-| admitted by the LLM silent-fix classifier alone | **4,849** |
-| └ from the keyword-free whole-history sweep | **1,738** |
-| `security_verdict` | unassessed 24,587 · assessed 5,668 · **refuted 1,328** |
+| admitted by the LLM silent-fix classifier alone | **7,057** |
+| └ from the keyword-free whole-history sweep | **3,896** |
+| `security_verdict` | unassessed 24,299 · assessed 7,934 · **refuted 1,511** |
 
 **96% of rows are Info or Unrated**, because almost no wallet fix is ever
 graded by anyone. Unrated is not low impact — it is the absence of a grader.
