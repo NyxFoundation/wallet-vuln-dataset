@@ -30,7 +30,8 @@
     "post_fix_code",
     "fix_commit",
     "introduced_in_commit",
-    "cwe_top25"
+    "cwe_top25",
+    "mechanism"
   ],
   "build": {
     "raw_rows": 94388,
@@ -262,6 +263,33 @@
     "residual_boilerplate_fp": 0,
     "labelled": 28389,
     "deduped_fix_commit": 570,
+    "mechanism_coverage": 9445,
+    "by_mechanism": {
+      "unclassified": 24299,
+      "other": 2642,
+      "signed-differs-from-shown": 989,
+      "input-bounds-parsing": 940,
+      "authorization-check": 816,
+      "key-derivation-storage": 652,
+      "encoding-canonicalization": 523,
+      "signature-verification-gap": 453,
+      "origin-session-auth": 331,
+      "key-lifetime-in-memory": 328,
+      "state-race-concurrency": 280,
+      "type-state-consistency": 246,
+      "replay-scope": 238,
+      "nonce-or-randomness": 146,
+      "side-channel-fault": 136,
+      "protocol-counterparty": 135,
+      "privilege-isolation": 107,
+      "dependency-supply-chain": 92,
+      "code-injection-context": 86,
+      "curve-point-validation": 76,
+      "missing-authentication": 74,
+      "uri-deeplink-handling": 66,
+      "transport-encryption": 46,
+      "secure-boot-rollback": 43
+    },
     "redaction": {
       "SECRET": 1,
       "rows_touched:title": 1

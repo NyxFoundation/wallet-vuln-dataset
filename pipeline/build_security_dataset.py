@@ -612,6 +612,11 @@ def main() -> int:
     ap.add_argument("--labels-csv", type=Path,
                     help="optional id-keyed labels from enrich_labels.py "
                          "(label / root_cause / attack_path / pre+post code / fix_commit)")
+    ap.add_argument("--mechanisms-csv", type=Path,
+                    help="optional source_url->mechanism table (scripts/classify_mechanism.py). "
+                         "`label` names the part of the custody chain that broke; this names "
+                         "WHAT WENT WRONG there, which is the question the corpus is uniquely "
+                         "able to answer and was previously only in a side file")
     ap.add_argument("--severity-csv", type=Path,
                     help="optional id-keyed severity estimates from estimate_severity.py "
                          "(severity_estimated / severity_source / impact_type / …)")
@@ -728,6 +733,19 @@ def main() -> int:
     if not a.out:
         ap.error("--out is required unless --dry-run")
     a.out.parent.mkdir(parents=True, exist_ok=True)
+
+    # `mechanism` is coverage-limited by construction: only a row the LLM has read
+    # can carry one. Unread rows get "unclassified", never a guess, so the column's
+    # coverage stays visible rather than looking complete.
+    if a.mechanisms_csv and a.mechanisms_csv.exists():
+        mech = pd.read_csv(a.mechanisms_csv).drop_duplicates("source_url")
+        sec = sec.merge(mech[["source_url", "mechanism"]], on="source_url", how="left")
+        sec["mechanism"] = sec["mechanism"].fillna("unclassified")
+        report["mechanism_coverage"] = int((sec["mechanism"] != "unclassified").sum())
+        report["by_mechanism"] = {k: int(v) for k, v in
+                                  sec["mechanism"].value_counts().items()}
+        print(f"[mechanism] joined {report['mechanism_coverage']} defect mechanisms",
+              file=sys.stderr)
 
     report["redaction"] = _redaction
     if report_models is not None:
