@@ -152,9 +152,22 @@ the time — a thinner record makes a weaker label. And a row judged *not* to be
 fix is 90% `other`, which is correct: there is no defect to attribute.
 
 `security_verdict` records what two independent LLM passes concluded. `refuted` means
-both denied it is a security fix. **Those 1,511 rows are still included** — 72% of the
+both denied it is a security fix. **Those 1,662 rows are still included** — 70% of the
 corpus has not been assessed at all, and filtering only the assessed part would hold the
 read rows to a standard the unread ones escape.
+
+**Read this before trusting the tier names.** A pass over those unassessed rows is running
+now, and on the 8,461 judged so far — spread across 142 of 174 repositories, so not one
+repo's quirk — **88% come back as not a security fix**: 86% of `B_corroborated`, 91% of
+`C_candidate`, and 96% of the `A_authoritative` rows in this group. That is the population
+admitted by keyword and heuristic signals and never checked by a reader, so a high rate is
+expected rather than surprising — and it agrees with an independent measurement, that
+keyword-gated rows survive a STRIDE check only 24.6% of the time.
+
+What it means concretely: the 22,413-row "strongest evidence" slice is *broad*, not clean.
+Until the pass finishes, take `contest == "all-commits"` (4,675 rows, each read from its
+diff) or `security_verdict == "assessed"` as the vetted parts, and treat the rest as
+candidates. The number above is interim and will be replaced by the complete one.
 
 ## How fixes are found
 
