@@ -97,6 +97,7 @@ believed you approved, while your seed stayed exactly where it was supposed to b
 | [`data/wave1_mechanisms.csv`](data/wave1_mechanisms.csv) | 1.7 MB | the same 4,608 fixes labelled by defect mechanism |
 | [`data/advisory_mechanisms.csv`](data/advisory_mechanisms.csv) | 403 KB | all 1,325 advisory-bearing rows, read from the diff, with the verdict and its reason |
 | [`data/mechanism_comparison.csv`](data/mechanism_comparison.csv) | — | disclosed vs silent, per mechanism |
+| [`data/mechanisms.csv`](data/mechanisms.csv) | 1.1 MB | every mechanism label, keyed by commit URL — the source of the corpus column |
 | `data/silent_fix_llm.csv` | 31 MB | every classifier verdict, including the negatives |
 | `data/manifest.json` | — | per-stage drop counts and redaction tally |
 
@@ -107,6 +108,7 @@ df = pd.read_parquet("data/wallet_vulns.parquet")
 df[df.authority_tier.isin(["A_authoritative", "B_corroborated"])]  # 22,133 strongest
 df[df.security_verdict != "refuted"]                               # drop the denied
 df[df.contest == "all-commits"]                                    # 3,896 keyword-free
+df[df.mechanism == "signed-differs-from-shown"]                    # by what went wrong
 ```
 
 The full CSV export is not committed — at 305 MB it exceeds GitHub's file limit.
@@ -126,6 +128,7 @@ The full CSV export is not committed — at 305 MB it exceeds GitHub's file limi
 | found by the LLM classifier alone | 7,057 |
 | └ from the keyword-free sweep | 3,896 |
 | `security_verdict` | unassessed 24,299 · assessed 7,934 · refuted 1,511 |
+| with a defect `mechanism` | **6,803** across 22 kinds · 2,642 read but unattributable · 24,299 unread |
 
 **97% of rows are Info or Unrated** because nobody ever graded them. Unrated means no
 grader existed, not low impact.
@@ -134,6 +137,18 @@ grader existed, not low impact.
 repo bumping `rails` or `rubyzip` after a CVE. Genuine, and not a custody bug, so it sits
 outside the strongest slice. Left mixed in, the top tier partly measured whether
 Dependabot runs on a repo.
+
+`label` says which part of the custody chain a fix touched; `mechanism` says **what went
+wrong there** — a signature checked against the wrong bytes, a length never validated, a
+key left in a place another app can read. It is the column to group by when the question
+is "what should I be careful about", and the 22 values are in
+[`data/mechanism_comparison.csv`](data/mechanism_comparison.csv).
+
+Only a row an LLM has read can carry one, so the rest say `unclassified` rather than
+guessing. Two things the column does not hide: rows found by reading whole histories land
+in `other` 5.1% of the time, while rows inherited from the keyword crawl do so 20.6% of
+the time — a thinner record makes a weaker label. And a row judged *not* to be a security
+fix is 90% `other`, which is correct: there is no defect to attribute.
 
 `security_verdict` records what two independent LLM passes concluded. `refuted` means
 both denied it is a security fix. **Those 1,511 rows are still included** — 72% of the
@@ -240,6 +255,22 @@ Do not take that list top to bottom. `brave/brave-core` is 60,169 commits at a 2
 rate; `MetaMask/metamask-extension` is 42,387 at 3.6%. Both cost more than the entire
 first wave and return less. Prefer repositories where a defect reaches custody directly —
 hardware firmware, signing libraries, long-lived Bitcoin wallets.
+
+Before more repositories, though: 24,299 rows already in the corpus have never been read
+by any classifier, which is why `security_verdict != "refuted"` barely filters and why
+two thirds of the corpus has no `mechanism`. Reading those costs no new cloning — 24,035
+of them sit in repositories already on disk — and it makes both columns usable:
+
+```bash
+uv run python collection/llm_classify_fixes.py --apply --tier all \
+    --in <unassessed rows>.parquet --pred-cache scratchpad_crawl/pred_cache.json \
+    --apply-out assessed.csv --workers 5 \
+    --engine openai --model glm-5.2 \
+    --base-url https://ollama.com/v1 --api-key-env OLLAMA_API_KEY
+```
+
+Run it after a sweep, not beside one: both draw on the same quota, and two passes
+competing spend their time on backoff instead of judging.
 
 ### Resume
 
