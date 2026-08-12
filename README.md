@@ -1,103 +1,138 @@
 # wallet-vuln-dataset
 
-A curated corpus of **past security fixes from crypto wallet software** — self-custody
-apps, hardware-wallet firmware, smart-contract accounts, MPC/TSS key management, and
-the signing libraries every wallet is built on. Every row is one historical
-vulnerability fix (a merged PR, commit, advisory, or CVE), normalized to a single
-schema, scored for security relevance, and tiered by evidence strength.
+Every security fix that crypto wallet developers have quietly shipped, collected from
+their own public repositories. 33,744 fixes across 174 wallets, hardware firmwares,
+smart-contract accounts and signing libraries.
 
-Built with the same methodology as
-[`NyxFoundation/ethereum-vuln-dataset`](https://github.com/NyxFoundation/ethereum-vuln-dataset),
-retargeted from a *protocol* threat model to a **custody** threat model.
+Almost none of them have a CVE. That is the point.
 
-> **Status: complete.** All 181 repos crawled across every slice, curated, and
-> enriched with area labels and inline pre/post-fix code.
+## What this says about the wallet you use
+
+Across all 181 repositories in this registry, the total number of published security
+advisories is **16**. 167 repositories have published **zero**.
+
+Every one of those 16 belongs to an npm library or a US-based company. npm publishes
+advisories because downstream projects run `npm audit`; US companies publish them
+because they have disclosure policies. Trezor, Ledger, Coldcard, BitBox, Keystone,
+OneKey, Electrum, BlueWallet, Sparrow, Wasabi, Monero, Keplr and imToken have published
+none between them.
+
+That is not a safety ranking. Reading it as one inverts the causality. **Advisory counts
+measure whether a project has a disclosure habit, not whether it had bugs.**
+
+Here is what was actually in one of those zero-advisory repositories. Judging all 20,650
+of Trezor's firmware commits surfaced 1,956 security fixes, including:
+
+- a **hardcoded signature bypass** — `signature_valid = sectrue` sitting in the firmware
+  verification path with a `TODO-remove` comment
+- **signing nonces derived from the private key** (RFC 6979), replaced with a hardware
+  random source, because the deterministic derivation leaked key material
+- **nonce bias in Ed25519 multisig signing** — the nonce was run through a function that
+  clamps bits, forcing the value into a predictable subset
+- an entropy failure that returned **an ignorable boolean** instead of halting the
+  device, so a caller could proceed with weak randomness
+
+None of these have a CVE. If you had checked Trezor's advisory page, you would have seen
+nothing, and concluded nothing was wrong.
+
+## What breaks, in order
+
+Of the 4,608 fixes recovered by reading every commit of ten widely-used wallets:
+
+| | fixes | what actually goes wrong |
+|---|---:|---|
+| `signing` | 1,418 | a signature ends up valid over something you never agreed to |
+| `key_material` | 968 | the seed or key leaks, is weakly generated, or is left in memory |
+| `firmware` | 628 | boot verification, PIN handling, or the trusted display on a hardware wallet |
+| `ui_deception` | 572 | you approve the wrong thing because the screen told you something false |
+| `transport` | 358 | the channel between a dapp and your wallet lets in an origin it should not |
+| `memory` | 182 | memory corruption in firmware or native crypto code |
+| `platform` | 162 | an OS or browser escape reaches the key store |
+| `approval` | 109 | spend authority is obtained without ever touching your key |
+
+**Signing and UI deception together outweigh key leakage.** The common mental model —
+"keep your seed phrase safe and you are fine" — does not match where the bugs are. Most
+of these fixes are about a wallet signing or displaying something other than what you
+believed you approved, while your seed stayed exactly where it was supposed to be.
+
+## The data
+
+| File | Size | What |
+|---|---:|---|
+| [`data/keywordless_sweep_wave1.csv`](data/keywordless_sweep_wave1.csv) | 1.6 MB | **start here.** 4,608 fixes from ten mass-market wallets, one row each, with the reason it was judged a security fix |
+| `data/wallet_vulns.parquet` | 95 MB | the full corpus — 33,744 rows, all columns, before/after code inline |
+| `data/wallet_vulns.preview.csv` | 6 MB | key columns only, browsable in the GitHub UI |
+| `data/raw/train.classified.parquet` | 31 MB | pre-filter snapshot, for reproducing the curation |
+| `data/silent_fix_llm.csv` | 31 MB | every classifier verdict, including the negatives |
+| `data/manifest.json` | — | per-stage drop counts and redaction tally |
 
 ```python
 import pandas as pd
 df = pd.read_parquet("data/wallet_vulns.parquet")
 
-df[df.authority_tier.isin(["A_authoritative", "B_corroborated"])]  # essential (22,133)
-df[df.security_verdict != "refuted"]      # drop what two LLM passes both deny
-df[df.authority_tier != "A_dependency"]   # everything except third-party advisories
-df[df.confidence == "high"]              # strongest evidence only
+df[df.authority_tier.isin(["A_authoritative", "B_corroborated"])]  # 22,133 strongest
+df[df.security_verdict != "refuted"]                               # drop the denied
+df[df.contest == "all-commits"]                                    # 3,896 keyword-free
 ```
 
-## Dataset at a glance
+The full CSV export is not committed — at 305 MB it exceeds GitHub's file limit.
+`pd.read_parquet(...).to_csv(...)` regenerates it.
+
+### Corpus shape
 
 | | rows |
 |---|---:|
-| raw snapshot (all repos) | 90,223 |
-| curated (security-only) | **33,744** |
-| └ essential slice (A_authoritative ∪ B) | **22,133** |
-| by tier | A_authoritative 1,421 · **A_dependency 628** · B_corroborated 20,712 · C_candidate 10,983 |
-| by confidence | high 9,119 · medium 16,635 · low 4,096 |
-| by severity | Critical 1 · High 228 · Medium 848 · Low 50 · Info 11,642 · Unrated 17,081 |
-| with a STRIDE category (not `Other`) | 6,530 (22%) |
-| with a CWE-Top-25 id | 6,161 (21%) |
-| admitted by the LLM silent-fix classifier alone | **7,057** |
-| └ from the keyword-free whole-history sweep | **3,896** |
-| `security_verdict` | unassessed 24,299 · assessed 7,934 · **refuted 1,511** |
+| raw snapshot | 94,388 |
+| curated | **33,744** |
+| └ strongest evidence (`A_authoritative` ∪ `B_corroborated`) | **22,133** |
+| by tier | A_authoritative 1,421 · A_dependency 628 · B_corroborated 20,712 · C_candidate 10,983 |
+| by severity | Critical 1 · High 228 · Medium 846 · Low 49 · Info 11,646 · Unrated 20,974 |
+| with a STRIDE category | 8,703 |
+| with a CWE-Top-25 id | 8,238 |
+| found by the LLM classifier alone | 7,057 |
+| └ from the keyword-free sweep | 3,896 |
+| `security_verdict` | unassessed 24,299 · assessed 7,934 · refuted 1,511 |
 
-**96% of rows are Info or Unrated**, because almost no wallet fix is ever
-graded by anyone. Unrated is not low impact — it is the absence of a grader.
+**97% of rows are Info or Unrated** because nobody ever graded them. Unrated means no
+grader existed, not low impact.
 
-**`A_dependency` is a real advisory about someone else's code.** 629 of the
-2,053 rows carrying an advisory id (31%) are the repo bumping a dependency that
-had a CVE — `rubyzip`, `rails`, `protobufjs`, `lodash`. The evidence is as
-strong as any tier-A row and the finding is genuine, but rails is not a custody
-path, and only 1.3% of these get a STRIDE category versus 7.1% of the rest.
-Kept, separated, and excluded from the essential slice: undivided, the top tier
-partly measured *whether Dependabot runs on a repo* — the same confound between
-disclosure practice and defect count that this dataset exists to expose.
+`A_dependency` (628 rows) carries a real advisory about **someone else's** code — the
+repo bumping `rails` or `rubyzip` after a CVE. Genuine, and not a custody bug, so it sits
+outside the strongest slice. Left mixed in, the top tier partly measured whether
+Dependabot runs on a repo.
 
-De-noising before the gate, and what each stage removes:
+`security_verdict` records what two independent LLM passes concluded. `refuted` means
+both denied it is a security fix. **Those 1,511 rows are still included** — 72% of the
+corpus has not been assessed at all, and filtering only the assessed part would hold the
+read rows to a standard the unread ones escape.
 
-| Stage | Drops | Rationale |
-|---|---:|---|
-| T0 | 7 | rows from repos outside `collection/wallets.py`. The registry is the only authority on scope, and this runs regardless of which crawler produced the row — four separate crawlers had shipped with the reference project's repo lists |
-| T2 | 7,351 | CI / docs / dep-bump meta-work (title-anchored) |
-| T2c | 1,134 | version bumps whose **package name** is custody vocabulary (`@metamask/eth-hd-keyring`, `@scure/bip39`) — decided on title shape, overriding keyword protection |
-| T2d | 7,238 | author-declared `build:`/`ci:`/`test:`/`docs:` work, unless it cites an advisory or is real build-integrity work |
-| GATE | 47,524 | no independent security signal fired |
+## How fixes are found
 
-## Why this exists (and why CVE lists are the wrong map)
+CVE and GHSA are used only to calibrate. The corpus comes from commit history, three ways:
 
-Ethereum clients silently patch ~98–100% of their vulnerabilities. Wallets are
-**worse**: a wallet does not run a network, it ships an app-store update — so there is
-usually no advisory, no CVE, and no release note admitting a fix.
+1. **Advisory backlinking** — advisory → fixing commit. Precise, and bounded by the
+   coverage this project exists to escape.
+2. **Keyword-gated commit mining** — custody vocabulary across each repo's history, with
+   per-repo search terms and word-boundary matching.
+3. **Reading every commit** — no keyword at all. Judged by an LLM over the diff.
 
-That is not a hunch. Crawling the published GitHub Security Advisories of all 181
-repositories in this registry returns:
+The third recovers what the second cannot, by construction: a fix whose message says
+"cleanup" matches no keyword. Measured against each other on the same repositories, rows
+recovered without keywords survive an independent security check **69%** of the time
+against **24.6%** for keyword-gated rows. Keywords buy recall by spending precision.
 
-| | |
-|---|---:|
-| repositories crawled | 181 |
-| **published advisories across all of them** | **16** |
-| repositories with **zero** advisories | **167 (92%)** |
-| security-relevant PR/issue rows from the same repos | 5,299 |
-| ratio, non-advisory : advisory | **331 : 1** |
-
-An advisory-anchored wallet vulnerability dataset would have **sixteen rows**. Sixteen,
-for the software holding hundreds of billions of dollars. Every advisory that does exist
-belongs to an npm library or a US-based company — because npm publishes GHSAs when
-downstream consumers run `npm audit`, and because those companies have disclosure
-policies. Hardware wallets, mobile wallets and non-US projects contribute **none**.
-
-So CVE/GHSA is used here only as the **spine** that calibrates the crawl. The corpus
-itself is recovered from commit history: keyword-gated commit grep, unlabelled
-("stealth") PRs touching custody-sensitive paths, and an LLM silent-fix classifier over
-the diff. Method: [`docs/silent_fix_detection.md`](docs/silent_fix_detection.md).
+Method: [`docs/silent_fix_detection.md`](docs/silent_fix_detection.md) ·
+limits: [`docs/limitations.md`](docs/limitations.md)
 
 ## Scope
 
-A repo is in scope when a defect in it can cost a user **funds, key material, or
-signing authority**. That is wider than "a wallet app" — it includes the firmware
-holding the seed, the contract holding the balance, the MPC library sharding the key,
-and libraries like `ethers`, `viem`, `bitcoinjs-lib`, `wallet-core` and WalletConnect,
-where a single defect is simultaneously a bug in a hundred wallets.
+In scope when a defect there can cost you **funds, key material, or signing authority** —
+wider than "a wallet app". It includes the firmware holding your seed, the contract
+holding your balance, the MPC library sharding your key, and libraries like `ethers`,
+`viem`, `bitcoinjs-lib`, `wallet-core` and WalletConnect, where one defect is
+simultaneously a bug in a hundred wallets.
 
-**181 repositories** — see [`collection/wallets.py`](collection/wallets.py):
+**181 repositories** ([`collection/wallets.py`](collection/wallets.py)):
 
 | by category | | by custody model | |
 |---|---:|---|---:|
@@ -111,140 +146,189 @@ where a single defect is simultaneously a bug in a hundred wallets.
 | node wallet | 7 | | |
 | connection infra | 6 | | |
 
-Closed-source wallets (Phantom, Exodus, Binance Web3, OKX, Bitget, SafePal, exchange
-custodians) publish no commit history, so no silent fix of theirs is observable by
-construction. They are excluded and recorded in `docs/limitations.md`.
+Closed-source wallets — Phantom, Exodus, Binance Web3, OKX, Bitget, SafePal, exchange
+custodians — publish no commit history, so none of their silent fixes is observable.
 
-## The custody threat model
+Two custody models get explicit coverage:
 
-Severity follows what a defect costs the *user*, not CVSS:
+- **Seedless / embedded** (Privy, Web3Auth, Openfort, Para, thirdweb, Magic, Turnkey,
+  Dfns) — you sign in with email or OAuth and never see a mnemonic; the key is split
+  across device, provider and recovery factor. The question stops being "can the seed
+  leak" and becomes "can an attacker assemble a quorum of shares". Most vendors keep the
+  product closed and publish only the cryptographic core, which is exactly the part where
+  a defect is catastrophic.
+- **Passkey / biometric** (Coinbase Smart Wallet, `webauthn-sol`, `p256-verifier`, Clave,
+  passkey-kit) — signing rests on a platform authenticator released by Face ID or Touch
+  ID. A mis-parsed `clientDataJSON` or an unchecked user-verification flag is a **signing
+  bypass with no key leak at all**, which is why the WebAuthn verification libraries
+  wallets embed are in the registry too.
 
-| Group | The bug is that… |
-|---|---|
-| `key_material` | the seed/key leaked, was weakly generated, or was left in memory |
-| `signing` | a signature was valid over something the user never approved |
-| `approval` | spend authority was obtained without ever touching the key |
-| `transport` | the dapp↔wallet channel let an unauthorized origin in |
-| `ui_deception` | the user approved the wrong thing because the UI lied |
-| `platform` | an OS/browser escape reached the key store |
-| `contract` | the smart account's own validation was bypassable |
-| `mpc` | the threshold protocol leaked a share, biased a nonce, or let an attacker assemble a quorum |
-| `memory` | classic memory corruption in firmware / native cores |
-| `supply_chain` | the dependency or update channel was the attack |
+## Keyword-free sweep: where it stands
 
-Two custody models the Ethereum-client corpus has no analogue for are covered
-explicitly:
+Ten mass-market repositories done. Every eligible commit judged, no keyword consulted.
 
-- **Seedless / embedded wallets** (Privy, Web3Auth, Openfort, Para, thirdweb,
-  Magic, Turnkey, Dfns) — the user signs in with email or OAuth and never sees a
-  mnemonic; the key is split between device, provider and recovery factor. The
-  question stops being "can the seed leak" and becomes "can an attacker assemble
-  a quorum of shares". Most of these vendors keep the product SDK closed and
-  publish only the cryptographic core — which is precisely the part where a
-  defect is catastrophic, so it is in scope even when the product is not.
-- **Passkey / biometric wallets** (Coinbase Smart Wallet, `webauthn-sol`,
-  `p256-verifier`, Clave, passkey-kit) — signing authority rests on a platform
-  authenticator released by Face ID / Touch ID. A mis-parsed `clientDataJSON` or
-  an unchecked user-verification flag is a **direct signing bypass with no key
-  leak at all**, which is why the WebAuthn verification libraries wallets embed
-  are in the registry alongside the wallets themselves.
+| repo | commits judged | fixes found | rate |
+|---|---:|---:|---:|
+| trezor/trezor-firmware | 20,650 | 1,956 | 9.5% |
+| spesmilo/electrum | 15,311 | 962 | 6.3% |
+| LedgerHQ/app-ethereum | 2,640 | 459 | 17.4% |
+| trustwallet/wallet-core | 4,815 | 365 | 7.6% |
+| MetaMask/snaps | 3,325 | 194 | 5.8% |
+| RabbyHub/Rabby | 4,489 | 186 | 4.1% |
+| bitcoinjs/bitcoinjs-lib | 2,096 | 165 | 7.9% |
+| WalletConnect (monorepo) | 4,095 | 143 | 3.5% |
+| sparrowwallet/sparrow | 1,938 | 103 | 5.3% |
+| safe-fndn/safe-smart-account | 845 | 75 | 8.9% |
+| **total** | **60,204** | **4,608** | **7.7%** |
 
-Defined in [`collection/wallet_vocab.py`](collection/wallet_vocab.py).
+Each repository's most common failure class matches what that repository is for —
+`transport` for the dapp-to-wallet channel, `contract` for the smart account, `approval`
+for the system that grants third-party code wallet rights, `signing` and `firmware` for
+the hardware signers. The classifier is never told which repository it is reading.
 
-## What the fixes are about
+**Rate is the wrong way to rank the queue.** Electrum's 6.3% is unremarkable, but across
+15,311 commits it produced 962 fixes — 21% of everything found. What matters is rate ×
+history length. Neither does the keyword-era rate predict the sweep rate: Sparrow looked
+like 15.4% by keyword and came in at 5.3% swept, because a keyword rate measures purity
+after filtering, not how much is there.
 
-Every row carries a `label` naming the part of the custody chain that broke,
-derived from the diff's changed paths plus the fix text
-([`docs/collection.md`](docs/collection.md)). The distribution:
+### Next
 
-`key:seed-mnemonic` 3,350 · `key:storage` 2,922 · `network-io` 2,636 · `sign:encoding-malleability` 1,499 · `build-ci` 1,220 · `test` 994
+36 tier-1 repositories remain, roughly 540,000 commits. Ordering, measured yield and
+real cost per repo:
 
-`pre_fix_code` / `post_fix_code` hold the before/after hunks inline for
-92% of rows, `files_changed` for 96%, and `fix_commit` now resolves for **100%**
-— it was 67% until `_resolve_pr_ref` stopped silently returning None on clones
-that had never fetched `refs/pull/*`.
-
-## Files
-
-| File | Size | What |
-|---|---:|---|
-| `data/wallet_vulns.parquet` | 79 MB | **the dataset** — all columns including inline pre/post-fix code |
-| `data/wallet_vulns.preview.csv` | 4.9 MB | 5 key columns, browsable on GitHub |
-| `data/raw/train.classified.parquet` | 31 MB | pre-gate snapshot, for reproducing the curation |
-| `data/manifest.json` | — | per-stage drop counts and redaction tally |
-| `data/keywordless_sweep_wave1.csv` | 1.6 MB | the 4,608 fixes recovered by judging every commit of ten mass-market repos with no keyword filter — one row per fix, with the classifier's stated reason |
-
-The full CSV export is not committed — at 255 MB it exceeds GitHub's 100 MB file
-limit. Regenerate it in one line:
-
-```python
-pd.read_parquet("data/wallet_vulns.parquet").to_csv("wallet_vulns.csv", index=False)
+```bash
+uv run python scripts/repo_priority.py            # the table
+uv run python scripts/repo_priority.py --top 20 --slugs
 ```
 
-Inline code is capped at 8 KB and 12 files per row
-(`ROW_CAP_CHARS` / `MAX_FILES_PER_ROW` in `pipeline/enrich_labels.py`). Without a
-per-row cap a single monorepo commit contributed megabytes, the intermediate hit
-16 GB, and the parquet write failed on Arrow's 2 GB-per-column limit.
+Do not take that list top to bottom. `brave/brave-core` is 60,169 commits at a 2.3%
+rate; `MetaMask/metamask-extension` is 42,387 at 3.6%. Both cost more than the entire
+first wave and return less. Prefer repositories where a defect reaches custody directly —
+hardware firmware, signing libraries, long-lived Bitcoin wallets.
 
-## Credential masking
+### Resume
 
-The corpus quotes commit text verbatim and is a corpus of *security fixes*, so a
-commit whose purpose was "remove the hardcoded test seed" tends to contain the
-seed. Every published column is therefore masked to `XXXXXXX` before writing
-([`pipeline/redact.py`](pipeline/redact.py)): mnemonics, `xprv`/WIF/raw-hex
-private keys, PEM blocks, and cloud/API tokens. Commit SHAs, lockfile integrity
-hashes and public keys are deliberately left intact — masking those would break
-`fix_commit` joins.
+```bash
+export OLLAMA_API_KEY=...
+bash scripts/keywordless_sweep.sh <slug> [<slug> ...]
+```
 
-Masking runs on the gate's **input**, before scoring, so the row that ships is
-the row that was scored — an earlier version masked at write time, which meant a
-handful of rows qualified on evidence the reader could not see. This build masked
-69 mnemonics, 21 raw hex private keys, 2 `xprv`, 1 WIF key and 12 cloud tokens. Most are canonical test material (the BIP-39
-`abandon … about` vector is in nearly every wallet's test suite), but the pass
-does not attempt to tell live credentials from dead ones. Counts are recorded
-under `redaction` in [`data/manifest.json`](data/manifest.json).
+Nothing is ever judged twice: verdicts are cached per commit URL in
+`scratchpad_crawl/pred_cache.json` (121,000+ entries), so re-entering a finished
+repository costs nothing and an interrupted sweep picks up where it stopped. Slugs come
+from `collection/wallets.py` and are validated before the first model call.
 
-## Reproduce
+The judging endpoint is rate-limited. Check it before a long run:
 
-The curated table is derived **deterministically** from the raw snapshot — no
-network, no API key:
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" https://ollama.com/v1/chat/completions \
+  -H "Authorization: Bearer $OLLAMA_API_KEY" -H "Content-Type: application/json" \
+  -d '{"model":"glm-5.2","messages":[{"role":"user","content":"ok"}]}'
+```
+
+`429` means the quota is spent. The sweep backs off and resumes on its own, but it will
+crawl until the window resets. A quota-interrupted pass still yields its output:
+
+```bash
+uv run python collection/llm_classify_fixes.py --apply --csv-only \
+  --in <enumerated.parquet> --tier all \
+  --apply-out out.csv --pred-cache scratchpad_crawl/pred_cache.json
+```
+
+Also open:
+
+- **`refuted` rows are not yet excluded** from the strongest slice. Doing that fairly
+  needs the assessed share above 28%.
+- **Backport detection is recorded but unused.** `is_backport` marks a commit whose patch
+  appears on more than one branch. Measured lift over three repositories: 1.74×, 0.94×,
+  0.45×. It does not generalise and does not order any work.
+
+## Rebuilding
+
+The curated table derives deterministically from the raw snapshot — no network, no keys:
 
 ```bash
 uv run python pipeline/build_security_dataset.py \
-  --in  data/raw/train.classified.parquet \
-  --out data/wallet_vulns.parquet
-uv run --with pytest python -m pytest tests/ -q
+  --in data/raw/train.classified.parquet --out data/wallet_vulns.parquet
+uv run --extra dev python -m pytest tests/ -q      # 144 tests
 ```
 
-To rebuild from an existing crawl (curation + labels, no re-crawling):
+Curation and labels from an existing crawl, without re-crawling:
 
 ```bash
-bash scripts/finalize.sh              # stages 4-10
-SKIP_LABELS=1 bash scripts/finalize.sh   # gate only, fully offline
+bash scripts/finalize.sh                  # stages 4-10
+SKIP_LABELS=1 bash scripts/finalize.sh    # gate only, fully offline
 ```
 
-Re-collecting the raw snapshot is network-bound and slow (~24h for all 181
-repos, dominated by GitHub's 30 req/min search limit):
+Re-collecting the raw snapshot is network-bound, roughly 24 hours for all 181
+repositories, dominated by GitHub's 30 requests/minute search limit:
 
 ```bash
 MODE=full TIER=3 bash collection/run_pipeline.sh
 ```
 
-## Repository layout
+### Filtering before the gate
+
+| Stage | Drops | Why |
+|---|---:|---|
+| T0 | 7 | repositories outside `collection/wallets.py`. The registry is the only authority on scope, and this runs whichever crawler produced the row |
+| T2 | 7,377 | CI, docs and dependency-bump work, decided on the title |
+| T2c | 1,138 | version bumps whose **package name** is custody vocabulary (`@metamask/eth-hd-keyring`, `@scure/bip39`) |
+| T2d | 7,403 | author-declared `build:`/`ci:`/`test:`/`docs:` work, unless it cites an advisory or is genuine build integrity |
+| GATE | 44,149 | no independent security signal fired |
+
+## Credential masking
+
+This corpus quotes commit text verbatim and collects security fixes, so a commit whose
+purpose was "remove the hardcoded test seed" contains the seed. Every published column is
+masked to `XXXXXXX` before writing ([`pipeline/redact.py`](pipeline/redact.py)):
+mnemonics, `xprv`/WIF/raw-hex private keys, PEM blocks, cloud tokens. Commit SHAs,
+lockfile hashes and public keys stay intact — masking those breaks `fix_commit` joins.
+
+Masking runs on the gate's **input**, before scoring, so the row that ships is the row
+that was scored. This build masked 69 mnemonics, 21 raw hex private keys, 2 `xprv`, 1 WIF
+key and 12 cloud tokens. Most are canonical test vectors — the BIP-39 `abandon … about`
+mnemonic is in nearly every wallet's test suite — but the pass does not try to tell live
+credentials from dead ones. Counts are in [`data/manifest.json`](data/manifest.json).
+
+## Data quality
+
+`pre_fix_code` / `post_fix_code` carry the before/after hunks inline for 93% of rows,
+`files_changed` for 96%, `fix_commit` for 100%. Inline code is capped at 8 KB and 12
+files per row; without a cap one monorepo commit contributed megabytes and the parquet
+write hit Arrow's 2 GB column limit.
+
+Every row's `label` names the part of the custody chain that broke:
+
+`key:seed-mnemonic` 3,422 · `key:storage` 2,983 · `network-io` 2,760 ·
+`sign:encoding-malleability` 1,536 · `build-ci` 1,264 · `test` 1,175 · `key:derivation` 1,007
+
+`build-ci` and `test` rows are meta-work that survived the gate. They are labelled as
+such so they can be excluded.
+
+## Layout
 
 ```
 collection/   wallets.py (registry) · wallet_vocab.py (threat vocabulary)
-              wallet_ident.py (package coords) · gh_rate.py (rate limits)
-              crawlers · run_pipeline.sh
-pipeline/     build_security_dataset.py — deterministic gate + tiering
+              enumerate_commits.py — keyword-free whole-history enumeration
+              llm_classify_fixes.py — the silent-fix judge
+              local_diffs.py · gh_rate.py · crawlers · run_pipeline.sh
+pipeline/     build_security_dataset.py — deterministic gate, tiering, verdicts
               enrich_labels.py — label / root_cause / attack_path / pre+post code
-scripts/      finalize.sh — rebuild the dataset from an existing crawl
-tests/        quality gates + one regression test per bug that shipped
-docs/         methodology, limitations, measured per-slice yield
-data/         wallet_vulns.parquet (curated) · raw/ · manifest.json
+              redact.py — credential masking
+scripts/      keywordless_sweep.sh — sweep repositories one at a time
+              repo_priority.py — stars × measured yield × cost
+              finalize.sh — rebuild from an existing crawl
+tests/        quality gates, plus one regression test per bug that shipped
+docs/         method · limitations · per-slice yield
 ```
+
+Built with the same methodology as
+[`NyxFoundation/ethereum-vuln-dataset`](https://github.com/NyxFoundation/ethereum-vuln-dataset),
+retargeted from a protocol threat model to a custody one.
 
 ## License
 
-Data: [CC-BY-4.0](LICENSE), sourced from each wallet's own public repository.
-Code under `collection/` and `pipeline/`: MIT.
+Data: [CC-BY-4.0](LICENSE), from each wallet's own public repository.
+Code under `collection/`, `pipeline/` and `scripts/`: MIT.
