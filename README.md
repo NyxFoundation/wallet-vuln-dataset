@@ -396,8 +396,10 @@ timeout and a repository that genuinely backports nothing produced identical out
 of twelve repositories report a zero of unknown meaning. Only `bitcoinjs-lib` (84),
 `ledger-app-eth` (695) and `wallet-core` (448) are real counts.
 
-It is now `boolean` with `NA` for "not determined", and detection is skipped outright
-above 6,000 commits rather than spending 420 seconds to fail. The signal itself did not
+It is now `boolean` with `NA` for "not determined", and the attempt is capped at 90
+seconds rather than 420. A commit-count cut does not predict which repositories can
+finish — `ethers` has 2,901 non-merge commits and still cannot render its history, because
+what decides it is total diff bytes, and `ethers` carries generated bundles. The signal itself did not
 survive testing either: measured lift over the base silent-fix rate was 1.74x, 0.94x and
 0.45x on three repositories — no consistent direction — so nothing in the corpus depends
 on it.

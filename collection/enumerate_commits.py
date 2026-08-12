@@ -58,7 +58,15 @@ MAX_FILES = 60
 # `git log --all -p` renders the whole history's diffs; on a many-ref repo that
 # runs for tens of minutes for one optional column. Cap it well under the time a
 # repo's own judging pass takes.
-PATCH_ID_TIMEOUT = 420
+# 90s, not 420s. The commit-count gate below does not predict this: ethers has
+# 2,901 non-merge commits, under the gate, and still could not render its history
+# inside 420 seconds, because what decides it is total diff bytes (ethers carries
+# generated bundles) rather than commit count. Since no repo where detection
+# succeeds needs anything like this long, a short budget caps the waste at 90s
+# per repo instead of seven minutes, and the answer when it expires is NA either
+# way. It may lose a repo that would have finished in 200s; the column is unused,
+# so that costs nothing measurable.
+PATCH_ID_TIMEOUT = 90
 # Above this many commits the render never finishes inside the budget, so trying
 # costs PATCH_ID_TIMEOUT seconds to learn nothing. Measured: detection completed
 # on bitcoinjs-lib (2,116), ledger-app-eth (2,738) and wallet-core (4,893), and
