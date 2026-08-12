@@ -975,3 +975,19 @@ def test_patch_id_timeout_kills_the_whole_pipeline():
     # reported "0 backported" for two repos whose patch-id had timed out.
     assert "pd.NA" in src[j:j + 400], \
         "a skipped detection is recorded as False, i.e. as a real answer"
+
+
+def test_sweep_closing_instruction_names_a_script_that_exists():
+    """The sweep tells the operator what to run next; that thing must be real.
+
+    keywordless_sweep.sh ended by printing `scripts/merge_keywordless.py`, which
+    did not exist, so a finished sweep's fixes had no committed path into the
+    corpus and wave 1 was folded in by hand. A dangling instruction is worse than
+    no instruction: it reads as a supported step.
+    """
+    import re
+    sweep = (ROOT / "scripts/keywordless_sweep.sh").read_text()
+    named = re.findall(r"(scripts/[A-Za-z0-9_./-]+\.(?:py|sh))", sweep)
+    assert named, "the sweep names no follow-up script at all"
+    for rel in set(named):
+        assert (ROOT / rel).exists(), f"the sweep points at a missing {rel}"
