@@ -287,6 +287,12 @@ rate; `MetaMask/metamask-extension` is 42,387 at 3.6%. Both cost more than the e
 first wave and return less. Prefer repositories where a defect reaches custody directly —
 hardware firmware, signing libraries, long-lived Bitcoin wallets.
 
+Popularity is the wrong predictor, and `wagmi` is the cleanest demonstration: 2,046
+commits read, **15 fixes, 0.7%** — the lowest of any repository swept, against 9.5% for
+`trezor-firmware`. It is a React hooks layer over a signing library, so almost nothing in
+it can lose your funds by itself. What raises the rate is proximity to keys and to
+signing, not how many projects depend on the package.
+
 Before more repositories, though: 24,299 rows already in the corpus have never been read
 by any classifier, which is why `security_verdict != "refuted"` barely filters and why
 two thirds of the corpus has no `mechanism`. Reading those costs no new cloning — 24,035
