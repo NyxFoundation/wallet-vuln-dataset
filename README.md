@@ -372,6 +372,21 @@ Every row's `label` names the part of the custody chain that broke:
 `build-ci` and `test` rows are meta-work that survived the gate. They are labelled as
 such so they can be excluded.
 
+The `is_backport` column in `scratchpad_crawl/allcommits/*.parquet` is **not usable for
+the repositories swept before 2026-08-12**. It was meant to mark a fix cherry-picked to a
+maintenance branch, on the reasoning that backporting is work a team only does when users
+on an old release cannot wait. Detecting it renders every diff in the history, which on a
+large repository does not finish, and the column was initialised to `False` — so a
+timeout and a repository that genuinely backports nothing produced identical output. Nine
+of twelve repositories report a zero of unknown meaning. Only `bitcoinjs-lib` (84),
+`ledger-app-eth` (695) and `wallet-core` (448) are real counts.
+
+It is now `boolean` with `NA` for "not determined", and detection is skipped outright
+above 6,000 commits rather than spending 420 seconds to fail. The signal itself did not
+survive testing either: measured lift over the base silent-fix rate was 1.74x, 0.94x and
+0.45x on three repositories — no consistent direction — so nothing in the corpus depends
+on it.
+
 ## Figures
 
 `docs/figures/` holds the four figures behind the findings above, regenerated from

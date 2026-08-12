@@ -59,6 +59,13 @@ MAX_FILES = 60
 # runs for tens of minutes for one optional column. Cap it well under the time a
 # repo's own judging pass takes.
 PATCH_ID_TIMEOUT = 420
+# Above this many commits the render never finishes inside the budget, so trying
+# costs PATCH_ID_TIMEOUT seconds to learn nothing. Measured: detection completed
+# on bitcoinjs-lib (2,116), ledger-app-eth (2,738) and wallet-core (4,893), and
+# timed out on btcpay (6,196) and monero (6,942). Commit count is a proxy for
+# what actually decides it — total diff bytes times the number of refs — so this
+# is a cut through the observed boundary, not a limit of the tool.
+PATCH_ID_MAX_COMMITS = 6_000
 
 
 def _run(args: list[str], cwd: Path) -> str:
@@ -157,7 +164,11 @@ def collect(wallet: str, limit: int = 0) -> pd.DataFrame:
     # which had in fact timed out — indistinguishable from a repo that really
     # backports nothing.
     df["is_backport"] = pd.Series([pd.NA] * len(df), dtype="boolean")
-    if len(df):
+    if len(df) and len(shas) > PATCH_ID_MAX_COMMITS:
+        print(f"[enumerate] {wallet}: {len(shas)} commits exceeds "
+              f"{PATCH_ID_MAX_COMMITS}; backport detection not attempted",
+              file=sys.stderr)
+    elif len(df):
         try:
             pid_out = _patch_ids(p, PATCH_ID_TIMEOUT)
             for line in pid_out.splitlines():
