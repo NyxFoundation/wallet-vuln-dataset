@@ -172,6 +172,7 @@ that had never fetched `refs/pull/*`.
 | `data/wallet_vulns.preview.csv` | 4.9 MB | 5 key columns, browsable on GitHub |
 | `data/raw/train.classified.parquet` | 31 MB | pre-gate snapshot, for reproducing the curation |
 | `data/manifest.json` | — | per-stage drop counts and redaction tally |
+| `data/keywordless_sweep_wave1.csv` | 1.6 MB | the 4,608 fixes recovered by judging every commit of ten mass-market repos with no keyword filter — one row per fix, with the classifier's stated reason |
 
 The full CSV export is not committed — at 255 MB it exceeds GitHub's 100 MB file
 limit. Regenerate it in one line:
