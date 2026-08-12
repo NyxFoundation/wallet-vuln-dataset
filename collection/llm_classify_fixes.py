@@ -490,9 +490,16 @@ def apply_to_dataset(a) -> int:
                     "model", "prompt_version", "reason"])
         fallback_model = ENGINE["model"] or ("claude-cli-default"
                                             if ENGINE["engine"] == "claude" else "unknown")
+        # Every row that does not reach the CSV is counted by why. Without this,
+        # 151 of monero's 6,942 commits vanished between the parquet and the
+        # verdict file while the progress line said "0 failed" — n_bad counts
+        # only failed CALLS, and a row with no diff never makes one.
+        dropped: dict[str, int] = {}
         for r in rows:
             url = str(r["source_url"]); pr = pred_cache.get(url, {})
             if not isinstance(pr, dict) or "is_security_fix" not in pr:
+                why = pr.get("skip", "unjudged") if isinstance(pr, dict) else "unjudged"
+                dropped[why] = dropped.get(why, 0) + 1
                 continue
             isfix = bool(pr.get("is_security_fix"))
             conf = float(pr.get("confidence") or 0)
@@ -509,6 +516,7 @@ def apply_to_dataset(a) -> int:
             prob = conf
             # Cross-check the two fields; disagreement means an unusable answer.
             if isfix != (conf > 0.5):
+                dropped["self_contradictory"] = dropped.get("self_contradictory", 0) + 1
                 continue
             if prob >= 0.70:
                 n_fix += 1
@@ -516,6 +524,10 @@ def apply_to_dataset(a) -> int:
                         pr.get("_model") or fallback_model, PROMPT_VERSION,
                         str(pr.get("reason", ""))[:200]])
     print(f"[apply] wrote {a.apply_out} — {n_fix} rows with silent_fix_prob>=0.70", file=sys.stderr)
+    if dropped:
+        detail = " ".join(f"{k}={v}" for k, v in sorted(dropped.items()))
+        print(f"[apply] {sum(dropped.values())}/{len(rows)} rows produced no verdict: "
+              f"{detail}", file=sys.stderr)
     if n_bad:
         print(f"[apply] {n_bad}/{len(rows)} calls failed or were unparseable and were "
               f"NOT cached — re-run to retry", file=sys.stderr)

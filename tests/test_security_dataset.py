@@ -966,6 +966,12 @@ def test_patch_id_timeout_kills_the_whole_pipeline():
     assert "start_new_session=True" in body, "the pipeline is not its own process group"
     assert "killpg" in body, "the timeout does not kill the group"
     # And the caller must survive its failure.
-    j = src.find('df["is_backport"] = False')
-    assert "except (subprocess.TimeoutExpired, OSError)" in src[j:j + 1200], \
+    j = src.find('df["is_backport"] =')
+    assert j != -1, "the backport column is never initialised"
+    assert "except (subprocess.TimeoutExpired, OSError)" in src[j:j + 1500], \
         "a backport-detection failure still aborts enumeration"
+    # Surviving is not enough: a skipped detection must stay distinguishable from
+    # a repo that genuinely backports nothing. Initialising the column to False
+    # reported "0 backported" for two repos whose patch-id had timed out.
+    assert "pd.NA" in src[j:j + 400], \
+        "a skipped detection is recorded as False, i.e. as a real answer"

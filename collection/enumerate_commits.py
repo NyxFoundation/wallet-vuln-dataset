@@ -152,7 +152,11 @@ def collect(wallet: str, limit: int = 0) -> pd.DataFrame:
     # enumerator, and the sweep's `|| continue` skipped the repo in silence. An
     # optional column is not worth a lost repo, so a failure here costs the
     # column and nothing else.
-    df["is_backport"] = False
+    # Boolean-with-NA, not bool: when detection is skipped the answer is UNKNOWN.
+    # A plain False here reported "0 backported" for monero and btcpay, both of
+    # which had in fact timed out — indistinguishable from a repo that really
+    # backports nothing.
+    df["is_backport"] = pd.Series([pd.NA] * len(df), dtype="boolean")
     if len(df):
         try:
             pid_out = _patch_ids(p, PATCH_ID_TIMEOUT)
@@ -162,7 +166,7 @@ def collect(wallet: str, limit: int = 0) -> pd.DataFrame:
                     patch_ids.setdefault(bits[0], []).append(bits[1])
             dup = {sha for shas_ in patch_ids.values() if len(shas_) > 1 for sha in shas_}
             full = df["source_url"].str.rsplit("/", n=1).str[-1]
-            df["is_backport"] = full.isin(dup)
+            df["is_backport"] = full.isin(dup).astype("boolean")
         except (subprocess.TimeoutExpired, OSError) as exc:
             print(f"[enumerate] {wallet}: backport detection skipped "
                   f"({type(exc).__name__}); commits are unaffected", file=sys.stderr)
@@ -180,9 +184,10 @@ def main() -> int:
     df = collect(a.wallet, a.limit)
     a.out.parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(a.out, index=False)
-    nb = int(df["is_backport"].sum()) if "is_backport" in df.columns else 0
-    print(f"[enumerate] {a.wallet}: {len(df)} commits kept "
-          f"({nb} backported) -> {a.out}")
+    col = df.get("is_backport")
+    state = ("backport detection skipped" if col is None or col.isna().all()
+             else f"{int(col.fillna(False).sum())} backported")
+    print(f"[enumerate] {a.wallet}: {len(df)} commits kept ({state}) -> {a.out}")
     return 0
 
 
