@@ -35,6 +35,42 @@ of Trezor's firmware commits surfaced 1,956 security fixes, including:
 None of these have a CVE. If you had checked Trezor's advisory page, you would have seen
 nothing, and concluded nothing was wrong.
 
+## What disclosure misses
+
+The wallet ecosystem's own advisories and the fixes it ships quietly were read the
+same way — an LLM over the diff, one fixed taxonomy of 16 defect mechanisms, no
+knowledge of which side a row came from.
+
+Of the 1,325 rows carrying an advisory id or a graded severity — the strongest
+evidence tier in this corpus — **51 (4%) are a defect in the wallet's own custody
+path.** The other 96% are:
+
+- security *process* work: adding reviewers to CODEOWNERS, annotating code with CVE
+  references, adding a fuzz harness for an already-fixed CVE
+- third-party dependency bumps: `tar`, `jspdf`, `qs`, `rails`, `rubyzip`
+- real bugs outside custody: a server-side MongoDB cursor leak, a UI validation error
+
+The keyword-free sweep of ten repositories found **4,608**. A ratio of 90 : 1.
+
+Four mechanisms appear in the silent fixes and **never once** in an advisory:
+
+| mechanism | silent | advisory |
+|---|---:|---:|
+| key left in memory / logged / not zeroed | 230 | **0** |
+| dapp origin, pairing and session binding | 131 | **0** |
+| timing, power and fault-injection resistance | 107 | **0** |
+| signature replay across chain / domain / session | 103 | **0** |
+
+The only mechanism advisories over-represent is `dependency-supply-chain` — 7.8%
+against 0.5%. **Wallet projects publish advisories mainly when reacting to a CVE in
+something they depend on, not when fixing their own custody code.**
+
+Full comparison: [`data/mechanism_comparison.csv`](data/mechanism_comparison.csv).
+The 51 confirmed custody fixes among the advisories distribute much like the silent
+ones, so the gap is not a difference in *kind* of bug — it is that the advisory
+population is mostly not custody bugs at all. At n=51 that is an observation, not a
+statistical claim.
+
 ## What breaks, in order
 
 Of the 4,608 fixes recovered by reading every commit of ten widely-used wallets:
@@ -63,6 +99,9 @@ believed you approved, while your seed stayed exactly where it was supposed to b
 | `data/wallet_vulns.parquet` | 95 MB | the full corpus — 33,744 rows, all columns, before/after code inline |
 | `data/wallet_vulns.preview.csv` | 6 MB | key columns only, browsable in the GitHub UI |
 | `data/raw/train.classified.parquet` | 31 MB | pre-filter snapshot, for reproducing the curation |
+| [`data/wave1_mechanisms.csv`](data/wave1_mechanisms.csv) | 1.7 MB | the same 4,608 fixes labelled by defect mechanism |
+| [`data/advisory_mechanisms.csv`](data/advisory_mechanisms.csv) | 403 KB | all 1,325 advisory-bearing rows, read from the diff, with the verdict and its reason |
+| [`data/mechanism_comparison.csv`](data/mechanism_comparison.csv) | — | disclosed vs silent, per mechanism |
 | `data/silent_fix_llm.csv` | 31 MB | every classifier verdict, including the negatives |
 | `data/manifest.json` | — | per-stage drop counts and redaction tally |
 
