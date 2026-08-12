@@ -79,9 +79,18 @@ def main() -> int:
                     default=ROOT / "data/silent_fix_llm.csv")
     ap.add_argument("--raw", type=pathlib.Path,
                     default=ROOT / "data/raw/train.classified.parquet")
+    ap.add_argument("--extra-verdicts", type=pathlib.Path, nargs="*", default=[],
+                    help="verdict CSVs from a pass that is not a repository sweep — "
+                         "e.g. the run that reads corpus rows no classifier has seen. "
+                         "Those rows are already candidates, so only their verdicts "
+                         "are merged, never new candidates")
     a = ap.parse_args()
 
     verdicts, cands = collect()
+    for extra in a.extra_verdicts:
+        e = pd.read_csv(extra)
+        print(f"[read] {extra.name:<18} {len(e):>6,} verdicts  (no new candidates)")
+        verdicts = pd.concat([verdicts, e], ignore_index=True)
 
     sf = pd.read_csv(a.silent_fix_csv)
     new_v = verdicts[~verdicts.source_url.isin(set(sf.source_url))]

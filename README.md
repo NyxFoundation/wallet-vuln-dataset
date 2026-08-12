@@ -308,10 +308,11 @@ commits read, **15 fixes, 0.7%** — the lowest of any repository swept, against
 it can lose your funds by itself. What raises the rate is proximity to keys and to
 signing, not how many projects depend on the package.
 
-Before more repositories, though: 24,299 rows already in the corpus have never been read
+Before more repositories, though: 24,031 rows already in the corpus have never been read
 by any classifier, which is why `security_verdict != "refuted"` barely filters and why
-two thirds of the corpus has no `mechanism`. Reading those costs no new cloning — 24,035
-of them sit in repositories already on disk — and it makes both columns usable:
+two thirds of the corpus has no `mechanism`. Reading those costs no new cloning — all but
+264 sit in repositories already on disk — and it makes both columns usable. Measured
+throughput is ~40 rows a minute, so the full pass is several hours:
 
 ```bash
 uv run python collection/llm_classify_fixes.py --apply --tier all \
@@ -319,6 +320,13 @@ uv run python collection/llm_classify_fixes.py --apply --tier all \
     --apply-out assessed.csv --workers 5 \
     --engine openai --model glm-5.2 \
     --base-url https://ollama.com/v1 --api-key-env OLLAMA_API_KEY
+```
+
+Then fold the verdicts back in and rebuild. Those rows are already candidates, so only
+the verdicts merge — `--extra-verdicts` exists for exactly this and adds no new rows:
+
+```bash
+uv run python scripts/merge_keywordless.py --extra-verdicts assessed.csv --write
 ```
 
 Run it after a sweep, not beside one: both draw on the same quota, and two passes
