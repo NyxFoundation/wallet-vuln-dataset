@@ -198,6 +198,21 @@ simultaneously a bug in a hundred wallets.
 Closed-source wallets — Phantom, Exodus, Binance Web3, OKX, Bitget, SafePal, exchange
 custodians — publish no commit history, so none of their silent fixes is observable.
 
+### What "silent" does and does not mean
+
+It means **no CVE or GHSA record exists for the fix**. It does not mean nobody was told.
+The sweep's clearest case is BTCPay Server's
+[TOTP 2FA bypass](https://github.com/btcpayserver/btcpayserver/pull/7491): a TOTP-only
+account could be driven through the entire Greenfield API with just an email and
+password, because the Basic-auth handler tested `Fido2Credentials.Any()` instead of
+whether two-factor was enabled at all. It was patched in an emergency 2.4.2 release under
+active exploitation, and covered in the trade press. BTCPay's GitHub advisory list is
+nonetheless empty, so every automated tool that watches advisories saw nothing.
+
+That is the failure this corpus measures: not silence toward users, but absence from the
+record a scanner can read. Either way, the fix is not in the feed your dependency bot
+subscribes to.
+
 Two custody models get explicit coverage:
 
 - **Seedless / embedded** (Privy, Web3Auth, Openfort, Para, thirdweb, Magic, Turnkey,
