@@ -2118,7 +2118,6 @@ metamask,ui:transaction-preview,race_condition,unknown,Unrated,B_corroborated,Fi
 metamask,sign:encoding-malleability,race_condition,malformed_input,Unrated,B_corroborated,Fix race condition in network controller lookup() method.,https://github.com/MetaMask/metamask-extension/pull/5892
 metamask,transport:provider-injection,integer_overflow_underflow,unknown,Unrated,B_corroborated,Fix inpage script race condition,https://github.com/MetaMask/metamask-extension/pull/482
 monero-gui,build-ci,other,unknown,Info,B_corroborated,Repo: add Vulnerability Response Process,https://github.com/monero-project/monero-gui/commit/b41c9814544d390d9a822b39f563338524cbb6ab
-monero-gui,other,other,malicious_peer,Unrated,B_corroborated,"p2pool: add more detailed failure message, fix crash",https://github.com/monero-project/monero-gui/pull/4147
 monero-gui,other,crypto_misuse,unknown,Info,B_corroborated,WalletManager: fix crash on null/dangling pointer dereference,https://github.com/monero-project/monero-gui/commit/1cffa8b68d83a77d3e34ecf86b9fd98a2af4a635
 monero-gui,other,other,unknown,Unrated,B_corroborated,Attempt to fix rare crash when switching wallets,https://github.com/monero-project/monero-gui/pull/490
 monero-gui,other,other,unknown,Info,B_corroborated,Fix crash on exit if cancelling open and exiting,https://github.com/monero-project/monero-gui/commit/708eb43c3e80dbebaf5f9c60fd8200b44d01ce3a
@@ -2146,7 +2145,6 @@ monero,other,other,unknown,Info,B_corroborated,import_multisig_info: fix sanity 
 monero,other,other,unknown,Info,C_candidate,"easylogging++: do not use crash log code on android, etc",https://github.com/monero-project/monero/commit/dff97112c88b9599e52f670ebb174b9fdd8890fe
 monero,crypto-primitives,missing_input_validation,unknown,Info,B_corroborated,blockchain: fix crash checking pre-validated txids,https://github.com/monero-project/monero/commit/e457aa51f40cd8eb9f02b8d8322d0fe4566014c9
 monero,other,other,unknown,Info,C_candidate,fixed an LMDB issue on OpenBSD (#2699) which leads to a crash in moner,https://github.com/monero-project/monero/commit/f946bb7be6ec434dddf9a5d2fb1903609a514dd2
-monero,other,other,unknown,Unrated,B_corroborated,mlog: possible logging crash fix when rotating logs,https://github.com/monero-project/monero/pull/2189
 monero,crypto-primitives,crypto_misuse,unknown,Info,B_corroborated,cryptonote_protocol_handler: fix crash in debug log,https://github.com/monero-project/monero/commit/6fc2dc3927b2d561566202b6b9ecc5e889960c72
 monero,other,unsafe_initialization_or_upgrade,unknown,Info,B_corroborated,Prevent crash if performing certain actions before wallet is initializ,https://github.com/monero-project/monero/commit/71f8249a084c087e1badbad4591829a07fe13b64
 monero,other,unsafe_initialization_or_upgrade,malicious_pairing_session,Info,B_corroborated,daemon: fix crash on exit when mining,https://github.com/monero-project/monero/commit/cf2e75ebb310f619e7598b7981f471ad7e788ce4
@@ -2156,7 +2154,7 @@ monero,other,race_condition,malicious_peer,Info,B_corroborated,daemon: fix crash
 monero,other,other,unknown,Info,B_corroborated,daemon: fix an exit crash,https://github.com/monero-project/monero/commit/f9b361be8a32fec2cc6ef0f835e4b8077b713753
 monero,other,resource_exhaustion,unknown,Info,C_candidate,epee: fix memory leak with readline,https://github.com/monero-project/monero/commit/a5abe71486149f765c901ece8f2a1568a7123754
 monero,key:entropy-rng,integer_overflow_underflow,compromised_host,Unrated,C_candidate,epee: fix memory leak with readline [release-v0.18],https://github.com/monero-project/monero/pull/10568
-monero,crypto-primitives,resource_exhaustion,unknown,Unrated,C_candidate,[RELEASE] slow-hash: fix memory leak for Windows /karbowanec#41,https://github.com/monero-project/monero/pull/3696
+monero,crypto-primitives,resource_exhaustion,unknown,Info,C_candidate,slow-hash: fix memory leak for Windows /karbowanec#41,https://github.com/monero-project/monero/commit/b1a9e97b2dab7a843571c674b242926d51362a6e
 monero,other,resource_exhaustion,unknown,Unrated,C_candidate,blockchain-utils: fix output_stream_header memory leak,https://github.com/monero-project/monero/pull/2778
 monero,other,integer_overflow_underflow,malicious_peer,Info,B_corroborated,p2p: fix integer overflow in host bans,https://github.com/monero-project/monero/commit/5858598604c511ff57a434196d27acf2f49cf23f
 monero,key:entropy-rng,race_condition,malformed_input,Unrated,B_corroborated,node_server: fix race condition,https://github.com/monero-project/monero/pull/7873
@@ -3285,6 +3283,7 @@ web3py,network-io,signature_verification_flaw,unknown,Unrated,B_corroborated,bug
 webauthn-sol,contract:upgrade-proxy,excessive_spend_authority,unknown,Unrated,C_candidate,Prefix private constants with underscore,https://github.com/base/webauthn-sol/pull/13
 webauthn4j,transport:provider-injection,broken_access_control,unknown,Medium,A_authoritative,Add Quarkus Security WebAuthn integration tests,https://github.com/webauthn4j/webauthn4j/pull/1238
 webauthn4j,sign:encoding-malleability,signature_verification_flaw,unknown,Medium,A_authoritative,Add Spring Security 7 Passkeys integration tests,https://github.com/webauthn4j/webauthn4j/pull/1234
+webauthn4j,other,other,unknown,Unrated,A_authoritative,Supress CVE-2019-14439,https://github.com/webauthn4j/webauthn4j/pull/111
 webauthn4j,build-ci,other,unknown,Unrated,A_authoritative,Addresses CVE-2019-12814,https://github.com/webauthn4j/webauthn4j/pull/106
 yoroi,transport:provider-injection,untrusted_code_execution,unknown,Unrated,A_authoritative,[Security] Bump react-dev-utils from 11.0.2 to 11.0.4 in /packages/yor,https://github.com/Emurgo/yoroi-frontend/pull/1992
 yoroi,sign:encoding-malleability,untrusted_code_execution,unknown,Unrated,A_authoritative,[Security] Bump node-notifier from 8.0.0 to 8.0.1,https://github.com/Emurgo/yoroi-frontend/pull/1840
@@ -6990,6 +6989,7 @@ bitcore,crypto-primitives,other,unknown,Info,C_candidate,rename keybuf -> cipher
 bitcore,other,other,unknown,Info,C_candidate,Add toBufferNoPadding method to private key,https://github.com/bitpay/bitcore/commit/e9d1237228ec17858dc40d11c2383d24ba55f911
 bitcore,other,other,malicious_deeplink_or_qr,Info,B_corroborated,removed private key address and qr in jsx,https://github.com/bitpay/bitcore/commit/de08b1bf1be668a250d8569a5ad2fee935e15e5f
 bitcore,key:entropy-rng,other,unknown,Info,B_corroborated,Fix creation of a randomn testnet private key,https://github.com/bitpay/bitcore/commit/d5f76e8517ff17ee50e2cd08afd1975bdaa56993
+bitcore,other,other,unknown,Info,C_candidate,Add option to create private key from hex,https://github.com/bitpay/bitcore/commit/f8397a617ef4b64a7aead3df269135bbf3ecc41d
 bitcore,network-io,other,hostile_network_or_rpc,Info,C_candidate,add network detection in private key and tests,https://github.com/bitpay/bitcore/commit/807a72666ceee93d81c9824d0e0e5a6d61ae5c54
 bitcore,other,other,unknown,Info,B_corroborated,Handle edge case that invalid private key is derived,https://github.com/bitpay/bitcore/commit/0906d988ca40e59207e5dc4b927d1f864f31083c
 bitcore,other,other,unknown,Info,C_candidate,"Private Key: Fix bug with tests and missing ""new""",https://github.com/bitpay/bitcore/commit/7d15b2bf0f0db3a8aa61b71d0003a072cf119028
@@ -7151,7 +7151,6 @@ bitcore,serialization,serialization_bug,unknown,Unrated,B_corroborated,Improveme
 bitcore,sign:nonce,missing_origin_authorization,unknown,Unrated,B_corroborated,Fixed deterministicK() to match python-ecdsa,https://github.com/bitpay/bitcore/pull/884
 bitcore,test,other,unknown,Unrated,B_corroborated,transaction: better errors for signature methods,https://github.com/bitpay/bitcore/pull/873
 bitcore,sign:encoding-malleability,other,malicious_peer,Unrated,B_corroborated,"enforce low S values on key signing, read BIP62 for details",https://github.com/bitpay/bitcore/pull/704
-bitcore,other,other,unknown,Unrated,C_candidate,Add functionality to create private key from a hex string,https://github.com/bitpay/bitcore/pull/678
 bitcore,other,signature_verification_flaw,unknown,Unrated,C_candidate,PublicKey: Add test to verify that both uncompressed an compressed key,https://github.com/bitpay/bitcore/pull/666
 bitcore,network-io,other,malicious_peer,Unrated,B_corroborated,allowing sign keys to be strings,https://github.com/bitpay/bitcore/pull/550
 bitcore,other,missing_input_validation,unknown,Unrated,B_corroborated,Fix certificate chain and signature validation,https://github.com/bitpay/bitcore/pull/498
@@ -7977,7 +7976,7 @@ bitpay-wallet,network-io,integer_overflow_underflow,unknown,Unrated,C_candidate,
 bitpay-wallet,key:seed-mnemonic,weak_key_generation,unknown,Unrated,C_candidate,Chrome app for Copay,https://github.com/bitpay/wallet/pull/5363
 bitpay-wallet,key:seed-mnemonic,weak_key_generation,unknown,Unrated,B_corroborated,"Change Seed to Recovery Phrase, and more.",https://github.com/bitpay/wallet/pull/4201
 bitpay-wallet,key:seed-mnemonic,weak_key_generation,unknown,Unrated,C_candidate,fix import from xPriv,https://github.com/bitpay/wallet/pull/4192
-bitpay-wallet,network-io,supply_chain_compromise,unknown,Unrated,C_candidate,Fix osx signing in script,https://github.com/bitpay/wallet/pull/4115
+bitpay-wallet,network-io,supply_chain_compromise,unknown,Unrated,C_candidate,Ref/sign,https://github.com/bitpay/wallet/pull/4114
 bitpay-wallet,key:seed-mnemonic,weak_key_generation,unknown,Unrated,C_candidate,"Change ""Seed"" to ""Recovery Phrase""",https://github.com/bitpay/wallet/pull/4109
 bitpay-wallet,key:storage,missing_origin_authorization,unknown,Unrated,C_candidate,Corrects the reference to the keystore and now requires zipalign to b…,https://github.com/bitpay/wallet/pull/3653
 bitpay-wallet,network-io,weak_key_generation,unknown,Unrated,B_corroborated,Bug/wallet list,https://github.com/bitpay/wallet/pull/3483
@@ -8017,7 +8016,6 @@ blockchain-wallet,other,other,unknown,Info,C_candidate,Fixes for private key imp
 blockchain-wallet,other,other,unknown,Info,C_candidate,private key secrets are valid,https://github.com/blockchain/My-Wallet-V3/commit/0a7a68057470b2b0a95975843252bae0ee084afb
 blockchain-wallet,other,other,unknown,Info,B_corroborated,detect private key type before claiming,https://github.com/blockchain/My-Wallet-V3/commit/f6955db6c0e9c42d79626b963a6b28b82ff7fa7a
 blockchain-wallet,other,missing_input_validation,unknown,Info,B_corroborated,fix(Eth): validate when deriving private key,https://github.com/blockchain/My-Wallet-V3/commit/55b45efbe494b0898a149abd6339249d920719e0
-blockchain-wallet,network-io,other,unknown,Info,C_candidate,fix(Redeem): fix redeeming from private key,https://github.com/blockchain/My-Wallet-V3/commit/3689f8eca99bafe273ef6cdac09d37d5a97877ff
 blockchain-wallet,other,other,unknown,Info,C_candidate,Change method for getting address private key,https://github.com/blockchain/My-Wallet-V3/commit/f437cde158136cde84301f96f7a48d10cb58f518
 blockchain-wallet,other,other,unknown,Info,B_corroborated,Fix import private key with second password.,https://github.com/blockchain/My-Wallet-V3/commit/9529f2fae9853bc1c3fc59d8b8ee67bfe3280f1b
 blockchain-wallet,other,other,unknown,Info,C_candidate,Importing private keys updated to new BitcoinJS,https://github.com/blockchain/My-Wallet-V3/commit/d990a10f7bda49fca78e869285581479a21174bd
@@ -8064,6 +8062,7 @@ blockchain-wallet,key:derivation,other,unknown,Info,B_corroborated,feat(Eth): ba
 blockchain-wallet,test,missing_input_validation,unknown,Unrated,B_corroborated,Validate pk checksum,https://github.com/blockchain/My-Wallet-V3/pull/371
 blockchain-wallet,key:seed-mnemonic,weak_key_generation,unknown,Unrated,C_candidate,"feat(save guid): on metadata, to be restored from mnemonic.",https://github.com/blockchain/My-Wallet-V3/pull/315
 blockchain-wallet,key:entropy-rng,weak_key_generation,unknown,Unrated,B_corroborated,fix(Wallet): show timeout error with bad internet connection,https://github.com/blockchain/My-Wallet-V3/pull/222
+blockchain-wallet,network-io,other,unknown,Unrated,C_candidate,Fix redeeming from private key,https://github.com/blockchain/My-Wallet-V3/pull/214
 blockchain-wallet,key:seed-mnemonic,weak_key_generation,unknown,Unrated,B_corroborated,Do not use temporary mnemonic during recovery + cleanup,https://github.com/blockchain/My-Wallet-V3/pull/208
 blockchain-wallet,key:entropy-rng,other,unknown,Unrated,B_corroborated,Bitcoins 2.1,https://github.com/blockchain/My-Wallet-V3/pull/178
 blockchain-wallet,key:storage,other,unknown,Unrated,B_corroborated,Bitcoins 2.1 - second attempt,https://github.com/blockchain/My-Wallet-V3/pull/177
@@ -9748,7 +9747,7 @@ btcpay,sign:bitcoin-sighash,weak_key_generation,unknown,Info,B_corroborated,Bett
 btcpay,key:seed-mnemonic,weak_key_generation,unknown,Info,C_candidate,UI: Redesign Recovery Seed view (#4793),https://github.com/btcpayserver/btcpayserver/commit/8635fcfe84f90989095e9eb9b7400363bf682d22
 btcpay,other,weak_key_generation,unknown,Info,B_corroborated,Do not show on screen seed passphrase in sign with seed,https://github.com/btcpayserver/btcpayserver/commit/656ff7029e0501748db362259b570fa76a9361ff
 btcpay,other,weak_key_generation,unknown,Info,B_corroborated,Change the seed saved in NBXplorer to hot wallet (#1652),https://github.com/btcpayserver/btcpayserver/commit/b30597b8f167064a127328de20f33e4b727a1e68
-btcpay,other,weak_key_generation,unknown,Info,C_candidate,Fix view-seed,https://github.com/btcpayserver/btcpayserver/commit/e13821ba4972cee0b9ce985402b5642679cfcc50
+btcpay,other,weak_key_generation,unknown,Info,B_corroborated,Fix view-seed,https://github.com/btcpayserver/btcpayserver/commit/e13821ba4972cee0b9ce985402b5642679cfcc50
 btcpay,key:seed-mnemonic,weak_key_generation,unknown,Info,B_corroborated,Wallet & PSBT: Sign with seed or key (#840),https://github.com/btcpayserver/btcpayserver/commit/eb54a18fcd5ddaf87b1d9f34f167ec7fa8400f4a
 btcpay,key:backup-restore,weak_key_generation,unknown,Info,C_candidate,Recovery seed page improvements,https://github.com/btcpayserver/btcpayserver/commit/7c1d0f2e8fa4c0da920d7f2db64443188c16a3bf
 btcpay,key:backup-restore,weak_key_generation,unknown,Info,C_candidate,Seed-lookup related test fixes,https://github.com/btcpayserver/btcpayserver/commit/188774f30ac7ead6d66ed608fc601f3f14173a95
@@ -9758,7 +9757,7 @@ btcpay,sign:bitcoin-sighash,weak_key_generation,unknown,Info,B_corroborated,Sign
 btcpay,other,weak_key_generation,unknown,Info,B_corroborated,Fix typos on wallet sign with seed page,https://github.com/btcpayserver/btcpayserver/commit/15c87dc0b6643beed6ea5beec85b007796dee38d
 btcpay,other,weak_key_generation,unknown,Info,B_corroborated,Add View seed to wallet settings,https://github.com/btcpayserver/btcpayserver/commit/d323bb35cc6f8d715cf7d0f06a16c2d7d1ad6ebe
 btcpay,other,weak_key_generation,unknown,Info,C_candidate,View seed option if available (#1518),https://github.com/btcpayserver/btcpayserver/commit/e75b4ec6bfb41dfca018315350e7305f95cc39f0
-btcpay,key:backup-restore,weak_key_generation,unknown,Info,C_candidate,Add separate recovery seed backup view,https://github.com/btcpayserver/btcpayserver/commit/cfef1f3432b01fb812c237e398a29fde69bff69e
+btcpay,key:backup-restore,weak_key_generation,unknown,Info,B_corroborated,Add separate recovery seed backup view,https://github.com/btcpayserver/btcpayserver/commit/cfef1f3432b01fb812c237e398a29fde69bff69e
 btcpay,key:backup-restore,weak_key_generation,unknown,Info,C_candidate,Service page for LND Seed Backup,https://github.com/btcpayserver/btcpayserver/commit/2b1aac9aa93303e12591dbcae310cc51c8e72e67
 btcpay,other,weak_key_generation,unknown,Info,C_candidate,User can use passphrase when importing seed,https://github.com/btcpayserver/btcpayserver/commit/17d2b20cd50a927b855d587639a7f323a65a4b50
 btcpay,key:backup-restore,weak_key_generation,unknown,Info,B_corroborated,Delete password from the lnd seed backup,https://github.com/btcpayserver/btcpayserver/commit/4e5001d7efa6276a7aa99bc0e7c091cf4411922d
@@ -9772,7 +9771,7 @@ btcpay,other,weak_key_generation,unknown,Info,B_corroborated,Better error messag
 btcpay,other,weak_key_generation,unknown,Info,B_corroborated,Add selenium test for the manual seed signing,https://github.com/btcpayserver/btcpayserver/commit/e100edce24d289cdbee8bec22aa91c61bb43d9e9
 btcpay,key:backup-restore,weak_key_generation,unknown,Info,B_corroborated,Remove confirm option for seed from wallet settings,https://github.com/btcpayserver/btcpayserver/commit/2d608621d9853536175f63ad101798ba9b4954b1
 btcpay,other,weak_key_generation,unknown,Info,B_corroborated,"Rewrite the CanUseHotWallet, check if the derivationscheme is actually",https://github.com/btcpayserver/btcpayserver/commit/c2b85779c376dc44c78fb94cfd6f354369a37ca2
-btcpay,key:backup-restore,weak_key_generation,unknown,Info,C_candidate,Test LND Seed Backup service and Logs. Use the Confirm View instead of,https://github.com/btcpayserver/btcpayserver/commit/84fe14a1eda9f92f4f482af23aa801381e43e930
+btcpay,key:backup-restore,weak_key_generation,unknown,Info,B_corroborated,Test LND Seed Backup service and Logs. Use the Confirm View instead of,https://github.com/btcpayserver/btcpayserver/commit/84fe14a1eda9f92f4f482af23aa801381e43e930
 btcpay,other,weak_key_generation,unknown,Info,C_candidate,"Ensure ""import from....a new/existing seed"" modal text is readable in ",https://github.com/btcpayserver/btcpayserver/commit/5dd3112e0dc7a03344a8f5b41b1fe85aa62305fb
 btcpay,key:backup-restore,weak_key_generation,unknown,Info,B_corroborated,Fix missing hot wallet option on seed import (#2284),https://github.com/btcpayserver/btcpayserver/commit/c73878ccca9e1709027bfb2bba9b91256d98b697
 btcpay,sign:bitcoin-sighash,weak_key_generation,unknown,Info,B_corroborated,"WalletPSBTReady show the summary of the transaction, signing with the ",https://github.com/btcpayserver/btcpayserver/commit/a68915d6cf52641f235abb08b9cbb04c4774603e
@@ -9791,6 +9790,7 @@ btcpay,other,signature_verification_flaw,unknown,Info,B_corroborated,Onboarding:
 btcpay,sign:bitcoin-sighash,other,unknown,Info,B_corroborated,Add granular API permissions for on-chain wallets (#7357),https://github.com/btcpayserver/btcpayserver/commit/4a03202a59a724a49782c905905bbff240779dff
 btcpay,key:derivation,broken_access_control,unknown,Info,B_corroborated,Fix: Do not expose xpub without modify store permission (#6212),https://github.com/btcpayserver/btcpayserver/commit/9ba4b030ed88b28da8b228e9c85bc2a3e582c218
 btcpay,other,crypto_misuse,unknown,Info,B_corroborated,Small improvements (#5273),https://github.com/btcpayserver/btcpayserver/commit/4564f9a46c85aac376e2c9e349b340aeb5fe5606
+btcpay,,,,Info,B_corroborated,Greenfield: Fix invoice refund permission (#5558),https://github.com/btcpayserver/btcpayserver/commit/e4aaff5e34613ece9d6d3b6043ffa62c0bf503c3
 btcpay,network-io,broken_access_control,unknown,Info,B_corroborated,Adapt cookie auth to work with same API permission system (#4595),https://github.com/btcpayserver/btcpayserver/commit/fae1dc8dbb05e3ccfa55cc8ba110b8ea45385cda
 btcpay,platform:sandbox,other,malicious_local_app,Info,B_corroborated,Checkout: Fix modal iframe clipboard permissions (#4453),https://github.com/btcpayserver/btcpayserver/commit/e6c68dc5bc2db3fbd6fde177374613515063acfa
 btcpay,network-io,broken_access_control,unknown,Info,B_corroborated,Fix app permissions (#3227),https://github.com/btcpayserver/btcpayserver/commit/4a66c91cac20c9b0e24ac24657e5ebb66f2d7a96
@@ -9798,6 +9798,7 @@ btcpay,other,other,unknown,Info,B_corroborated,Censor based on permissions,https
 btcpay,other,other,unknown,Info,B_corroborated,Greenfield: Add separate permission for viewing LN invoices (#4529),https://github.com/btcpayserver/btcpayserver/commit/798553e96afeb3aa7ddac125a830fde7a47be187
 btcpay,other,other,unknown,Info,B_corroborated,Redirect on 403 page rather than crashing if permission missing,https://github.com/btcpayserver/btcpayserver/commit/93b52fbdb392a56d940a89072a8627a31d96606e
 btcpay,other,broken_access_control,unknown,Info,B_corroborated,permission check for auth,https://github.com/btcpayserver/btcpayserver/commit/dbe7f464bd688559369a05821a1c1232ad3891a7
+btcpay,,,,Info,B_corroborated,fix bug in permission store selector,https://github.com/btcpayserver/btcpayserver/commit/b7c0e049b54dbc15182cc057bd2ff9933eb43bb0
 btcpay,other,broken_access_control,unknown,Info,B_corroborated,Remove right to admins to bypass permissions to modify/view invoices o,https://github.com/btcpayserver/btcpayserver/commit/f67fa6a5d61312139be94d2fd30e121320bfdcbb
 btcpay,other,broken_access_control,unknown,Info,B_corroborated,Fix permission on store's lightning server,https://github.com/btcpayserver/btcpayserver/commit/16b5f70e4baf6399847dbcc3a5c8da7226dd2b08
 btcpay,other,other,unknown,Info,B_corroborated,Refactoring if condition to ensure CanCreateUser permission,https://github.com/btcpayserver/btcpayserver/commit/0a8abaf7d5c89d6012c750a8c30ae06ed73d7cb1
@@ -9818,16 +9819,17 @@ btcpay,other,missing_input_validation,unknown,Info,B_corroborated,Validate input
 btcpay,other,missing_input_validation,unknown,Info,B_corroborated,Validate cart cost with explicit amount,https://github.com/btcpayserver/btcpayserver/commit/c1562546000561dbf58354c6db7d51f819984c20
 btcpay,other,missing_input_validation,unknown,Info,C_candidate,Validate the name of controllers when LinkGenerator,https://github.com/btcpayserver/btcpayserver/commit/47d8d3cdb13ee0526f1879ae31a46f1026f23318
 btcpay,other,missing_input_validation,unknown,Info,B_corroborated,Better validate file names,https://github.com/btcpayserver/btcpayserver/commit/73d70aa5e59296da0eda5451ad4d8f899d6b4e73
-btcpay,other,missing_input_validation,unknown,Info,C_candidate,Properly validate create user input,https://github.com/btcpayserver/btcpayserver/commit/540a31207e1a18b806cb80bb562e8f2f347826e0
+btcpay,other,missing_input_validation,unknown,Info,B_corroborated,Properly validate create user input,https://github.com/btcpayserver/btcpayserver/commit/540a31207e1a18b806cb80bb562e8f2f347826e0
 btcpay,network-io,missing_input_validation,unknown,Info,B_corroborated,API: Fix open channel validation condition (#2054),https://github.com/btcpayserver/btcpayserver/commit/eef729b5f9c0c78ba641a9aafb51c8fe2344ed5c
 btcpay,other,missing_input_validation,unknown,Info,C_candidate,Validate dynamic dns POST,https://github.com/btcpayserver/btcpayserver/commit/056cb60d5d6401800bcd7b756e6d9c2a7fc61a48
-btcpay,network-io,missing_input_validation,hostile_network_or_rpc,Info,C_candidate,Refactor how we handle and validate LN ConnectionStrings (#2314),https://github.com/btcpayserver/btcpayserver/commit/7e714f1ef8b4155f4060f6c705afe47073916623
+btcpay,network-io,missing_input_validation,hostile_network_or_rpc,Info,B_corroborated,Refactor how we handle and validate LN ConnectionStrings (#2314),https://github.com/btcpayserver/btcpayserver/commit/7e714f1ef8b4155f4060f6c705afe47073916623
 btcpay,network-io,missing_input_validation,unknown,Info,C_candidate,Validate email in the api,https://github.com/btcpayserver/btcpayserver/commit/9ddceae8248c350191bef2980094f971983b23e3
 btcpay,sign:bitcoin-sighash,missing_input_validation,unknown,Info,B_corroborated,Can actually upload PSBT file in PSBT Combine and PSBT view.,https://github.com/btcpayserver/btcpayserver/commit/87df34e0643aedd628a4956455f17b48e0cb538b
 btcpay,other,integer_overflow_underflow,unknown,Info,B_corroborated,Fix potential stack overflow,https://github.com/btcpayserver/btcpayserver/commit/05887cf8b0a7a90e7e04243b472683f0aadc4701
 btcpay,other,integer_overflow_underflow,unknown,Info,C_candidate,Checkout: Fix Order ID text overflow (#4232),https://github.com/btcpayserver/btcpayserver/commit/2e150f4bf45cd2996b1883e69efab4f8e7b248d5
 btcpay,other,integer_overflow_underflow,unknown,Info,C_candidate,fix overflow of descriptions,https://github.com/btcpayserver/btcpayserver/commit/de7e419ef46ccfabccae2c39257b6e7d3e634302
 btcpay,other,integer_overflow_underflow,unknown,Info,C_candidate,Fixes #3598 by adding overflow scrolling to StoreSelectorMenu (#3599),https://github.com/btcpayserver/btcpayserver/commit/add206ae2d816f19a896916af5533e015129e93f
+btcpay,,,,Info,B_corroborated,add additional server policy for hot wallet,https://github.com/btcpayserver/btcpayserver/commit/4e09bb0b0122c2c83538ef7657f22a4206bbe914
 btcpay,sign:encoding-malleability,crypto_misuse,unknown,Info,B_corroborated,Feature: Cold wallet transaction support via Greenfield API (#7068),https://github.com/btcpayserver/btcpayserver/commit/8a30dd1ec37a751c664410c9695cee42d0275a0f
 btcpay,sign:bitcoin-sighash,serialization_bug,unknown,Info,B_corroborated,Fix: PSBT Scan via Camera was not closing the modal dialog when signin,https://github.com/btcpayserver/btcpayserver/commit/1787e9d2798450c8246f2167e1bf785335ec541e
 btcpay,key:storage,other,unknown,Info,B_corroborated,Fix: Failure to sign with Vault when a PSBT size exceeds 32KB (#6809),https://github.com/btcpayserver/btcpayserver/commit/f021924fbe5354ff51c268c1c1b954de196db683
@@ -9853,14 +9855,14 @@ btcpay,sign:bitcoin-sighash,other,unknown,Info,C_candidate,Add tests for PSBT,ht
 btcpay,sign:bitcoin-sighash,other,unknown,Info,C_candidate,Fix alignment in psbt review,https://github.com/btcpayserver/btcpayserver/commit/df38b84bbb1fb3e76970f485f39567495ec6b314
 btcpay,sign:bitcoin-sighash,other,unknown,Info,C_candidate,ad psbt base64 file upload test,https://github.com/btcpayserver/btcpayserver/commit/9d1cd085eacade5910db52bde468b2ad2a80de60
 btcpay,sign:bitcoin-sighash,crypto_misuse,unknown,Info,C_candidate,Fix PSBT Redirect No-access issues,https://github.com/btcpayserver/btcpayserver/commit/ae33b1d0a876c46c2e2de6cce114a6311d519546
-btcpay,sign:bitcoin-sighash,other,unknown,Info,C_candidate,Update PSBT should include non witness utxo,https://github.com/btcpayserver/btcpayserver/commit/31e335792ff950f29f1d5eef233925595137de8c
+btcpay,sign:bitcoin-sighash,other,unknown,Info,B_corroborated,Update PSBT should include non witness utxo,https://github.com/btcpayserver/btcpayserver/commit/31e335792ff950f29f1d5eef233925595137de8c
 btcpay,sign:bitcoin-sighash,other,unknown,Info,B_corroborated,Prevent error 500 if bad psbt,https://github.com/btcpayserver/btcpayserver/commit/e6e9668bbb33025b01059cd615bbf8b3ff30e326
 btcpay,sign:bitcoin-sighash,other,unknown,Info,C_candidate,minor improvement to UI of PSBT,https://github.com/btcpayserver/btcpayserver/commit/14647d577889e33cecc46ebe807d66b0d70598c9
 btcpay,sign:bitcoin-sighash,other,unknown,Info,B_corroborated,Can sign and export arbitrary PSBT,https://github.com/btcpayserver/btcpayserver/commit/5f1aa619cd161186fef9c9118a0a61486f5b46bb
 btcpay,sign:bitcoin-sighash,serialization_bug,unknown,Info,C_candidate,Add utility tool to decode PSBT,https://github.com/btcpayserver/btcpayserver/commit/e853bddbc8cb23e807e67f28c12cede6db6cb0e8
 btcpay,sign:bitcoin-sighash,other,unknown,Info,C_candidate,Improve error handling for export psbt,https://github.com/btcpayserver/btcpayserver/commit/3bf4eea1fe758d663987ef1cc4d41c30502072b6
 btcpay,sign:bitcoin-sighash,other,unknown,Info,C_candidate,CreatePSBT should always rebase the PSBT,https://github.com/btcpayserver/btcpayserver/commit/aa23222339d971d737037edc0cef2805d658ae32
-btcpay,sign:bitcoin-sighash,other,unknown,Info,C_candidate,WalletSendLedger and LedgerConnection only depends on PSBT,https://github.com/btcpayserver/btcpayserver/commit/541c748ecb18af7902691766dade9d3a71c546a1
+btcpay,sign:bitcoin-sighash,other,unknown,Info,B_corroborated,WalletSendLedger and LedgerConnection only depends on PSBT,https://github.com/btcpayserver/btcpayserver/commit/541c748ecb18af7902691766dade9d3a71c546a1
 btcpay,sign:bitcoin-sighash,other,unknown,Info,C_candidate,Add PSBT support in the send screen,https://github.com/btcpayserver/btcpayserver/commit/03713f9bd836e8bb1b16efe9fac0b670878352ac
 btcpay,sign:bitcoin-sighash,other,unknown,Info,C_candidate,Refactor Send money from ledger using PSBT,https://github.com/btcpayserver/btcpayserver/commit/e65850b1eb3f87189c54988263c121f14b24f36b
 btcpay,key:entropy-rng,other,unknown,Info,B_corroborated,Remove randomize RBF from wallet UI advanced settings (#5709),https://github.com/btcpayserver/btcpayserver/commit/a8fdc4798d5b986185eb466a8973b015c0cfbbba
@@ -12550,7 +12552,6 @@ electrum,key:derivation,incorrect_key_derivation,unknown,Info,B_corroborated,key
 electrum,other,integer_overflow_underflow,unknown,Info,B_corroborated,"qt wizard: make ""GoBack"" unroll the call stack to avoid stack overflow",https://github.com/spesmilo/electrum/commit/f13f46c555b979b265c7da9b6e340b6342f9e4b0
 electrum,other,integer_overflow_underflow,malicious_deeplink_or_qr,Info,B_corroborated,_calc_routing_hints_for_invoice: incl max 15 chans to avoid qr overflo,https://github.com/spesmilo/electrum/commit/06ea06f7d37a02d7d242d84eca89da3d85191c1b
 electrum,network-io,integer_overflow_underflow,malformed_input,Info,B_corroborated,util.NetworkRetryManager: fix potential overflow,https://github.com/spesmilo/electrum/commit/5d723401f851a07129620addceb0f1f2d80f7b95
-electrum,key:derivation,other,unknown,Info,B_corroborated,wallet: encrypt the keystore before adding it to db,https://github.com/spesmilo/electrum/commit/b15be1fa0b5b11e37e9ee42f19e1180f42052b75
 electrum,other,other,unknown,Info,B_corroborated,"commands: add ""encrypt_file"" arg to ""password"" command",https://github.com/spesmilo/electrum/commit/58be69afd3cbe9cfcf36a591feb932c5c804212d
 electrum,other,improper_state_update,unknown,Info,B_corroborated,wallet: encrypt storage by default,https://github.com/spesmilo/electrum/commit/9b28f6df7beab821422537f816cbacbe6035f706
 electrum,other,other,unknown,Info,B_corroborated,fix #2991: encrypt wallet files created with command line,https://github.com/spesmilo/electrum/commit/dc553ff108c1dbcadb193ad899dd7897f702107e
@@ -12566,6 +12567,7 @@ electrum,other,untrusted_code_execution,unknown,Info,B_corroborated,fix password
 electrum,other,weak_key_generation,unknown,Info,B_corroborated,qt: fix defer eval of maybe_master_pubkey in case of electrum seed wit,https://github.com/spesmilo/electrum/commit/9b520d31aba1df4e2dcd3d96852fdee2cdc6676f
 electrum,other,untrusted_code_execution,unknown,Info,C_candidate,stop using eval,https://github.com/spesmilo/electrum/commit/91061752cf36116bfe1da21fb542e19cf32d2486
 electrum,other,untrusted_code_execution,unknown,Info,B_corroborated,deprecate wallet.save() and 'eval' command,https://github.com/spesmilo/electrum/commit/b2c23f9ac8154367dc1a79cffe38817e3359150a
+electrum,key:derivation,other,unknown,Unrated,B_corroborated,"create_new_wallet, restore_wallet: encrypt the keystore before adding ",https://github.com/spesmilo/electrum/pull/10634
 electrum,key:backup-restore,weak_key_generation,unknown,Unrated,B_corroborated,qml: allow renaming wallets,https://github.com/spesmilo/electrum/pull/10573
 electrum,build-ci,user_deception,malicious_peer,Unrated,A_dependency,build(deps): bump cryptography from 45.0.3 to 46.0.6 in /contrib/deter,https://github.com/spesmilo/electrum/pull/10560
 electrum,build-ci,user_deception,unknown,Unrated,A_dependency,build(deps): bump ecdsa from 0.19.1 to 0.19.2 in /contrib/deterministi,https://github.com/spesmilo/electrum/pull/10557
@@ -13380,7 +13382,7 @@ ethers,other,other,unknown,Info,B_corroborated,Throw an error when attempting to
 ethers,serialization,serialization_bug,unknown,Info,B_corroborated,Limit decoded result imflation ratio from ABI-encoded data (#4537).,https://github.com/ethers-io/ethers.js/commit/1b4debd4a9e61d171bfc60590116facb8bdbd2da
 ethers,other,other,unknown,Info,B_corroborated,Fixed inverted assert in duplicate name detection for ABI encoding (#3,https://github.com/ethers-io/ethers.js/commit/762c2f34eac848c5464389f11d1697dcd8ebcbb5
 ethers,platform:csp,untrusted_code_execution,unknown,Info,C_candidate,"Fixed deferred filters after unsafe-eval changes (#3749, #3763).",https://github.com/ethers-io/ethers.js/commit/2e3802a83b8ad2f5a6269d79fbd1c83c9f2d1047
-ethers,platform:csp,untrusted_code_execution,unknown,Info,C_candidate,"Remove use of Function sub-class to address unsafe-eval issues (#3749,",https://github.com/ethers-io/ethers.js/commit/7d3af512c75b4c24027ec2daef1e9f4c1064194a
+ethers,platform:csp,untrusted_code_execution,unknown,Info,B_corroborated,"Remove use of Function sub-class to address unsafe-eval issues (#3749,",https://github.com/ethers-io/ethers.js/commit/7d3af512c75b4c24027ec2daef1e9f4c1064194a
 ethers,other,integer_overflow_underflow,unknown,Unrated,B_corroborated,fix(stringify): prevent stack overflow caused by circular references (,https://github.com/ethers-io/ethers.js/pull/4978
 ethers,sign:typed-data,signature_verification_flaw,unknown,Unrated,B_corroborated,Implement ERC-1271: contract signature verification,https://github.com/ethers-io/ethers.js/pull/3803
 ethers,key:seed-mnemonic,weak_key_generation,unknown,Unrated,B_corroborated,Allow BIP39 passphrase for Wallet,https://github.com/ethers-io/ethers.js/pull/2721
@@ -19170,7 +19172,7 @@ metamask,sign:replay-protection,missing_replay_protection,unknown,Unrated,B_corr
 metamask,approval:allowance,other,unknown,Unrated,C_candidate,fix: shield allowed tokens approve amount,https://github.com/MetaMask/metamask-extension/pull/36494
 metamask,approval:unlimited,other,unknown,Unrated,C_candidate,fix: infinite loading on spending cap when selected chain differs from,https://github.com/MetaMask/metamask-extension/pull/34355
 metamask,approval:unlimited,other,unknown,Unrated,C_candidate,release(runway): cherry-pick fix: infinite loading on spending cap whe,https://github.com/MetaMask/metamask-extension/pull/34452
-metamask,ui:transaction-preview,excessive_spend_authority,unknown,Unrated,B_corroborated,fix: cp-12.17.3 support permit2 approvals in batch simulation (#32733),https://github.com/MetaMask/metamask-extension/pull/32830
+metamask,ui:transaction-preview,excessive_spend_authority,unknown,Unrated,B_corroborated,fix: cp-12.17.3 support permit2 approvals in batch simulation,https://github.com/MetaMask/metamask-extension/pull/32733
 metamask,sign:replay-protection,missing_replay_protection,unknown,Unrated,C_candidate,Updating tokensChainsCache[chainId].data to object from array in user ,https://github.com/MetaMask/metamask-extension/pull/16535
 metamask,sign:typed-data,improper_state_update,unknown,Unrated,B_corroborated,Test scenarios,https://github.com/MetaMask/metamask-extension/pull/20785
 metamask,approval:allowance,improper_state_update,unknown,Unrated,C_candidate,Part of #18714: Replacing deprecated constants in `approve-content-car,https://github.com/MetaMask/metamask-extension/pull/19448
@@ -19313,6 +19315,7 @@ monero-gui,other,missing_input_validation,unknown,Info,B_corroborated,Transfer p
 monero-gui,other,missing_input_validation,unknown,Info,B_corroborated,components: RemoteNodeEdit validate port number range,https://github.com/monero-project/monero-gui/commit/b34d5409e644567d86af23a8725125bdab0ad071
 monero-gui,other,missing_input_validation,unknown,Info,B_corroborated,Transfer: validate destination address,https://github.com/monero-project/monero-gui/commit/628b26c42938172446de44f206ed7c85d3cca4e6
 monero-gui,other,missing_origin_authorization,unknown,Info,B_corroborated,zxcvbn: fix buffer overflow,https://github.com/monero-project/monero-gui/commit/c844e3d179e92f5e7197186b351962933b30709c
+monero-gui,network-io,other,hostile_network_or_rpc,Info,B_corroborated,p2pool: fix crash without network connection,https://github.com/monero-project/monero-gui/commit/33310786dbb2e8817bfe4cac36b45069031d14bd
 monero-gui,other,other,unknown,Info,B_corroborated,macdeployqt app bundle crash fixed.,https://github.com/monero-project/monero-gui/commit/f640809d2574a19ff8ba97a0922669765e201367
 monero-gui,other,other,unknown,Info,B_corroborated,fix windows crash on startup,https://github.com/monero-project/monero-gui/commit/c65ee4e71c63a447e8e89a7737ae82bf76fc1a77
 monero-gui,other,other,unknown,Info,B_corroborated,fix Qt 5.8 crash on app exit bug in StandardDialog,https://github.com/monero-project/monero-gui/commit/1c7f529141f4da0a2ab7981c7c1e18daa757e566
@@ -19388,9 +19391,9 @@ monero,key:seed-mnemonic,weak_key_generation,unknown,Info,C_candidate,split mnem
 monero,key:seed-mnemonic,weak_key_generation,hostile_network_or_rpc,Info,B_corroborated,query_key command in wallet rpc.,https://github.com/monero-project/monero/commit/0c3255ead8132c9903aa3b62333460fc3ed67713
 monero,key:seed-mnemonic,weak_key_generation,unknown,Info,B_corroborated,changed wallet mnemonic to use cout so it doesn't print to log,https://github.com/monero-project/monero/commit/c49cb0461091495c023fb9aa56ca8298a556f0a5
 monero,key:seed-mnemonic,weak_key_generation,unknown,Info,B_corroborated,Wallet API: all recover options with password,https://github.com/monero-project/monero/commit/939629e837d744118acd1191bd08f8627c704402
-monero,key:seed-mnemonic,weak_key_generation,unknown,Info,C_candidate,mnemonics/electrum-words/create_checksum_index(): updated to work with,https://github.com/monero-project/monero/commit/4a003bb5a2c45332d2c21830d6ff9ffa3c183739
+monero,key:seed-mnemonic,weak_key_generation,unknown,Info,B_corroborated,mnemonics/electrum-words/create_checksum_index(): updated to work with,https://github.com/monero-project/monero/commit/4a003bb5a2c45332d2c21830d6ff9ffa3c183739
 monero,key:entropy-rng,weak_key_generation,unknown,Info,B_corroborated,wallet: add --extra-entropy command line flag,https://github.com/monero-project/monero/commit/1dc3b1a516332f12a4bd8fd8dd80695a003d1d98
-monero,key:entropy-rng,weak_key_generation,unknown,Info,C_candidate,derive multisig tx secret keys from an entropy source plus the tx inpu,https://github.com/monero-project/monero/commit/edcc094558779a25811f2736beca97d78a26bff5
+monero,key:entropy-rng,weak_key_generation,unknown,Info,B_corroborated,derive multisig tx secret keys from an entropy source plus the tx inpu,https://github.com/monero-project/monero/commit/edcc094558779a25811f2736beca97d78a26bff5
 monero,build-ci,weak_key_generation,unknown,High,A_authoritative,Windows: enable high-entropy ASLR where available,https://github.com/monero-project/monero/commit/78b076c7f2731911346978fd5a481a82190b3b8e
 monero,key:entropy-rng,weak_key_generation,unknown,Info,B_corroborated,fixed signed-unsigned issue from 166,https://github.com/monero-project/monero/commit/aeaa44fe860fcbe9586d48bfbd55cc6a167d8e33
 monero,key:entropy-rng,weak_key_generation,unknown,Info,B_corroborated,cryptonote: sort tx_extra fields,https://github.com/monero-project/monero/commit/9907ea0694ecf025258fd1b28e3dcc8c2c1b54d0
@@ -19417,7 +19420,7 @@ monero,crypto-primitives,crypto_misuse,unknown,Info,C_candidate,blockchain: fix 
 monero,network-io,other,unknown,Info,C_candidate,wallet2_api: fix history leak on destruction,https://github.com/monero-project/monero/commit/5fc36f981c1362d38f9c5d2aefd27316effe3340
 monero,other,resource_exhaustion,unknown,Info,C_candidate,Close file before exit to avoid potential resource leak,https://github.com/monero-project/monero/commit/82f07c562609cfd98acb2d63fbff0eaf3deab62f
 monero,other,resource_exhaustion,unknown,Info,C_candidate,windows_service: fix memory leak,https://github.com/monero-project/monero/commit/1a0733e534dee0dae140e38a789c3ab5008e7844
-monero,other,other,unknown,Info,C_candidate,dns_utils: simplify string handling and fix leak,https://github.com/monero-project/monero/commit/4ef0da184d18f15e1a16c34f898483dc50b125d7
+monero,other,other,unknown,Info,B_corroborated,dns_utils: simplify string handling and fix leak,https://github.com/monero-project/monero/commit/4ef0da184d18f15e1a16c34f898483dc50b125d7
 monero,key:backup-restore,other,unknown,Info,B_corroborated,simplewallet: fix possible privacy leak in import_key_images(),https://github.com/monero-project/monero/commit/20495b27e851439e4ea7e7036234de3717f5d5c0
 monero,key:seed-mnemonic,weak_key_generation,unknown,Info,C_candidate,mnemonics: fix misc STL containers leak,https://github.com/monero-project/monero/commit/19585d49142cdf0eb6b82bd4c3c6d813da12c35c
 monero,test,other,unknown,Info,C_candidate,unit_tests: fix leak when the test check fails,https://github.com/monero-project/monero/commit/fa3f756bfb4f0595bd2dbe0e22a9d2f00f4a0ef5
@@ -19460,6 +19463,7 @@ monero,network-io,missing_bounds_check,malformed_input,Info,B_corroborated,miniu
 monero,sign:curve-primitives,integer_overflow_underflow,unknown,Info,B_corroborated,bulletproofs: a few fixes from the Kudelski review,https://github.com/monero-project/monero/commit/869b3bf824387ae50ab28be9bce66caae21bcae9
 monero,other,reentrancy,unknown,Info,B_corroborated,easylogging++: fix crash with reentrant logging,https://github.com/monero-project/monero/commit/92e6b7df2c816dc4b0a075b0d2fafbc5dc018bbb
 monero,serialization,serialization_bug,malicious_peer,Info,B_corroborated,p2p: fix GCC 9.1 crash,https://github.com/monero-project/monero/commit/2cbe75661cb957f7be409a9e22df97d96329c5c8
+monero,other,other,unknown,Info,B_corroborated,mlog: fix crash accessing stale data when rotating logs,https://github.com/monero-project/monero/commit/335fc8ab23d506d2d895c47526065d2fc66ea55e
 monero,other,other,unknown,Info,B_corroborated,Fix crash in std::map for connections_map,https://github.com/monero-project/monero/commit/11d555cebe70053479f8c7ce8a8a993821b634b9
 monero,other,other,unknown,Info,B_corroborated,"Don't try to create wallet-dir when it's not given, don't crash if wal",https://github.com/monero-project/monero/commit/2183ade0c4e9cd7e923d325a97ff3ddfdc9fc941
 monero,other,other,unknown,Info,B_corroborated,Fix startup crash when using a locale boost does not like,https://github.com/monero-project/monero/commit/f3724aef881ff2fdada98eddc792059e4e18c1c8
@@ -19479,10 +19483,10 @@ monero,test,unsafe_initialization_or_upgrade,unknown,Info,B_corroborated,unit_te
 monero,crypto-primitives,unsafe_initialization_or_upgrade,unknown,Info,C_candidate,tx_pool: silence use of uninitialized warning,https://github.com/monero-project/monero/commit/2242d8ebd6fe2ab53a6a7db55f6e1a1a1ebdf52c
 monero,other,unsafe_initialization_or_upgrade,unknown,Info,C_candidate,easylogging++: do not delete uninitialized objects,https://github.com/monero-project/monero/commit/67b97a5f16ffbbf920953d75af6f7bf67606bccc
 monero,crypto-primitives,unsafe_initialization_or_upgrade,unknown,Info,C_candidate,protocol: remove unused (and cunningly uninitialized) field,https://github.com/monero-project/monero/commit/f3c0d4f9dfef7947b7f90b197d44c4d0a5125795
-monero,other,unsafe_initialization_or_upgrade,unknown,Info,C_candidate,trezor: fix potential use of uninitialized memory,https://github.com/monero-project/monero/commit/7b6d959596575d51107d5a791f21af8fd4737f92
+monero,other,unsafe_initialization_or_upgrade,unknown,Info,B_corroborated,trezor: fix potential use of uninitialized memory,https://github.com/monero-project/monero/commit/7b6d959596575d51107d5a791f21af8fd4737f92
 monero,other,unsafe_initialization_or_upgrade,unknown,Info,C_candidate,wallet2: fix use of uninitialized data,https://github.com/monero-project/monero/commit/14c29814694efcc572c10cb62b2bdd74033c7f32
 monero,crypto-primitives,unsafe_initialization_or_upgrade,unknown,Info,C_candidate,Silence warning about possibly uninitialized pointer,https://github.com/monero-project/monero/commit/93b32892f72ecb77f5d9daa2fbb9d0cc6e53abc4
-monero,other,unsafe_initialization_or_upgrade,unknown,Info,C_candidate,device_ledger: fix uninitialized additional_key,https://github.com/monero-project/monero/commit/f07524b56b6e1c2302317c1c24c40eec26384089
+monero,other,unsafe_initialization_or_upgrade,unknown,Info,B_corroborated,device_ledger: fix uninitialized additional_key,https://github.com/monero-project/monero/commit/f07524b56b6e1c2302317c1c24c40eec26384089
 monero,crypto-primitives,unsafe_initialization_or_upgrade,unknown,Info,C_candidate,"tx_pool: fix uninitialized ""last failed"" fields",https://github.com/monero-project/monero/commit/37ed96e6117af340eafa2495f24d513fe1a07de9
 monero,test,unsafe_initialization_or_upgrade,unknown,Info,C_candidate,Fixed uninitialized valgrind errors in serialization tests,https://github.com/monero-project/monero/commit/d55e2266ca41090e2201786e077df397718184af
 monero,crypto-primitives,unsafe_initialization_or_upgrade,unknown,Info,C_candidate,cryptonote: don't leave block_weight uninitialized,https://github.com/monero-project/monero/commit/fe443bbdec3ad6cdb7409f61a1e64eda6b32016b
@@ -29204,7 +29208,6 @@ webauthn-sol,sign:curve-primitives,signature_verification_flaw,unknown,Unrated,B
 webauthn-sol,contract:invariant,signature_verification_flaw,unknown,Unrated,C_candidate,Fuzzing tests for assertion signatures verification,https://github.com/base/webauthn-sol/pull/7
 webauthn4j,other,missing_input_validation,unknown,Info,B_corroborated,Rewrite Arrays.equals to MessageDigest.isEqual,https://github.com/webauthn4j/webauthn4j/commit/875509e170a5f7475773bad9240634c7e0453821
 webauthn4j,build-ci,other,unknown,Info,A_authoritative,Fix for CVE-2019-12086,https://github.com/webauthn4j/webauthn4j/commit/b59a9ed12497a61a30729c79c494030df521d6a6
-webauthn4j,other,other,unknown,Info,A_authoritative,Update Jackson-databind to avoid CVE-2019-14439,https://github.com/webauthn4j/webauthn4j/commit/7c1aa4050c91a120522a5caa7269fc3c54038274
 webauthn4j,build-ci,broken_access_control,unknown,Info,A_authoritative,Supress CVE-2019-12814 as it doesn't affect webauthn4j directly,https://github.com/webauthn4j/webauthn4j/commit/969f5dabf5f0dacfffe3f66ceb373f20e375d5ab
 webauthn4j,sign:encoding-malleability,broken_access_control,malformed_input,Info,C_candidate,Redesign ASN.1 DER library with type-safe classes and unified API,https://github.com/webauthn4j/webauthn4j/commit/0cf265355c4f64e8b1a09014757ba4efc0fa8dc1
 webauthn4j,other,broken_access_control,unknown,Info,C_candidate,Add private key support to COSEKey,https://github.com/webauthn4j/webauthn4j/commit/0baa23fb7fe0227758aec56c89bcd291d4606059
@@ -33762,3 +33765,782 @@ wallet-core,other,other,unknown,Unrated,C_candidate,"Support tz2, tz3 addresses 
 wallet-core,other,other,unknown,Unrated,C_candidate,forgeZarith fix,https://github.com/trustwallet/wallet-core/commit/38255b5602e29aeb41e83ed487d315f2e38e2146
 wallet-core,other,other,unknown,Unrated,C_candidate,Add another test,https://github.com/trustwallet/wallet-core/commit/c977b1ef47931d405b5945b8e0c0d858283b43a7
 wallet-core,serialization,serialization_bug,unknown,Unrated,B_corroborated,Fix binance send order signature,https://github.com/trustwallet/wallet-core/commit/505c41a59bd66ac22719e15c199a013f8b352482
+btcpay,,,,Unrated,B_corroborated,Fix: TOTP 2FA bypass via Greenfield Basic auth (#7491),https://github.com/btcpayserver/btcpayserver/commit/c173a9192d1d4dd1ca837dd906b586af8790632f
+btcpay,,,,Unrated,C_candidate,Cover all generated witness PSBTs,https://github.com/btcpayserver/btcpayserver/commit/ede7cc706797ae2328517a6ca4a177a538137a2d
+btcpay,,,,Unrated,C_candidate, Scope payout mark/mark-paid endpoints to the store in the route (#743,https://github.com/btcpayserver/btcpayserver/commit/b09991771acb4375b669e6d214caf9a14f24e4b3
+btcpay,,,,Unrated,C_candidate,Drop storeId from payout-by-id client methods,https://github.com/btcpayserver/btcpayserver/commit/d03c3289cb382be2ba603574b6642bd292a7993f
+btcpay,,,,Unrated,B_corroborated,Scope payouts via permission handler and flatten routes,https://github.com/btcpayserver/btcpayserver/commit/4923d7987c7506df73decc6c8598331d658d2bd4
+btcpay,,,,Unrated,C_candidate,Scope payout mark endpoints to store,https://github.com/btcpayserver/btcpayserver/commit/09927753818c2a8cd7c6d19cee06fce1f25c9f2f
+btcpay,,,,Unrated,B_corroborated,Address review: atomic PIN attempt cap and error normalization,https://github.com/btcpayserver/btcpayserver/commit/a3067f90c2097b5d54e57b6625cc79af09e1e4e8
+btcpay,,,,Unrated,B_corroborated,"Fix ""File traversal detected"" crash processing plugin commands on Wind",https://github.com/btcpayserver/btcpayserver/commit/a8c01be50abad29f19516f4c36e1eb69bebbc016
+btcpay,,,,Unrated,C_candidate,fix: bulk archive pull payments scoped to current store (#7407),https://github.com/btcpayserver/btcpayserver/commit/ee2a64c2dbf64409818c0ad263deb3d457a97295
+btcpay,,,,Unrated,C_candidate,fix: bulk archive pull payments scoped to current store,https://github.com/btcpayserver/btcpayserver/commit/cb0dd787912f9d2ffdd38e653686a043b3aab71c
+btcpay,,,,Unrated,C_candidate,Small refactor,https://github.com/btcpayserver/btcpayserver/commit/17f1b34ef72adfe98c75550e79f1d47586f22db1
+btcpay,,,,Unrated,B_corroborated,fix(multisig): filter setup participants by signing permission,https://github.com/btcpayserver/btcpayserver/commit/b2e4bfd3fb63350597c336b285e2e81a83c48b17
+btcpay,,,,Unrated,B_corroborated,Better handle malformed walletId in the storeData,https://github.com/btcpayserver/btcpayserver/commit/7a3e5f97449a2f846d845f8453aba5e2c7003cf6
+btcpay,,,,Unrated,C_candidate,Fix: Archiving invoices with a custom range filter threw error 403 (#7,https://github.com/btcpayserver/btcpayserver/commit/54a138bb2e183d97271e2432c983d65948e28619
+btcpay,,,,Unrated,B_corroborated,fix(wallets): keep payjoin psbt unfinalized before request,https://github.com/btcpayserver/btcpayserver/commit/e7e5bcc93f0197e5079e29cb2c147413688b35f1
+btcpay,,,,Unrated,C_candidate,PoS: Unpermissioned store users can browse login links and invoices fr,https://github.com/btcpayserver/btcpayserver/commit/910cc48b6d7ecc73fa07160a1e8dfd7df6df0ebc
+btcpay,,,,Unrated,C_candidate,PoS: Unpermissioned store users can browse login links and invoices fr,https://github.com/btcpayserver/btcpayserver/commit/77632fcd0c5dcaddf7b6e8e8f8d477422c04ea1e
+btcpay,,,,Unrated,B_corroborated,fix(multisig): count pending transaction signatures per input,https://github.com/btcpayserver/btcpayserver/commit/f2cc336d9b90328cb60228b1e0e637210442dd42
+btcpay,,,,Unrated,B_corroborated,fix: harden invite flow and wallet setup error handling,https://github.com/btcpayserver/btcpayserver/commit/5f102d3d9070321580f6dfe36883bb6cb869e9a8
+btcpay,,,,Unrated,B_corroborated,fix: harden wallet access and clean up setup regressions,https://github.com/btcpayserver/btcpayserver/commit/90ee1cafdadafc5a103ecc752275a95e6ecf77a0
+btcpay,,,,Unrated,C_candidate,Fix: Show a popup before re-generate reset recovery code (#7241),https://github.com/btcpayserver/btcpayserver/commit/fdf59b459c68f0e55823cc9eb192709b6aee8aff
+btcpay,,,,Unrated,B_corroborated,Handle prevention of single transaction from matching multiple payouts,https://github.com/btcpayserver/btcpayserver/commit/e0d3654111e3ff70e791a796edfc9b22a21bedb7
+btcpay,,,,Unrated,B_corroborated,Do not add claims twice for cookie auth,https://github.com/btcpayserver/btcpayserver/commit/e34d8d7d28b86faa1bc4ddc9e9a7f887bf8c2730
+btcpay,,,,Unrated,C_candidate,Apply csrf protection on all UI**Controller globally (#7199),https://github.com/btcpayserver/btcpayserver/commit/9bf5497071dcfff89c91d7e827d11fa74dbb6828
+btcpay,,,,Unrated,B_corroborated,Pass userHandle to FIDO auth,https://github.com/btcpayserver/btcpayserver/commit/69c99a1cc6de2e79db9c4b29cb861478881ad57c
+btcpay,,,,Unrated,B_corroborated,Throttle API calls with Basic auth (#7177),https://github.com/btcpayserver/btcpayserver/commit/a75b951700b4cda7ee419177012cb14fad9fff82
+btcpay,,,,Unrated,B_corroborated,Avoid concatenations in copy-to-clipboard,https://github.com/btcpayserver/btcpayserver/commit/c6612d7f3ec1db6835c6bd796e63755403bc7bab
+btcpay,,,,Unrated,C_candidate,Ensure that server roles can be properly edited,https://github.com/btcpayserver/btcpayserver/commit/6df082866af51592c7779c51655059754e81f583
+btcpay,,,,Unrated,C_candidate,Disable cookie access when a user is disabled,https://github.com/btcpayserver/btcpayserver/commit/14ae539b2382df7d3b0bddb4a40fd5d86bb57efc
+btcpay,,,,Unrated,B_corroborated,Fix: No need to select the Signing Key for signing through multi sig p,https://github.com/btcpayserver/btcpayserver/commit/a2d94a265bfc02d4f769cd11075d43ddb1abdd32
+btcpay,,,,Unrated,C_candidate,Do not automatically invite a user to the instance when inviting in a ,https://github.com/btcpayserver/btcpayserver/commit/c73a5f49a79a505e7b0a9a67c692be5d6dd33a34
+btcpay,,,,Unrated,C_candidate,Store users: Ensure the last owner cannot be downgraded (#6654),https://github.com/btcpayserver/btcpayserver/commit/1c921030dcea4544999f28b7fd79c81ed2b524bb
+btcpay,,,,Unrated,C_candidate,Renaming methods to align with views,https://github.com/btcpayserver/btcpayserver/commit/55cdd63c448faf383e591cde9593ab283c1d1151
+btcpay,,,,Unrated,B_corroborated,Fix: Newline during import of multisig xpub results in different addre,https://github.com/btcpayserver/btcpayserver/commit/d61b5585442b59f60914d8105998efd399f2cf56
+btcpay,,,,Unrated,B_corroborated,Fix: Newline during import of multisig xpub results in different addre,https://github.com/btcpayserver/btcpayserver/commit/b3abc8f161a62013622968ea1e933565111cf505
+btcpay,,,,Unrated,C_candidate,Fix: Payouts were incorrectly marked as canceled even after successful,https://github.com/btcpayserver/btcpayserver/commit/a05dbef337ea78f9105f01c084bfcbbf02981912
+btcpay,,,,Unrated,C_candidate,Refactoring: Remove StoreData object from view models (#6363),https://github.com/btcpayserver/btcpayserver/commit/392ec623c0685d63404818223a9c0d2dbc329e98
+btcpay,,,,Unrated,C_candidate,permissioned hub,https://github.com/btcpayserver/btcpayserver/commit/9d6001c4db10e6f644f9a8dcf16cb7c49b7582a5
+btcpay,,,,Unrated,C_candidate,Refactor payouts processing (#6314),https://github.com/btcpayserver/btcpayserver/commit/cc0ea0b3f8c9bbffaebc04a6c4073c432216134f
+btcpay,,,,Unrated,C_candidate,Prevent double BOLT11 payment with LNUrlWithdraw,https://github.com/btcpayserver/btcpayserver/commit/c0aa9a8bd430d7ec92a94fc95c79150ee1c569d8
+btcpay,,,,Unrated,B_corroborated,Fix: Do not expose xpub without modify store permission,https://github.com/btcpayserver/btcpayserver/commit/c300d4de9792ee541c8038eadec659b45590f965
+btcpay,,,,Unrated,C_candidate,use connection id not identifier for inv update,https://github.com/btcpayserver/btcpayserver/commit/57463583d6b723e66ba6760a99fe22ce7d37b273
+btcpay,,,,Unrated,C_candidate,switch to a long for device identifier,https://github.com/btcpayserver/btcpayserver/commit/7bdb136c276f53a4c24b01d98f8bcb2de6f52254
+btcpay,,,,Unrated,B_corroborated,Parse permissions from claims,https://github.com/btcpayserver/btcpayserver/commit/6516ed3586354f36c51413ba91a00846d628e0a7
+btcpay,,,,Unrated,C_candidate,return lock,https://github.com/btcpayserver/btcpayserver/commit/2a09cbbd0748415b49a86cf01d8360fb6de16c07
+btcpay,,,,Unrated,B_corroborated,Parse permissions from claims,https://github.com/btcpayserver/btcpayserver/commit/a7fa00be9a64bde9fa8ac64ae09a2eeef9fbaf68
+btcpay,,,,Unrated,C_candidate,return lock,https://github.com/btcpayserver/btcpayserver/commit/7c69bd249dc7d86115b8bec585fce8cef05ecdad
+btcpay,,,,Unrated,B_corroborated,Parse permissions from claims,https://github.com/btcpayserver/btcpayserver/commit/13bb6eb6d737035c321ce17a3336ce7e52f6f8d4
+btcpay,,,,Unrated,C_candidate,Greenfield: Fix missing delete app policy (#6098),https://github.com/btcpayserver/btcpayserver/commit/f2f97bb4681e60e3b0e74f4ce8cd4583d4be7548
+btcpay,,,,Unrated,C_candidate,Greenfield: Fix missing delete app policy (#6098),https://github.com/btcpayserver/btcpayserver/commit/a5ab68ab02c686dd97008492f9b4f7b1fbb34934
+btcpay,,,,Unrated,C_candidate,fix bolt 11 0 amount check for payouts,https://github.com/btcpayserver/btcpayserver/commit/256c45a35527c138344e77a1743cb3e3c00ede95
+btcpay,,,,Unrated,C_candidate,Prevent payout double send (#5931),https://github.com/btcpayserver/btcpayserver/commit/8b02c0bd8260541596723cea395acac4cd13cf5c
+btcpay,,,,Unrated,C_candidate,Prevent payout double send (#5931),https://github.com/btcpayserver/btcpayserver/commit/7e80fd2e98a86468bd022b3c8ac9329940967a86
+btcpay,,,,Unrated,C_candidate,Lightning: Replace user info in server URL when logging (#5750),https://github.com/btcpayserver/btcpayserver/commit/5939e19f7208de4530a8d8b0f10c27ece5011686
+btcpay,,,,Unrated,C_candidate,Fix: Payouts state could turn cancelled even if payment was successful,https://github.com/btcpayserver/btcpayserver/commit/b96e73a002ee04ad5019fc08c1cfadc2f1cc95bb
+btcpay,,,,Unrated,C_candidate,Hide LN Balance when using internal node and not server admin (#5639),https://github.com/btcpayserver/btcpayserver/commit/e90414bded16a5502347fe3da94562bd3d3a817a
+btcpay,,,,Unrated,C_candidate,Fix: Setup a boltcard for the second time wouldn't generate new keys,https://github.com/btcpayserver/btcpayserver/commit/c94dc87cb835c93bc714a4eaf50e0311ecc88ac1
+btcpay,,,,Unrated,C_candidate,Use PullPaymentId to derive the cardkey of Boltcard (#5575),https://github.com/btcpayserver/btcpayserver/commit/b3f9216c544f3781255b3cde06552ce25d3126c0
+btcpay,,,,Unrated,B_corroborated,Greenfield: Fix invoice refund permission,https://github.com/btcpayserver/btcpayserver/commit/6aea10129e0b793e34d7c16afbbb238a368a7ad4
+btcpay,,,,Unrated,B_corroborated,FIx permission misalignment on create pull payments,https://github.com/btcpayserver/btcpayserver/commit/e93cf36a98a7fabe3d77e3f0e4f7e4f2be5254dd
+btcpay,,,,Unrated,C_candidate,POS fixes (#5228),https://github.com/btcpayserver/btcpayserver/commit/1eb7c727f3e2b9aed16c4dabea5243de8ce62755
+btcpay,,,,Unrated,C_candidate,fix https://github.com/Kukks/BTCPayServerPlugins/issues/18,https://github.com/btcpayserver/btcpayserver/commit/2538f3d8f6666a38c7dbedcad7045d6ed9b6cdf9
+btcpay,,,,Unrated,C_candidate,fixes #5203,https://github.com/btcpayserver/btcpayserver/commit/688e873f7a4d7fc79dc3be891126b889e4da9d68
+btcpay,,,,Unrated,C_candidate,Preventing entering of negative tips and discounts in POS,https://github.com/btcpayserver/btcpayserver/commit/8eabdab53aa05c44257a927510911a2907ad749a
+btcpay,,,,Unrated,C_candidate,Refactoring,https://github.com/btcpayserver/btcpayserver/commit/acae3b87534dc060e7c04ee7f4e17d842c09800d
+btcpay,,,,Unrated,C_candidate,fix user store reole setting fixes #5010,https://github.com/btcpayserver/btcpayserver/commit/8cb06f9c6c4878213041af71a4f35281c4650017
+btcpay,,,,Unrated,C_candidate,Fix: Redirecting to local absolute URL in wizard windows should work,https://github.com/btcpayserver/btcpayserver/commit/f48eec2e9355e78e78eff8490793d4cb6d2e8b7a
+btcpay,,,,Unrated,C_candidate,Do not consider Unscoped as a valid policy,https://github.com/btcpayserver/btcpayserver/commit/7a42b735fd3798d64027a265f7888f6aabdc25e0
+btcpay,,,,Unrated,B_corroborated,Handle unscoped store permission case,https://github.com/btcpayserver/btcpayserver/commit/a522c02e10ae9c37c59bfd0daa3451a0a337f3ad
+btcpay,,,,Unrated,B_corroborated,Adapt cookie auth to work with same API permission system,https://github.com/btcpayserver/btcpayserver/commit/6122ff67bd8d6f836daaa06916c22f61cbd05b25
+btcpay,,,,Unrated,B_corroborated,CSP: Remove unsafe-eval when vue isn't used (#4747),https://github.com/btcpayserver/btcpayserver/commit/7b5ce8f70c060b01990d3f7109e97e0144d878a4
+btcpay,,,,Unrated,C_candidate,Fix LNURL-Withdraw payments,https://github.com/btcpayserver/btcpayserver/commit/575b829799b3eb2ac88688fc036dd1076d5cfb92
+btcpay,,,,Unrated,B_corroborated,Fix XSS: Stenghten CSP rules on static file uploads (#4629),https://github.com/btcpayserver/btcpayserver/commit/dffa6accb04df7b80bc584dedef22c9297292ce6
+btcpay,,,,Unrated,C_candidate,Fix a bunch of open redirect (#4575),https://github.com/btcpayserver/btcpayserver/commit/f2ced20c420c827f5c2ebf1fb405b35056687914
+btcpay,,,,Unrated,B_corroborated,Fix XSS on uploaded files to the file storage (#4567),https://github.com/btcpayserver/btcpayserver/commit/3d576cd06b7e1947017ee7a88c4617c10f3b86fe
+btcpay,,,,Unrated,C_candidate,Fix several HTML injections (#4545),https://github.com/btcpayserver/btcpayserver/commit/a3203e57755ca2e6ff9d049e3e3672cdfff16ea0
+btcpay,,,,Unrated,B_corroborated,Greenfield: Add separate permission for viewing LN invoices,https://github.com/btcpayserver/btcpayserver/commit/0a7056ddce97d1bf570cf42c22d704095d226e33
+btcpay,,,,Unrated,C_candidate,Adapt ln payouts to handle unknown status (#4382),https://github.com/btcpayserver/btcpayserver/commit/2fd9eb6c687d72d86883cbaa5743d3e154a6713b
+btcpay,,,,Unrated,C_candidate,fix monero issue,https://github.com/btcpayserver/btcpayserver/commit/eda0f7327e55507a1677264f67b3474355b30308
+btcpay,,,,Unrated,C_candidate,Dashboard: Fix app tiles,https://github.com/btcpayserver/btcpayserver/commit/01ab21e4c0a6e4ba84d6b45e62e5fdc7bce68668
+btcpay,,,,Unrated,C_candidate,make sure entity state gets modified in payout processors,https://github.com/btcpayserver/btcpayserver/commit/7d454a4c7b99548844715ffd049cdf41ee1dda61
+btcpay,,,,Unrated,C_candidate,Make sure we do not expose lightning services if not admin,https://github.com/btcpayserver/btcpayserver/commit/8530cf35358cce6c39eccb2a63b7f41c28c4ff5e
+btcpay,,,,Unrated,C_candidate,Fix selective stores case,https://github.com/btcpayserver/btcpayserver/commit/eef7539c2d962978c1bb64e462aca3be1d9d8dd1
+btcpay,,,,Unrated,C_candidate,Fix a bunch of open redirect vulns,https://github.com/btcpayserver/btcpayserver/commit/4eb143c265caa9dd29cf017a7cdff67ca6e51faf
+btcpay,,,,Unrated,B_corroborated,"Only show the custodian account ""config"" to users who are allowed",https://github.com/btcpayserver/btcpayserver/commit/003e5a95672c1a19fd056bd26b1097d5923c3c4a
+btcpay,,,,Unrated,C_candidate,Fix missing store context for Lightning payouts,https://github.com/btcpayserver/btcpayserver/commit/490ec299c5abe4c18b6c2ee3472837bbd5a1dbfd
+btcpay,,,,Unrated,C_candidate,Fix Plugin Local Client authorization when user is provided (#3401),https://github.com/btcpayserver/btcpayserver/commit/c07fcc171cb5a79a11d043d3c0a392948efd5102
+btcpay,,,,Unrated,C_candidate,Authorize invoice refund route,https://github.com/btcpayserver/btcpayserver/commit/a4fa61e5f60d8dbb04a2ba571f33313bb0068ff5
+btcpay,,,,Unrated,C_candidate,Apply better messages,https://github.com/btcpayserver/btcpayserver/commit/51f0c2a5f85356bcf35c057d0f667fa6c89c2a92
+btcpay,,,,Unrated,B_corroborated,Censor based on permissions,https://github.com/btcpayserver/btcpayserver/commit/9b7422bc7f75e12646b4b921ef2e9a1e90c48b59
+btcpay,,,,Unrated,B_corroborated,Fix: Impossible to see relative time of transaction in wallet list,https://github.com/btcpayserver/btcpayserver/commit/6a28497d3314bfc3c3cc6a7a069426c8d7652933
+btcpay,,,,Unrated,C_candidate,[WIP] Fix issues with Authorization Request page,https://github.com/btcpayserver/btcpayserver/commit/532e847cdd5e2d0f331211cfcf4931b04f9d4638
+btcpay,,,,Unrated,C_candidate,[WIP] Fix issues with Authorization Request page,https://github.com/btcpayserver/btcpayserver/commit/2b0fcdf95c6218f3e759e37fe7b8dcf5e59fefc4
+btcpay,,,,Unrated,C_candidate,[WIP] Fix issues with Authorization Request page,https://github.com/btcpayserver/btcpayserver/commit/9a2a2950814f024c32dc7f129f94f31e5938e630
+btcpay,,,,Unrated,B_corroborated,Fix interactive XSS when entering javascript: in store's website.,https://github.com/btcpayserver/btcpayserver/commit/7f40698bba675a3dfbda6584de84d6f3ff68443a
+btcpay,,,,Unrated,C_candidate,Fix CSP when there is a theme,https://github.com/btcpayserver/btcpayserver/commit/ad7b62fa3deea6f1ea483d37e0f72b0f57b1d466
+btcpay,,,,Unrated,B_corroborated,Fix Summernote XSS possibility (#2859),https://github.com/btcpayserver/btcpayserver/commit/e34f001bf88f199e33191a068dff67c7d2b065c9
+btcpay,,,,Unrated,C_candidate,Fix CSP when there is a theme,https://github.com/btcpayserver/btcpayserver/commit/13e6675a23467b48ecaf6f193b3b1c61b01a88e5
+btcpay,,,,Unrated,B_corroborated,Fix Summernote XSS possibility (#2859),https://github.com/btcpayserver/btcpayserver/commit/650df97e50c54eeef7bb0742c55f68336617f293
+btcpay,,,,Unrated,C_candidate,Add CSP at the website level (#2863),https://github.com/btcpayserver/btcpayserver/commit/50b297b0480d39185d4fd2899a025eb97bd2d9f9
+btcpay,,,,Unrated,C_candidate,Add CSP at the website level (#2863),https://github.com/btcpayserver/btcpayserver/commit/fc4e47cec608cc3dba24b19d0145ac69320b975e
+btcpay,,,,Unrated,C_candidate,Add CSP at the website level,https://github.com/btcpayserver/btcpayserver/commit/6df0e33337523781ef9edc8429cf7bceb7292190
+btcpay,,,,Unrated,C_candidate,"Remove ""enabled"" option from address preview endpoint",https://github.com/btcpayserver/btcpayserver/commit/d39ec97b9a6aa1de21a5bcfdb9a84679771f96f7
+btcpay,,,,Unrated,C_candidate,Use ulong for configKey of LND rather than uint,https://github.com/btcpayserver/btcpayserver/commit/83ab1a3b7cd949a37698d831d4cc572112a70373
+btcpay,,,,Unrated,B_corroborated,Encrypt WalletSetupViewModel.Config,https://github.com/btcpayserver/btcpayserver/commit/70f56d5920ad24499d8a0d59fb9319fdea483ffc
+btcpay,,,,Unrated,C_candidate,Add CanDeleteUser policy,https://github.com/btcpayserver/btcpayserver/commit/907ae760e0ad049e224f0872eb79100bce13988b
+btcpay,,,,Unrated,C_candidate,Give better error for greenfield API,https://github.com/btcpayserver/btcpayserver/commit/a7cbb3941a98ed7e8e192bef1e04033f7fb3ba4d
+btcpay,,,,Unrated,C_candidate,Properly escape script inputs for shopify integration,https://github.com/btcpayserver/btcpayserver/commit/cc5a388106ff8366ae9cd214cd07532cf260ba2d
+btcpay,,,,Unrated,C_candidate,Fix Pay-Button url preview (#2397),https://github.com/btcpayserver/btcpayserver/commit/b4e15cb27f5509ffd61248fdc884f823bc0cf5d4
+btcpay,,,,Unrated,B_corroborated,"If an input already used in a payjoin is reused in another, we should ",https://github.com/btcpayserver/btcpayserver/commit/a128685b8338f164cf4a8f515c79474e3c9de129
+btcpay,,,,Unrated,C_candidate,Do not use Random,https://github.com/btcpayserver/btcpayserver/commit/af9d896510c962d97e80ab57d3252294a2763b4d
+btcpay,,,,Unrated,C_candidate,Check the authentication cookie every 5 min rather than 30min,https://github.com/btcpayserver/btcpayserver/commit/1fc114fec7dc1c2b0036046ad7d1edbd39f82364
+btcpay,,,,Unrated,C_candidate,Explicitely disallow \ for in filename,https://github.com/btcpayserver/btcpayserver/commit/9b24e9378f0bc2ad5a41c3217bc05d452f59c386
+btcpay,,,,Unrated,C_candidate,Make sure cookie are HttpOnly,https://github.com/btcpayserver/btcpayserver/commit/779f21a1ca7766d703d26fdc5e481a821127da98
+btcpay,,,,Unrated,C_candidate,add greenfield authorize UI docs and fix small issues (#2156),https://github.com/btcpayserver/btcpayserver/commit/9dbfe2217193331d0bfcfb9d941aa8ab7fe965ea
+btcpay,,,,Unrated,C_candidate,Attempt to fix bug of broken Mark as Seen button on deployed instances,https://github.com/btcpayserver/btcpayserver/commit/2738c749dc8df358cc755723ba12d0d7c3a63ebc
+btcpay,,,,Unrated,C_candidate,Plugins:  Recommended plugins and github Remote config options (#2045),https://github.com/btcpayserver/btcpayserver/commit/38fb64130d0025ef0550456a0bcd12942c5d9dd3
+btcpay,,,,Unrated,C_candidate,Do not include maxadditionalfeecontribution if there is no change. (#2,https://github.com/btcpayserver/btcpayserver/commit/067b977ec8619899adc30e389f9c8b81ba713893
+btcpay,,,,Unrated,C_candidate,Do not log the database connection string,https://github.com/btcpayserver/btcpayserver/commit/29399026e324159b7d05ea5200b8b1d2111e0cb6
+btcpay,,,,Unrated,C_candidate,Do not log the database connection string,https://github.com/btcpayserver/btcpayserver/commit/be3f248a5a37f259e8c271fbf344fc3e374ea6af
+btcpay,,,,Unrated,C_candidate,Do not ignore IsAdmin settings when creating a new user via the Users ,https://github.com/btcpayserver/btcpayserver/commit/32e66433035712f1683e1f3d92d87dfab777fa09
+btcpay,,,,Unrated,B_corroborated,Do not show password in clear text in email configuration (Fix #1790),https://github.com/btcpayserver/btcpayserver/commit/60cadb8b6d6cc9b08fbeb8ca30e1a24c13726725
+btcpay,,,,Unrated,C_candidate,Importing hosted service that will register transactions on Shopify,https://github.com/btcpayserver/btcpayserver/commit/0af4be3d9904deb83e8c047ff7525f45f7f86907
+btcpay,,,,Unrated,C_candidate,Split mnemonics correctly,https://github.com/btcpayserver/btcpayserver/commit/39beacf88448b7bb8f527337ffebf8d7dab886b1
+btcpay,,,,Unrated,B_corroborated,Fix Payjoin HWW signing,https://github.com/btcpayserver/btcpayserver/commit/572c7ebbd8c781752c5c67a39f7b54ae1daa4607
+btcpay,,,,Unrated,C_candidate,Fix: Create store could be called with a scoped store's modify apikey ,https://github.com/btcpayserver/btcpayserver/commit/dbb2924ccc6a3c6a3d12f7ca08c58eeadd0b05fa
+btcpay,,,,Unrated,C_candidate,Fix: Create store could be called with a scoped store's modify apikey,https://github.com/btcpayserver/btcpayserver/commit/1e28d64efc86464944e2c359b2eaf10ece1ce4ce
+btcpay,,,,Unrated,C_candidate,Require Owner role to the store for modifying store via Greenfield,https://github.com/btcpayserver/btcpayserver/commit/f40a8853f653b8f1a1aa0e2c7408f1d73ac16fda
+btcpay,,,,Unrated,B_corroborated,Can only sign with NBX if imported with NBX,https://github.com/btcpayserver/btcpayserver/commit/56283df05a0279c4e9767547e6092dcad7fd9ac3
+btcpay,,,,Unrated,B_corroborated,"Revert ""View seed option if available (#1518)"" (#1521)",https://github.com/btcpayserver/btcpayserver/commit/47408498b90d9fc2b280a79a666379d114746258
+btcpay,,,,Unrated,C_candidate,Rely on NBitcoin to get the expected hash,https://github.com/btcpayserver/btcpayserver/commit/47f16aadd547533be76880a718fc4731da1af0cf
+btcpay,,,,Unrated,C_candidate,Fix PJ  (#1502),https://github.com/btcpayserver/btcpayserver/commit/f8b2b18c6e83026cd34245c22d5a955ad8f237cc
+btcpay,,,,Unrated,C_candidate,Fix sequence check on client,https://github.com/btcpayserver/btcpayserver/commit/b1cc30d25dfba953427e4062fa072c654d658fe4
+btcpay,,,,Unrated,C_candidate,Fix bug in payjoin receiver where too much fee could be substracted fr,https://github.com/btcpayserver/btcpayserver/commit/9a9773853edbac61e85ace6d43647e132c47ee78
+btcpay,,,,Unrated,C_candidate,The payjoin receiver can inject a fake change,https://github.com/btcpayserver/btcpayserver/commit/9d2ab8b15458327270289f09fbacccddf033f833
+btcpay,,,,Unrated,C_candidate,Do not remove outputs in payjoin tx,https://github.com/btcpayserver/btcpayserver/commit/ba2184e21a2dd84ea2e17b7dc77ddf2cd4602f93
+btcpay,,,,Unrated,B_corroborated,"Make stronger check on fee, let the merchant make bigger transaction i",https://github.com/btcpayserver/btcpayserver/commit/9fc451c9ca4293638e6c543fc93147a71ce94e9e
+btcpay,,,,Unrated,C_candidate,Do not print dangerous info in the logs,https://github.com/btcpayserver/btcpayserver/commit/4a1fb71e09a7430af00ad3a71f394214da8e807b
+btcpay,,,,Unrated,C_candidate,check output sum of proposed payjoin,https://github.com/btcpayserver/btcpayserver/commit/64717328f6859da359e8c90cde935ebff2e017ea
+btcpay,,,,Unrated,C_candidate,Restrict authentication to the APIController to GreenFieldAPIKeys,https://github.com/btcpayserver/btcpayserver/commit/08abda15227e21e9e3fd86151edb4a8c66904719
+btcpay,,,,Unrated,C_candidate,"add to client, fix tests and doc",https://github.com/btcpayserver/btcpayserver/commit/f8f358ebdbb987d901659d9910db31acec6a0a3d
+btcpay,,,,Unrated,C_candidate,Fix build,https://github.com/btcpayserver/btcpayserver/commit/4666238e38c9ff1d20c9a50712455defe3719550
+btcpay,,,,Unrated,C_candidate,Make sure the create user is respecting the disable-registration setti,https://github.com/btcpayserver/btcpayserver/commit/2105b44610025de042bdce7af0f900c89010a9f4
+btcpay,,,,Unrated,C_candidate,Adding new check for expected behavior in UsersControllerTests,https://github.com/btcpayserver/btcpayserver/commit/8432cd5477534a5710050024e0734728d95d640f
+btcpay,,,,Unrated,C_candidate,Can create user without authentication if there is no admin,https://github.com/btcpayserver/btcpayserver/commit/e50e3f662d0cfe00de0339e21e7fedd556133d81
+btcpay,,,,Unrated,C_candidate,remove special case,https://github.com/btcpayserver/btcpayserver/commit/6e1f3989e8015af401998ba3ff76bf4d1ff66261
+btcpay,,,,Unrated,C_candidate,fix tests,https://github.com/btcpayserver/btcpayserver/commit/786be9d1f506fc275e0bf1c8eb65f51d106dff7c
+btcpay,,,,Unrated,B_corroborated,"Simplify RBF handling, and handle case of double spend happening outsi",https://github.com/btcpayserver/btcpayserver/commit/95f859b6db1279cb54254c5c5823f521c78052bd
+btcpay,,,,Unrated,B_corroborated,"Simplify RBF handling, and handle case of double spend happening outsi",https://github.com/btcpayserver/btcpayserver/commit/42152050a3786bd3db103220e1a45b60c9fcddaf
+btcpay,,,,Unrated,B_corroborated,Use good rng for generating API keys,https://github.com/btcpayserver/btcpayserver/commit/153992a458a1de35251a989b2f079307574c21d6
+btcpay,,,,Unrated,C_candidate,make api key delete use confirm page,https://github.com/btcpayserver/btcpayserver/commit/e7eea1036bf8ef36b4d7e39b72dac1d08b241971
+btcpay,,,,Unrated,B_corroborated,Fix U2F signing,https://github.com/btcpayserver/btcpayserver/commit/bdb2edba12517ca49a1a7aa299ca408ca47d218f
+btcpay,,,,Unrated,B_corroborated,add policy to restrict generate wallet usage,https://github.com/btcpayserver/btcpayserver/commit/67066583778b2d935ade78a676d59e9d529abdf7
+btcpay,,,,Unrated,C_candidate,fixes,https://github.com/btcpayserver/btcpayserver/commit/80790bd9b0e28ba9b1c1d15096bd84c1cab83608
+btcpay,,,,Unrated,C_candidate,Prompt passphrase for trezor T,https://github.com/btcpayserver/btcpayserver/commit/0e0fa53517057274769be6c4164de8b3d0ef5494
+btcpay,,,,Unrated,C_candidate,Trying to handle Trezor T correctly,https://github.com/btcpayserver/btcpayserver/commit/1559c510bec0eed27135bf286fed7553e7944d98
+btcpay,,,,Unrated,B_corroborated,Show proper error message if the keypath in wallet settings is not goo,https://github.com/btcpayserver/btcpayserver/commit/a3fc75ea3b566083b6ae44a02cd9ffa49753d743
+btcpay,,,,Unrated,B_corroborated,Use 127.0.0.1 instead of localhost for vault's http requests. (Fix htt,https://github.com/btcpayserver/btcpayserver/commit/b8288f1efa5e2594f7b55091378fb8443e6b73f9
+btcpay,,,,Unrated,C_candidate,Do not ask for Pin on Trezor T,https://github.com/btcpayserver/btcpayserver/commit/d2357ee8b962bf5a5a0ee2526a459b4d992a6518
+btcpay,,,,Unrated,C_candidate,Fix XML parsing error (#1185),https://github.com/btcpayserver/btcpayserver/commit/2e0db1a4304aeb5c9367fc8a711d11154f717255
+btcpay,,,,Unrated,C_candidate,Do not allow login or register over an insecure connection,https://github.com/btcpayserver/btcpayserver/commit/f1cef81d76b9d0b73a16c70ec7ae9e39e1f1a419
+btcpay,,,,Unrated,C_candidate,fix for multiple U2F devices,https://github.com/btcpayserver/btcpayserver/commit/539c7d6e177e03c054931532e5c361e3a2dfe6c9
+btcpay,,,,Unrated,C_candidate,Unify StatusMessage handling,https://github.com/btcpayserver/btcpayserver/commit/aab7c085007495bdd8f8ae66f25337eedf4bd79c
+btcpay,,,,Unrated,C_candidate,"Can edit authorized_keys in SSH Services, remove download keyfile supp",https://github.com/btcpayserver/btcpayserver/commit/a2cb6178b8b0769d8197cc85de8ab6af7a025955
+btcpay,,,,Unrated,C_candidate,Request consent from user before giving application access to the user,https://github.com/btcpayserver/btcpayserver/commit/c5227d9996fb5cb962b000079e9bb75f8228f391
+btcpay,,,,Unrated,C_candidate,fix scope validation,https://github.com/btcpayserver/btcpayserver/commit/7a7cc0f83876481306df560c0eead42ab6aca050
+btcpay,,,,Unrated,C_candidate,Do not redirect from login page if there is a returnUrl.,https://github.com/btcpayserver/btcpayserver/commit/be0285155f6a79da8414219126c91bf797478925
+btcpay,,,,Unrated,C_candidate,Never use default AuthenticationScheme,https://github.com/btcpayserver/btcpayserver/commit/ca5be7e38d794fc41093a6c9ab918d2f6ea03945
+btcpay,,,,Unrated,C_candidate,Make sure that only the log directory can be read on /server/logs,https://github.com/btcpayserver/btcpayserver/commit/0e568e2af5d00b444df2592654f001efc893ba1b
+btcpay,,,,Unrated,B_corroborated,"Always rebase keys before signing, refacotring some code",https://github.com/btcpayserver/btcpayserver/commit/ff82f15246d54b6712724e8d03f162b6b516986c
+btcpay,,,,Unrated,C_candidate,"Save the fingerprint of the root of LedgerWallet, and use it. Simplify",https://github.com/btcpayserver/btcpayserver/commit/01e5b319d1737dff0bdebdbbee617a5301401e04
+btcpay,,,,Unrated,C_candidate,Add NonAction to CreatePSBT,https://github.com/btcpayserver/btcpayserver/commit/e504163bc79ecfd62387a358b3e23e5b1f85505a
+btcpay,,,,Unrated,B_corroborated,Fix: Uploading coldcard in derivation scheme would forget to remember ,https://github.com/btcpayserver/btcpayserver/commit/5a92fe736fc2719db153472009dc6de7580c6552
+btcpay,,,,Unrated,C_candidate,Prevent user to log in or register via unsecured network,https://github.com/btcpayserver/btcpayserver/commit/d0eed9857de9d47531c048c5ab4a9049ed3dbcf3
+btcpay,,,,Unrated,C_candidate,Fix anonymous bitpay api access,https://github.com/btcpayserver/btcpayserver/commit/312c7b719365652e0fc32d1db217b6fc0f56f19c
+btcpay,,,,Unrated,C_candidate,Replace Forwarded Headers via ASP.NET Core middleware,https://github.com/btcpayserver/btcpayserver/commit/bcea6027e925f8abd513bed60a52da75f20c1509
+btcpay,,,,Unrated,C_candidate,"Support relative path for Spark and RTL external url, check in server ",https://github.com/btcpayserver/btcpayserver/commit/ebef085a9cae009ce9b5428a46791b8e3c8410f3
+btcpay,,,,Unrated,C_candidate,"Use internal tags, not order id in the streamer to know if the incomin",https://github.com/btcpayserver/btcpayserver/commit/70f71f64c4f3f8b5f922755488da19aa422cbde0
+btcpay,,,,Unrated,C_candidate,fix issues,https://github.com/btcpayserver/btcpayserver/commit/f6e389ff62c6eeeb5a5b72fb31a5b8b11c9158de
+btcpay,,,,Unrated,C_candidate,Properly error 401 if request is not signed correctly,https://github.com/btcpayserver/btcpayserver/commit/65b469722971987370e16871c4e3e56231fdb440
+btcpay,,,,Unrated,C_candidate,Escape js properties in html template,https://github.com/btcpayserver/btcpayserver/commit/f2a43ad1f3126cf0ecba5b25df9c2621893ae7c3
+btcpay,,,,Unrated,C_candidate,Make really sure we don't generate segwit addresses for non segwit coi,https://github.com/btcpayserver/btcpayserver/commit/5b684ac26eb67fc306eeb273301a644540984225
+btcpay,,,,Unrated,C_candidate,Add authorization on WalletRescan,https://github.com/btcpayserver/btcpayserver/commit/ca571cd7566c3305e19d7c2fd29deb38be6709b1
+btcpay,,,,Unrated,B_corroborated,enable account lockout,https://github.com/btcpayserver/btcpayserver/commit/e05c88370f2805cb2d55901b6b2b973b2d253c3a
+btcpay,,,,Unrated,C_candidate,"Add btcpay.store.cancreateinvoice claim, and use that for the store",https://github.com/btcpayserver/btcpayserver/commit/fed53661b388ac341a24883778f47435078ddd3f
+btcpay,,,,Unrated,C_candidate,Now requiring Authorization on AppsController,https://github.com/btcpayserver/btcpayserver/commit/43d34d5d35fc40c3dd8398ac85edd4b2d6259f47
+btcpay,,,,Unrated,C_candidate,Rate limit per IP the number of login attempt,https://github.com/btcpayserver/btcpayserver/commit/023913a85214d22186409335e935a5685d0276c7
+btcpay,,,,Unrated,C_candidate,"Properly escape attributes, make the preview an actual form rather tha",https://github.com/btcpayserver/btcpayserver/commit/013dfa1b61e14db853905f012754a9826b8d3c34
+btcpay,,,,Unrated,C_candidate,Fix setting up DNS name,https://github.com/btcpayserver/btcpayserver/commit/522abcfdfd18c71261cf91419d3f4e87108a0718
+btcpay,,,,Unrated,C_candidate,Fix SSH fingerprint checking,https://github.com/btcpayserver/btcpayserver/commit/214b2d1c1cf0814a0edb6354a1e9725c159a97c3
+btcpay,,,,Unrated,C_candidate,Ensure the ssh connection is trusted,https://github.com/btcpayserver/btcpayserver/commit/322518e9dc736a6c255f7033151907ddd3c474c5
+btcpay,,,,Unrated,B_corroborated,Fix auth for listening invoices,https://github.com/btcpayserver/btcpayserver/commit/0e1ef78af1e96ffcb8a18d343e8a9a902923554c
+btcpay,,,,Unrated,C_candidate,Fix authentication,https://github.com/btcpayserver/btcpayserver/commit/04174b74316de54217efc3ccb83750ca72f38fcb
+btcpay,,,,Unrated,C_candidate,Fix bug of authentication caused by previous refactoring on authentica,https://github.com/btcpayserver/btcpayserver/commit/b7c58c2083691d66ad9192f7acbe6370ccff735f
+btcpay,,,,Unrated,C_candidate,Use proper custom authentication handler for bitpay,https://github.com/btcpayserver/btcpayserver/commit/01cf579530c2ab815b0e052af0d1bca00a8cdd64
+btcpay,,,,Unrated,C_candidate,Enabling dual support - clients with or without macaroons/tls,https://github.com/btcpayserver/btcpayserver/commit/7c29cb62efd59010dc7911ac6402ad1d2e625a88
+btcpay,,,,Unrated,C_candidate,KeyPath Updated,https://github.com/btcpayserver/btcpayserver/commit/0a83f21af59393ec2b107026e8c428293fd50c42
+btcpay,,,,Unrated,C_candidate,add test and refactor for PR,https://github.com/btcpayserver/btcpayserver/commit/9a92646d4dd76b5393b90774ab239b54b038a06c
+btcpay,,,,Unrated,C_candidate,Rewrite authorization enforcement and simplify the code,https://github.com/btcpayserver/btcpayserver/commit/21bbf496407a5b590b57a9b3709954b000117d11
+btcpay,,,,Unrated,B_corroborated,Make sure that we don't authenticate call with bitpay auth methods on ,https://github.com/btcpayserver/btcpayserver/commit/f0145142a4fde790f8e055a7b379d482552c004e
+btcpay,,,,Unrated,C_candidate,Can invite user to manage your store,https://github.com/btcpayserver/btcpayserver/commit/39b34ff4edc74917720cd53d53383e302e5eda09
+btcpay,,,,Unrated,C_candidate,Fix parsing bug zpub LTC mainnet,https://github.com/btcpayserver/btcpayserver/commit/2762224f0feb59bbfe2888050d25a3f06eaf4c90
+btcpay,,,,Unrated,C_candidate,"Fix bug: If electrum zpub is entered, the wrong value is saved into da",https://github.com/btcpayserver/btcpayserver/commit/9d7f5b5b6e1029221785150b994c6bdb91d25127
+btcpay,,,,Unrated,C_candidate,"Fix #18, fix electrum format not recognizing standard p2pkh on testnet",https://github.com/btcpayserver/btcpayserver/commit/bf7ae178ef6ee7c13f3579d165380e66d7d1a7b3
+btcpay,,,,Unrated,C_candidate,Correctly handle RBF,https://github.com/btcpayserver/btcpayserver/commit/b042f98f0f0cd4eb10f91c7348f58290e757bee4
+btcpay,,,,Unrated,C_candidate,fix xxs vulns,https://github.com/btcpayserver/btcpayserver/commit/a5bd27661bb198d1ac2325b3cf7d7ee499c37d08
+btcpay,,,,Unrated,C_candidate,"Add api-tokens page, do not hide qrcode if small",https://github.com/btcpayserver/btcpayserver/commit/8db9d93d23d74c171fd311e04f5ad5be44b2af34
+btcpay,,,,Unrated,C_candidate,Can't pair same SIN to different store,https://github.com/btcpayserver/btcpayserver/commit/a7e10c0fb9cdd271c3c603f89212b91de716f620
+btcpay,,,,Unrated,C_candidate,Properly limit CORS to bitpay api,https://github.com/btcpayserver/btcpayserver/commit/15e73e1cad1687eff3342a95c1bad731fc16d34f
+btcpay,,,,Unrated,C_candidate,X-Frame-Options,https://github.com/btcpayserver/btcpayserver/commit/27200d1fb01801f2805db7fb23ac99c734839397
+btcpay,,,,Unrated,C_candidate,prevent non admin to go to server pages,https://github.com/btcpayserver/btcpayserver/commit/99ae549c244591675ecfe30e76559c20c7f4d979
+btcpay,,,,Unrated,C_candidate,Decouple User from Store,https://github.com/btcpayserver/btcpayserver/commit/467ecd0923b437636c4ec4408b095a48bea73c70
+ethers,,,,Unrated,C_candidate,admin: updated dist files,https://github.com/ethers-io/ethers.js/commit/72c2182d01afa855d131e82635dca3da063cfb31
+ethers,,,,Unrated,B_corroborated,Prevent mutating transactions when signing (#4789).,https://github.com/ethers-io/ethers.js/commit/1a51af85397283601db77ca61d5596b145e7f2cb
+ethers,,,,Unrated,B_corroborated,Normalize EIP-712 types before computing the payload (#4541).,https://github.com/ethers-io/ethers.js/commit/56c1361ee83db8b68859caf0850c95ff70e7e306
+ethers,,,,Unrated,C_candidate,admin: updated dist files,https://github.com/ethers-io/ethers.js/commit/e66ce74835df145b0aace0987d68113e179b22d2
+ethers,,,,Unrated,C_candidate,admin: updated dist files,https://github.com/ethers-io/ethers.js/commit/3a73c56ee36cc5039637883a7cb3e52483bc75ec
+ethers,,,,Unrated,C_candidate,Fixed TypedData unsigned value range (#3873).,https://github.com/ethers-io/ethers.js/commit/a851b24d0af009ecf277766d2a5f81f9b3e7f9f8
+ethers,,,,Unrated,B_corroborated,"Fix NoneManager race condition (#3812, #3813).",https://github.com/ethers-io/ethers.js/commit/5a3c10a29c047609a50828adb620d88aa8cf0014
+ethers,,,,Unrated,C_candidate,Fixed lookupAddress when bad resolver is present (#3782).,https://github.com/ethers-io/ethers.js/commit/92def9c1489bb35ad13fe58a1cd107ee3a05a112
+ethers,,,,Unrated,C_candidate,Fixed bugs in typed address and 48-bit numeric values.,https://github.com/ethers-io/ethers.js/commit/257654bc5dd95cea2e01f29928da41bd15537b70
+ethers,,,,Unrated,B_corroborated,Fixed wrong hash computed with Transaction and added toJSON.,https://github.com/ethers-io/ethers.js/commit/22ebbf4e5c60c089948d538da27ef6fb6804eaaa
+ethers,,,,Unrated,C_candidate,"Add restrictions for new UTF-8 specification ENS names (#42, #2376, #2",https://github.com/ethers-io/ethers.js/commit/e52fbfbe70014e8033d3beed9c0dff2809eeef7f
+ethers,,,,Unrated,B_corroborated,NonceManager: fix transaction count update when sending transaction,https://github.com/ethers-io/ethers.js/commit/7faaefc1526f66b34735c0f6bb49cddbabc28428
+ethers,,,,Unrated,B_corroborated,Enforce 32-byte private key length (2926).,https://github.com/ethers-io/ethers.js/commit/7b299dd9c97571b12916e3ae529540f3f2e5a367
+ethers,,,,Unrated,C_candidate,Fix browser random in WebWorkers (#2405).,https://github.com/ethers-io/ethers.js/commit/4ba63acc107fdd0a6d6ef3e27349e65edb007447
+ethers,,,,Unrated,C_candidate,admin: updated dist files,https://github.com/ethers-io/ethers.js/commit/5899c8aec0600dca42d7e24fc215037aa48917f2
+ethers,,,,Unrated,B_corroborated,Use personal_sign instead of eth_sign for message signing with JsonRpc,https://github.com/ethers-io/ethers.js/commit/8947fd405e3aea07f6db958d89a3ad39abe3a25a
+ethers,,,,Unrated,C_candidate,Fix issue when Solidity method collises with JavaScript prototype (#14,https://github.com/ethers-io/ethers.js/commit/0a8be37b087470d9354f387d7c439cb0166eaf4d
+ethers,,,,Unrated,C_candidate,Fixed randomBytes not rejecting NaN as a length (#1977).,https://github.com/ethers-io/ethers.js/commit/f8adf82e16aaad1a7c1750e7f2e3a9f8073b73e1
+ethers,,,,Unrated,C_candidate,Fixed EIP-1559 from address calculation bug (#1610).,https://github.com/ethers-io/ethers.js/commit/319987ec3e1d0e8787f98f525e5fc07875bf5570
+ethers,,,,Unrated,C_candidate,Prevent unconfigured ENS names from making an init tx (#1290).,https://github.com/ethers-io/ethers.js/commit/243beffa4f83c910f5f1c5e0554531e5dcf3ab93
+ethers,,,,Unrated,B_corroborated,When in Status trigger personal_sign instead of eth_sign (#1285).,https://github.com/ethers-io/ethers.js/commit/73e94349de94d2969ccb21c834119525ddfcb961
+ethers,,,,Unrated,B_corroborated,Fixed EIP-712 getPayload dropping EIP712Domain from types for JSON-RPC,https://github.com/ethers-io/ethers.js/commit/d3b1ac046aaf2a46f6c3efbd93c55adb0cb8f16d
+ethers,,,,Unrated,C_candidate,Better errors for unconfigured ENS names (#1066).,https://github.com/ethers-io/ethers.js/commit/5cd1668e0d29099c5b7ce1fdc1d0e8a41af1a249
+ethers,,,,Unrated,C_candidate,Fixed LedgerSigner sendTransaction (#936).,https://github.com/ethers-io/ethers.js/commit/cadb28d6b364e68e43a06f7a9b8a31797afbd920
+ethers,,,,Unrated,C_candidate,Updated dist files.,https://github.com/ethers-io/ethers.js/commit/59239d2f6162dd9b04e611f5087ce810613b4057
+ethers,,,,Unrated,C_candidate,"Fixed splitSignature when recoveryParam is encoded directly (#893, #93",https://github.com/ethers-io/ethers.js/commit/bf65ddbff0036f6eb8e99c145f30edff157687f5
+ethers,,,,Unrated,C_candidate,Updated dist files.,https://github.com/ethers-io/ethers.js/commit/4c9d740cdf9bef4690b98340ec56713ed213213e
+ethers,,,,Unrated,B_corroborated,"Safer transaction serialization, matching signature.v with chainId (#7",https://github.com/ethers-io/ethers.js/commit/edb7c5da91ce271688561364d867998b0f0675e3
+ethers,,,,Unrated,B_corroborated,Prevent Signer.checkTransaction from creating conflicting from propert,https://github.com/ethers-io/ethers.js/commit/1decb1379902b60a15925b9b1de39633393db825
+ethers,,,,Unrated,C_candidate,Updated dist files.,https://github.com/ethers-io/ethers.js/commit/10943fc3ef47c93d452b29f68735f605337c0fa5
+ethers,,,,Unrated,C_candidate,Fixed splitSignature computing wrong v for BytesLike (#700).,https://github.com/ethers-io/ethers.js/commit/4151c0eacd22287e2369a8656ffa00359db6f84b
+ethers,,,,Unrated,C_candidate,Fixed resolveName when name is an address with an invalid checksum (#6,https://github.com/ethers-io/ethers.js/commit/1e72fc7d6f7c3be4410dbdcfbab9a0463ceb52bd
+ethers,,,,Unrated,C_candidate,Updated dist files.,https://github.com/ethers-io/ethers.js/commit/8a45687a5b655f2233350ae6556f09786a4ff4e2
+ethers,,,,Unrated,C_candidate,Full case-folding for IDNA in namehash.,https://github.com/ethers-io/ethers.js/commit/0af95f4a655106e67c2ba8f445af88c9e9e24339
+ethers,,,,Unrated,C_candidate,Updated dist files.,https://github.com/ethers-io/ethers.js/commit/0a24a86d89510bea6d4f4b6ac3b8809e6c611df4
+ethers,,,,Unrated,C_candidate,Updated dist files.,https://github.com/ethers-io/ethers.js/commit/a980fc3db033df0f9092e54cd99baf6aec3d4b1d
+ethers,,,,Unrated,C_candidate,Make mnemonics case-agnostic (#557).,https://github.com/ethers-io/ethers.js/commit/ef91dcd757349dfb31ad2fbd0b840abe6a4043be
+ethers,,,,Unrated,C_candidate,Updated dist files.,https://github.com/ethers-io/ethers.js/commit/f827ae68e2da0499e68e2b96fa635a97350ff914
+ethers,,,,Unrated,C_candidate,Updated dist files.,https://github.com/ethers-io/ethers.js/commit/b0bd9ee162f27fb2bc51ab6a0c0694c3b48dc95f
+ethers,,,,Unrated,C_candidate,Fixed error message for unconfigured ENS names (#504).,https://github.com/ethers-io/ethers.js/commit/7075c8c2352ec306b5679da6fbe7c2ddf7bd65d1
+ethers,,,,Unrated,C_candidate,Fixed out-of-safe-range hexlify values to throw an exception (#420).,https://github.com/ethers-io/ethers.js/commit/41c2c8a729816226bc38a5bc0e73e0c573afe25d
+ethers,,,,Unrated,C_candidate,Updated dist files.,https://github.com/ethers-io/ethers.js/commit/eac0805435f7d33bd45c4386c79100b83fe4c43a
+ethers,,,,Unrated,B_corroborated,Fixed path for x-ethers metadata and wallet (#).,https://github.com/ethers-io/ethers.js/commit/e5bee7e5a34ba9cfddae8e3c43de10a8060f911a
+ethers,,,,Unrated,C_candidate,Updated dist files.,https://github.com/ethers-io/ethers.js/commit/a863037ca3d1eab1203a9c2d5804c9359aff0453
+ethers,,,,Unrated,C_candidate,Updated dist files.,https://github.com/ethers-io/ethers.js/commit/09b698b0a9da4b77554f5808911ddf6066fbc0d9
+ethers,,,,Unrated,C_candidate,Force unorm shim when String.prototype.normalize is broken (#338).,https://github.com/ethers-io/ethers.js/commit/478aaf9619bd2e75e559ac73f1e007457480cb61
+ethers,,,,Unrated,C_candidate,Better error message when normalize is missing.,https://github.com/ethers-io/ethers.js/commit/fad902b438ee86d5ade3adc6bd4cd4e4a6c9348d
+ethers,,,,Unrated,C_candidate,Updated dist files.,https://github.com/ethers-io/ethers.js/commit/6996dd86f493821c5fee67a7c7f4f297d8f5c585
+ethers,,,,Unrated,B_corroborated,Check all transaction parameters are valid; protect against typos (#29,https://github.com/ethers-io/ethers.js/commit/84344ac4c2a2502234373c24c0f02d8912417039
+ethers,,,,Unrated,C_candidate,Updated dist files.,https://github.com/ethers-io/ethers.js/commit/5a0ebf84ef9ce4a508ecd95c7f641e2a5d7d9680
+ethers,,,,Unrated,C_candidate,Do not override nonce if forced to 0 (#282).,https://github.com/ethers-io/ethers.js/commit/8b2e57276fa6e5fa983474127f5080331254ddeb
+ethers,,,,Unrated,C_candidate,Updated dist files.,https://github.com/ethers-io/ethers.js/commit/b712c88088dfab036c65ffcaf4dfa1e49d266630
+ethers,,,,Unrated,C_candidate,Made Signatures more flexible for input.,https://github.com/ethers-io/ethers.js/commit/a062f75d38a9d4856b3a3a610c252c4025dbcdd5
+ethers,,,,Unrated,B_corroborated,Added sanity checksums to all BIP39 wordlists on load.,https://github.com/ethers-io/ethers.js/commit/8d6fa3dc9387e28fc737c880cf3952aa8a082854
+ethers,,,,Unrated,C_candidate,Japanese sorting in browsers is different than in node; fixing wordlis,https://github.com/ethers-io/ethers.js/commit/e6c8db88bd1229850fd6b1375a9c4209385898ee
+ethers,,,,Unrated,C_candidate,pad output of signDigest,https://github.com/ethers-io/ethers.js/commit/5631f071c305a4f0443e261b9eed3eae84a3b283
+ethers,,,,Unrated,C_candidate,Correctly transform uint to uint256 and int to int256 for signatures.,https://github.com/ethers-io/ethers.js/commit/6a8ca9c31849649399f5f4d7838c8583273b9807
+ethers,,,,Unrated,C_candidate,Fixed bool and number types not throwing an exception in the ABI decod,https://github.com/ethers-io/ethers.js/commit/1ec8f9cf85c4d74c0d3e0d2f99ea3584e3909028
+ethers,,,,Unrated,C_candidate,Added errors for providers trying to use ENS on networks without ENS.,https://github.com/ethers-io/ethers.js/commit/d6cf970ae9a52990cc7774605a1358b8ad4940c6
+ethers,,,,Unrated,C_candidate,Fixed address filtering and added more features to the event metadata.,https://github.com/ethers-io/ethers.js/commit/178980c34ab10f27a0278ffa687480976f3bc2a0
+ethers,,,,Unrated,B_corroborated,Fixed slice for limited environments in HD and PBKDF2.,https://github.com/ethers-io/ethers.js/commit/a9bc2b5ea8ce3bdafacf14cc4c050e9db083b950
+ethers,,,,Unrated,C_candidate,Fixed getLogs bug.,https://github.com/ethers-io/ethers.js/commit/01f909fc0573eb63c7fbb7f8a4d03938bb7e82f5
+ethers,,,,Unrated,B_corroborated,Fixed signing key recover when hex strings are passed in for r and s.,https://github.com/ethers-io/ethers.js/commit/4f05bf87aceb7be43196f936c293a9d64338bad9
+ethers,,,,Unrated,C_candidate,Fixed constructor calls.,https://github.com/ethers-io/ethers.js/commit/83d099b37c26c558bc22b6df9d6fc2c1e09929ae
+ethers,,,,Unrated,B_corroborated,Fixed fallback randomBytes for weak-crypto browsers..,https://github.com/ethers-io/ethers.js/commit/730ccd36b26bc15cf8019f530b62a2f50adb533e
+ethers,,,,Unrated,C_candidate,Added EIP155 support.,https://github.com/ethers-io/ethers.js/commit/adc1d93ac2f877c4f56cc16ae94a39dfe40a004c
+ethers,,,,Unrated,C_candidate,Fix data bug for sendTransaction (was not incuded).,https://github.com/ethers-io/ethers.js/commit/9def4a617062f559e71b62931aa6e2ffb04bdf2c
+ethers,,,,Unrated,B_corroborated,Added raw private key and made homestead default network.,https://github.com/ethers-io/ethers.js/commit/dee0a4bf3ee65f7f142f2932633bea6876ffb03d
+ethers,,,,Unrated,C_candidate,Fixed randomish bug.,https://github.com/ethers-io/ethers.js/commit/3c67736cbb80b51d1d41fe2752adece4692092cf
+ethers,,,,Unrated,C_candidate,Removed debug logging.,https://github.com/ethers-io/ethers.js/commit/be99fa858e7b207d1fc0572db0a770efd200c796
+ethers,,,,Unrated,C_candidate,Fixed double-0x bug in Interface.,https://github.com/ethers-io/ethers.js/commit/8033a8f94c836e375ad38532f407de729da8068d
+monero-gui,,,,Unrated,C_candidate,wizard: create wallets in memory,https://github.com/monero-project/monero-gui/commit/daec1dbf4f934baffba6dd10f761af14b422c77e
+monero-gui,,,,Unrated,B_corroborated,libwalletqt: fix potential out-of-bounds read,https://github.com/monero-project/monero-gui/commit/68a83e2a58dd13ebbca1060f5c7ac485379fde46
+monero-gui,,,,Unrated,C_candidate,"Transfer, AddressBook: confirm unauthenticated OpenAlias",https://github.com/monero-project/monero-gui/commit/23930cb0e909a503171535a0a62b74debba1b885
+monero-gui,,,,Unrated,B_corroborated,TransactionHistory: prevent CSV formula injection in writeCSV,https://github.com/monero-project/monero-gui/commit/0fbb1716fba3847a7d6f60287d20c1d9f03489cf
+monero-gui,,,,Unrated,B_corroborated,libwalletqt: capture background sync password by value,https://github.com/monero-project/monero-gui/commit/16276615302f908f0c0f800699b877ba787c136c
+monero-gui,,,,Unrated,C_candidate,network: require SSL for HTTPS requests,https://github.com/monero-project/monero-gui/commit/082cf9a4e6e567d96e85227e8c7707fcfe59bbbc
+monero-gui,,,,Unrated,B_corroborated,qml: escape untrusted text in RichText views,https://github.com/monero-project/monero-gui/commit/23ec5eb6a1dc61ef72a3ca4c9bb5942cbf60d959
+monero-gui,,,,Unrated,C_candidate,installer: move p2pool to LocalAppData,https://github.com/monero-project/monero-gui/commit/e2a8efca864f7e3af7b5d602f6e76e26f377e585
+monero-gui,,,,Unrated,B_corroborated,WizardController: set password for temp wallet,https://github.com/monero-project/monero-gui/commit/2ddb55059123815bebad0e3c4c0853328275f060
+monero-gui,,,,Unrated,C_candidate,workflows: verify p2pool hashes,https://github.com/monero-project/monero-gui/commit/2fa79c670ecc1a22c575225c60b98a5e64294a47
+monero-gui,,,,Unrated,C_candidate,main: disable setting -platformpluginpath,https://github.com/monero-project/monero-gui/commit/372a591ac7f0f855b520a7a4b73f476bfbe2e58f
+monero-gui,,,,Unrated,C_candidate,QML: disable networking,https://github.com/monero-project/monero-gui/commit/66e769603ceebabcc6b1726858093506aafd72ee
+monero-gui,,,,Unrated,B_corroborated,Wallet: explicitly set trusted daemon flag,https://github.com/monero-project/monero-gui/commit/30a3abedbe7c4e26cfc2da7c84c3300dfae2a254
+monero-gui,,,,Unrated,C_candidate,Fix checking for gui updates,https://github.com/monero-project/monero-gui/commit/171e1fc023c0e895a068422930a0d58d6f9afc86
+monero-gui,,,,Unrated,B_corroborated,wizard: Ensure temporary wallet files are deleted,https://github.com/monero-project/monero-gui/commit/ba8decca3f06deada9f949542563f85a9b1ef658
+monero-gui,,,,Unrated,C_candidate,Send money: confirmation popups added,https://github.com/monero-project/monero-gui/commit/39cb75e58c2823e6a25e229596af4e276d77b2ae
+monero,,,,Unrated,B_corroborated,device_trezor: validate bridge response size before parsing,https://github.com/monero-project/monero/commit/635a558a3f27f0c4098936da033fa687d5220cfe
+monero,,,,Unrated,B_corroborated,device_trezor: validate bridge response size before parsing,https://github.com/monero-project/monero/commit/7162000866e2bf5bfb769d5eb27ed5aa3899aa5a
+monero,,,,Unrated,C_candidate,wallet2: check for overflow when calculating fee from weight,https://github.com/monero-project/monero/commit/e2a4f68ef6bfe57db6faa4bb3d85fc706967626d
+monero,,,,Unrated,B_corroborated,"wallet: derive encrypted payment ID dummy/real status from tx.extra, n",https://github.com/monero-project/monero/commit/3bc997cb3a1eb7dfe57dab302a8309e1ead22fac
+monero,,,,Unrated,C_candidate,rpc: hide ZMQ request contents in restricted mode,https://github.com/monero-project/monero/commit/4ee81cfb731e8c9efd232ebd136bd2c49a892bd3
+monero,,,,Unrated,C_candidate,Optimize hashing of generic types,https://github.com/monero-project/monero/commit/5eeff1d9c15dfdce6ade9bed455e8fdaab777b31
+monero,,,,Unrated,C_candidate,wallet2: bounds check additional derivations in is_out_to_acc,https://github.com/monero-project/monero/commit/987a2a77d3e4b4d3781e70bc70031ff254313557
+monero,,,,Unrated,C_candidate,wallet2: bounds check additional derivations in is_out_to_acc,https://github.com/monero-project/monero/commit/c9d9afc6df51bfbaf99b0358517cecba7df3df84
+monero,,,,Unrated,B_corroborated,simplewallet: validate get_outs response size,https://github.com/monero-project/monero/commit/f9f6471b1ed431d638e40c60601bc61aa16f1092
+monero,,,,Unrated,C_candidate,wallet_api: return all unsigned tx recipients,https://github.com/monero-project/monero/commit/bd2f3b86934b2ccb52db9c01c444b971a1b7c351
+monero,,,,Unrated,B_corroborated,crypto: fix ARMv8 slow-hash inline assembly constraints,https://github.com/monero-project/monero/commit/246d76f4fc0aefd3ca570fb00f003d58719c5aa6
+monero,,,,Unrated,B_corroborated,wallet_api: set m_password in the recovery creation paths,https://github.com/monero-project/monero/commit/3a0df2b80b1dadcfd1a0115bd4667c6fb73b5d33
+monero,,,,Unrated,B_corroborated,wallet_api: set m_password in the recovery creation paths,https://github.com/monero-project/monero/commit/a4f8ef4817ccda3cdf3ef790403f2e1397ea415b
+monero,,,,Unrated,B_corroborated,wallet: rpc; req. ssl cert params w/ proxy when daemon not onion/i2p,https://github.com/monero-project/monero/commit/2f2409dfca252e358e4148861b2bd327654aa206
+monero,,,,Unrated,B_corroborated,wallet: rpc; dont allow startup with missing ssl params,https://github.com/monero-project/monero/commit/4036e1459df83a5fa75f898975f029bf72b3cc99
+monero,,,,Unrated,C_candidate,device: abort Ledger tx prefix hashing on denial,https://github.com/monero-project/monero/commit/e28aec53b05b5d2f0a80c5a04b68e92231509b03
+monero,,,,Unrated,C_candidate,http: parse server Content-Length strictly,https://github.com/monero-project/monero/commit/07f7c7521d9d0bb439e7c5bb13c2b1701b93d7b6
+monero,,,,Unrated,C_candidate,http: share deterministic header field parser,https://github.com/monero-project/monero/commit/d2e4cbcda578152d9640a1aafa97a527f48a1380
+monero,,,,Unrated,C_candidate,http: share deterministic header field parser,https://github.com/monero-project/monero/commit/389f3660db285b334c6a9004cdfda0ffba5f4592
+monero,,,,Unrated,C_candidate,use byte-safe isalpha in epee json value parser,https://github.com/monero-project/monero/commit/776d3557801b03bbad26e7d683affb520077963f
+monero,,,,Unrated,C_candidate,wallet2: store multisig nonce erasure before returning signed txset,https://github.com/monero-project/monero/commit/d6f0a4d211cc419095e778a39a83d65000e47bf6
+monero,,,,Unrated,B_corroborated,read import blob crypto fields with memcpy in wallet2,https://github.com/monero-project/monero/commit/af10a4f6d4e7f8d45dc7cae40a3c143899227792
+monero,,,,Unrated,B_corroborated,Fix: check hwdev.generate_output_ephemeral_keys result,https://github.com/monero-project/monero/commit/2de5e8227f356c31784e249ca5317e7faf4ba969
+monero,,,,Unrated,B_corroborated,Multisig tx builder: fix incomplete memory wipe,https://github.com/monero-project/monero/commit/00a444b1167119a8a6d5c133d8e32240249b76f9
+monero,,,,Unrated,B_corroborated,Multisig tx builder: fix incomplete memory wipe,https://github.com/monero-project/monero/commit/96cdcb9cf4537b97c1b9e339d8d5e61f48b1317b
+monero,,,,Unrated,C_candidate,net: canonicalize Tor/I2P hosts during deserialization,https://github.com/monero-project/monero/commit/0fc5bb7c861076baf9f104e91cf047c7179fa2ac
+monero,,,,Unrated,B_corroborated,fix off-by-one over-read in match_string2 unicode escape parsing,https://github.com/monero-project/monero/commit/524b0d07f25e4825adc063057b1061003603b24a
+monero,,,,Unrated,C_candidate,serialization: handle EOF at varint boundary,https://github.com/monero-project/monero/commit/7a7c42ffba1da6bd3f7bfd5a09ef9ae7275537a6
+monero,,,,Unrated,C_candidate,wallet2: clear m_additional_tx_keys during bg sync,https://github.com/monero-project/monero/commit/4b00f47d43d784447904d777f220a525044a3374
+monero,,,,Unrated,C_candidate,wallet2: clear m_additional_tx_keys during bg sync,https://github.com/monero-project/monero/commit/b3cd06df90cf1cf235d0682730bec66edc183c89
+monero,,,,Unrated,B_corroborated,daemonizer: avoid unsafe pidfile truncation,https://github.com/monero-project/monero/commit/4167923ee21cba06f311bebab29206b1f894b067
+monero,,,,Unrated,B_corroborated,daemonizer: avoid unsafe pidfile truncation,https://github.com/monero-project/monero/commit/d763d4346ec4a0e80b8f8091c32da1925867909a
+monero,,,,Unrated,B_corroborated,serialization: avoid blob memcpy of secret_key vector,https://github.com/monero-project/monero/commit/6460917cab14f26494487246a3358899723ffdcd
+monero,,,,Unrated,C_candidate,wallet_rpc_server: add missing trusted daemon check,https://github.com/monero-project/monero/commit/7e70e0fb9359507bc1cd7e75eb73d82a9001d005
+monero,,,,Unrated,C_candidate,wallet_rpc_server: add missing trusted daemon check,https://github.com/monero-project/monero/commit/dae0f4cf6132079e901d63ec1c8a7ffbb0e376f4
+monero,,,,Unrated,C_candidate,wallet2: reject duplicate outputs in reserve proofs,https://github.com/monero-project/monero/commit/2827d7fe84ad4102dd9f3284eb98da8f0d66266d
+monero,,,,Unrated,C_candidate,wallet2: reject duplicate outputs in reserve proofs,https://github.com/monero-project/monero/commit/18b634a5913a5c2613bac2de3d20c0dceb94926e
+monero,,,,Unrated,C_candidate,fix: warning: variable set but not used,https://github.com/monero-project/monero/commit/172b4e188332ba74b1cac17f600239990024c0af
+monero,,,,Unrated,C_candidate,wallet2: ensure daemon returns correct tx for spend proof,https://github.com/monero-project/monero/commit/04eeb3ba1fc2ed0239eb10e885136d86b7e98ad0
+monero,,,,Unrated,C_candidate,wallet2: ensure daemon returns correct tx for spend proof,https://github.com/monero-project/monero/commit/b7fbe95eeb17788efac01fee0d7800ac0a166c0f
+monero,,,,Unrated,C_candidate,wallet2: use decodeRct for reserve proof amount validation,https://github.com/monero-project/monero/commit/11543143b9b69713bfcfa9a38b97ceb80dc64047
+monero,,,,Unrated,C_candidate,cryptonote_core: add change address sanity check,https://github.com/monero-project/monero/commit/44412d3574fcd7bdb6d0fcfb6c4ffc61c2d338d9
+monero,,,,Unrated,C_candidate,cryptonote_core: add change address sanity check,https://github.com/monero-project/monero/commit/0545a9611c6b5da9fab23a5371d08ee3b78b60b1
+monero,,,,Unrated,C_candidate,wallet_rpc_server: restrict relay_tx,https://github.com/monero-project/monero/commit/3703ec1833c3814290db7615fec2314f57ba5b8b
+monero,,,,Unrated,C_candidate,wallet_rpc_server: restrict relay_tx,https://github.com/monero-project/monero/commit/9731bbfbf59b6d05248a5676a9634bfa03bd0677
+monero,,,,Unrated,C_candidate,wallet_rpc_server: fix ssl_allowed_fingerprints hex parsing,https://github.com/monero-project/monero/commit/b635e675e699f87d0d028f6f3f6e6a2ea2c05104
+monero,,,,Unrated,C_candidate,wallet_rpc_server: fix ssl_allowed_fingerprints hex parsing,https://github.com/monero-project/monero/commit/3d2eb0ea8aa5813db1474ec790eb1f490dcb6344
+monero,,,,Unrated,C_candidate,wallet2: add parse multisig tx sanity checks,https://github.com/monero-project/monero/commit/2094d38c86bab8ab23bb5ddfb5cd7ce3a7957a63
+monero,,,,Unrated,C_candidate,fix: return early in sensitive methods for --restricted-rpc,https://github.com/monero-project/monero/commit/604bb05d81a425632c9ca816e85a8bd19883eb9e
+monero,,,,Unrated,C_candidate,fix: return early in sensitive methods for --restricted-rpc,https://github.com/monero-project/monero/commit/e1adf396da598581f2587d8fb55a166e2f3a1190
+monero,,,,Unrated,B_corroborated,wallet2: fix background wallet detection in verify_password(),https://github.com/monero-project/monero/commit/e7b121ac17d6e0c3bb6f17911ae9ab18132b3c67
+monero,,,,Unrated,C_candidate,Cleanup some of the fragmented levin handling,https://github.com/monero-project/monero/commit/017c9022d7bbc03484191177228657b14fb09f53
+monero,,,,Unrated,B_corroborated,crypto: fix chacha aliasing and alignment issues,https://github.com/monero-project/monero/commit/887752611a6404b3d1bc25457330953b9f8eb4c6
+monero,,,,Unrated,B_corroborated,crypto: STD-compliant shifting in sc_check(),https://github.com/monero-project/monero/commit/c5be4dda1cfc48533a3949c188460a77ca430324
+monero,,,,Unrated,B_corroborated,Harden HTTP client auth,https://github.com/monero-project/monero/commit/f355f85e6f7bea4a4f68c7880b2b995a3c225882
+monero,,,,Unrated,C_candidate,windows_service: quote service executable path,https://github.com/monero-project/monero/commit/53121587562af1abef3680060c240068a1ff2c97
+monero,,,,Unrated,C_candidate,ledger: throw on secret view key export rejection,https://github.com/monero-project/monero/commit/e89922a2fdd8ce899f8bde7d73bd6ec7db56c8a8
+monero,,,,Unrated,C_candidate,ledger: throw on secret view key export rejection,https://github.com/monero-project/monero/commit/26cf4f914134fa0808ca539e2d0e7d17aac125e1
+monero,,,,Unrated,B_corroborated,wallet: sanity check ring indices only against spendable,https://github.com/monero-project/monero/commit/5905b202f0d3a20aaaf713d0f64e3c1819dd0d2d
+monero,,,,Unrated,B_corroborated,wallet: fix wallet_keys_unlocker,https://github.com/monero-project/monero/commit/dbc8402da6e4c1475735b5a1515ea34df6f3d04b
+monero,,,,Unrated,C_candidate,rpc: return error correctly on bad key image string,https://github.com/monero-project/monero/commit/6131ddef109cdd039e2f5d9f7366a8da5bee9594
+monero,,,,Unrated,B_corroborated,wallet: improve lookahead logic & make rpc persistent,https://github.com/monero-project/monero/commit/6e26e4477ef2f273d220e40620e6ff08487d60c1
+monero,,,,Unrated,C_candidate,fix issue 9943: cli using wrong filename for storing keys,https://github.com/monero-project/monero/commit/273d368aacff21ec4a811cb8c69d737e8aa78b6f
+monero,,,,Unrated,C_candidate,fix issue 9943: cli using wrong filename for storing keys,https://github.com/monero-project/monero/commit/b8af7e84060e6ffc62c103e5d823fe330930d395
+monero,,,,Unrated,B_corroborated,wallet: kill support for deprecated ephemeral Boost messages,https://github.com/monero-project/monero/commit/e9c89dc6ab903819ebbaf14bbe5852fa0eaaaee3
+monero,,,,Unrated,C_candidate,fix: added key correspondence check,https://github.com/monero-project/monero/commit/a57c099d074d128261f9b2e601b3cc2fb291978a
+monero,,,,Unrated,B_corroborated,Fix memcpy in byte_slice constructor,https://github.com/monero-project/monero/commit/74c313420c1d22c5c8eecb8430fd5fe7a89143d7
+monero,,,,Unrated,B_corroborated,Fix memcpy in byte_slice constructor,https://github.com/monero-project/monero/commit/92de47fd3765ed8cd5e9ac1418efe351395bd19d
+monero,,,,Unrated,C_candidate,wallet2: correct variable usage in get_multisig_seed,https://github.com/monero-project/monero/commit/a28c38c946af5eae7bcd4c07c4679d7fc0c1a168
+monero,,,,Unrated,C_candidate,Add drop_and_recreate in privatefile class. When creating a private fi,https://github.com/monero-project/monero/commit/100a7d06eee6d3f60a1c2d00af53e4665c5f5690
+monero,,,,Unrated,C_candidate,Add drop_and_recreate in privatefile class. When creating a private fi,https://github.com/monero-project/monero/commit/267e31f5b7d315569b7145545d98d81b4789552f
+monero,,,,Unrated,C_candidate,@tobtoht: undo rebase changes tx.dsts -> tx_dsts,https://github.com/monero-project/monero/commit/ff49444ee8747750f3cc2a8e9c06dcfa025fb9d4
+monero,,,,Unrated,B_corroborated,Enforce Tx unlock_time is Zero by Relay Rule,https://github.com/monero-project/monero/commit/38f354e89f095f0954c66811e66312957b674573
+monero,,,,Unrated,B_corroborated,wallet: sign_tx: get tx pubkey from extra,https://github.com/monero-project/monero/commit/1062b172b69cc535bb6217f465babcf00bd3c235
+monero,,,,Unrated,B_corroborated,ringct: make `rctSigBase` serialization follow strict aliasing rule,https://github.com/monero-project/monero/commit/eae62a07e075acdd8555420f3f961a82eff0a342
+monero,,,,Unrated,B_corroborated,wallet2: fix `store_to()` and `change_password()`,https://github.com/monero-project/monero/commit/ba98269ca507766aa76f0ebbcaebe6f6eef93192
+monero,,,,Unrated,B_corroborated,wallet2: fix `store_to()` and `change_password()`,https://github.com/monero-project/monero/commit/1bea8ef42a2c6f97931aa04f95fefa4521a6d40c
+monero,,,,Unrated,C_candidate,common: do not use DNS to determine if address is local,https://github.com/monero-project/monero/commit/d9c7cd5a89cd1baa270a097bae1a2eff7bd4b2e9
+monero,,,,Unrated,B_corroborated,wallet: respect frozen key images in multisig wallets [RELEASE],https://github.com/monero-project/monero/commit/dc24312bc3c8c9d865e4576631832c81d6dd212d
+monero,,,,Unrated,B_corroborated,wallet: respect frozen key images in multisig wallets,https://github.com/monero-project/monero/commit/369a5a8f9aeeedd608729a52c7cee1efe99ba620
+monero,,,,Unrated,B_corroborated,cryptonote_basic: fix amount overflow detection on 32-bit systems [REL,https://github.com/monero-project/monero/commit/cfc62277c01412f6bcfae0cf1736812c42e28d65
+monero,,,,Unrated,C_candidate,common: do not use DNS to determine if address is local,https://github.com/monero-project/monero/commit/8dc4abdafec7985319ba2fd2294ca8f0916d9cea
+monero,,,,Unrated,B_corroborated,wallet2: better test on whether to allow output import,https://github.com/monero-project/monero/commit/1d3657afb5f53c7be0f839f8d449310b862b2006
+monero,,,,Unrated,C_candidate,wallet2: fixes for export/import output flow,https://github.com/monero-project/monero/commit/b03d7091f7a0c2bd78f28ccb27a6481bb409d4dd
+monero,,,,Unrated,C_candidate,"wallet2: fix missing subaddress indices in ""light"" exported outputs",https://github.com/monero-project/monero/commit/0de1571abd2a8b169e0a3c67cc5769e804b08957
+monero,,,,Unrated,B_corroborated,wallet2: better test on whether to allow output import,https://github.com/monero-project/monero/commit/a0985044d926383fba0272cc08617ce8b3f56316
+monero,,,,Unrated,C_candidate,wallet2: fixes for export/import output flow,https://github.com/monero-project/monero/commit/ddb38ace77fafc9483222d6a635587c105489c2c
+monero,,,,Unrated,C_candidate,wallet2: fixes for export/import output flow,https://github.com/monero-project/monero/commit/1e912ecd8a8e0913c7dbb585882d17eb331ad405
+monero,,,,Unrated,C_candidate,"wallet2: fix missing subaddress indices in ""light"" exported outputs",https://github.com/monero-project/monero/commit/d9fc666db8934f7669133807ea0bec96eef27105
+monero,,,,Unrated,C_candidate,"wallet2: fix missing subaddress indices in ""light"" exported outputs",https://github.com/monero-project/monero/commit/7613da01163a0a72a741dfc05dbc866214dcef90
+monero,,,,Unrated,B_corroborated,wallet2: prevent importing outputs in a hot wallet,https://github.com/monero-project/monero/commit/5b88eab122929c83efe81c5f116e02c252f56d06
+monero,,,,Unrated,C_candidate,wallet2: force using output distribution for ringct outs,https://github.com/monero-project/monero/commit/db8181adf8ea52e97f9dd5fd72ca63e74488f5f3
+monero,,,,Unrated,B_corroborated,cryptonote_basic: catch crypto api errors,https://github.com/monero-project/monero/commit/4278a3a7e32ced988474260e0ed6ad21228a41e5
+monero,,,,Unrated,C_candidate,multisig: add post-kex verification round to check that all participan,https://github.com/monero-project/monero/commit/0d6ecb113651ac99abd25a04fe4ddb9ac0a73c3e
+monero,,,,Unrated,C_candidate,"fix ge_p3_is_point_at_infinity(), which is evaluating field elements t",https://github.com/monero-project/monero/commit/c36ea26e5c6b94f107cc1aeb02a45cfc5a7c38ef
+monero,,,,Unrated,C_candidate,wallet_api: enable set_strict_default_file_permissions,https://github.com/monero-project/monero/commit/29c03e2d9075b8082c935a0468313f9bbba5e810
+monero,,,,Unrated,C_candidate,wallet_api: enable set_strict_default_file_permissions,https://github.com/monero-project/monero/commit/47e7a432700e64d1fd067d745040a42f6c15ac37
+monero,,,,Unrated,B_corroborated,wallet2: fix key encryption when changing ask-password from 0/1 to 2,https://github.com/monero-project/monero/commit/2cad56306059d911f43de39f61e87508840f3c89
+monero,,,,Unrated,B_corroborated,wallet2: fix key encryption when changing ask-password from 0/1 to 2,https://github.com/monero-project/monero/commit/103c9733b374fed562aff6c62743ac72e26e282b
+monero,,,,Unrated,B_corroborated,Wallet2: fix optimize-coinbase for p2pool payouts,https://github.com/monero-project/monero/commit/e52802baef23ed61fdb7f7a16ab6f8025b2da9dd
+monero,,,,Unrated,B_corroborated,Fix describe_transfer for multiple txes in a txset,https://github.com/monero-project/monero/commit/5fa1c90102ee2fd69962b3722cbda53da7c24595
+monero,,,,Unrated,B_corroborated,fix #7784 - deinit wallet in wallet dtor,https://github.com/monero-project/monero/commit/9b840439b9be5a7710f8ba1ac47e5daf05e9ea6a
+monero,,,,Unrated,C_candidate,wallet2: Fix rescan_bc keep_ki option,https://github.com/monero-project/monero/commit/c57ef7f8079fea56161537deae12fc16aa5e2efe
+monero,,,,Unrated,C_candidate,wallet2: Fix rescan_bc keep_ki option,https://github.com/monero-project/monero/commit/70c5c8167037db9211147de32a6b9bee922de653
+monero,,,,Unrated,B_corroborated,device_trezor: wipe string fields properly,https://github.com/monero-project/monero/commit/c6e1d7bcdf0cea648ef5425f8d01c23cdaee4a15
+monero,,,,Unrated,B_corroborated,device_trezor: wipe string fields properly,https://github.com/monero-project/monero/commit/34f942867f86ad3467cb168a19a0b38ad703f8df
+monero,,,,Unrated,C_candidate,storages: overridable limits for loading portable_storage from binary,https://github.com/monero-project/monero/commit/372754a66e6492590f9fdf2af519f03eb38d5e0f
+monero,,,,Unrated,C_candidate,Restrict duplicate keys in epee binary format,https://github.com/monero-project/monero/commit/187b4d75216c136729b0c4b3baaa66c2375032d0
+monero,,,,Unrated,C_candidate,Fix byte_stream::put_n,https://github.com/monero-project/monero/commit/4978f69d7afa9511702419ea0b919a3d1a30bd92
+monero,,,,Unrated,C_candidate,Fix byte_stream::put_n,https://github.com/monero-project/monero/commit/cf4461f40b92f300a3b5e1bea6c8065515939297
+monero,,,,Unrated,B_corroborated,crypto: fix non zero scalar being 0 after reducing,https://github.com/monero-project/monero/commit/7982ef5a739ebebe88bbafd7efe71e3623aa5d05
+monero,,,,Unrated,B_corroborated,crypto: fix non zero scalar being 0 after reducing,https://github.com/monero-project/monero/commit/5ed604fe5bc174062752e68a9ba8d221e85ae36d
+monero,,,,Unrated,C_candidate,wallet2: check imported multisig curve points are in main subgroup,https://github.com/monero-project/monero/commit/17c53703981a007faa80dc47e42ec0396a85008f
+monero,,,,Unrated,C_candidate,wallet2: check imported multisig curve points are in main subgroup,https://github.com/monero-project/monero/commit/efca5b8af903b98d80285a284e4024c90db929e2
+monero,,,,Unrated,B_corroborated,fix a couple bugs found by OSS-fuzz,https://github.com/monero-project/monero/commit/9e6187a736ce8a7284683a42da757715da3b22f8
+monero,,,,Unrated,B_corroborated,fix a couple bugs found by OSS-fuzz,https://github.com/monero-project/monero/commit/b6c4f8cd545a033859d3f7e91949f4883b856ed6
+monero,,,,Unrated,C_candidate,Use domain-separated ChaCha20 for in-memory key encryption,https://github.com/monero-project/monero/commit/921dd8dde5d381052d0aa2936304a3541a230c55
+monero,,,,Unrated,B_corroborated,"Updates InProofV1, OutProofV1, and ReserveProofV1 to new V2 variants t",https://github.com/monero-project/monero/commit/6bfcd310158ff749d6857f5b0d2a53fad6a4e2bd
+monero,,,,Unrated,C_candidate,wallet2: fix setting tx keys when another is already set,https://github.com/monero-project/monero/commit/e916201f12363760a84fdff0584a8a250f03847b
+monero,,,,Unrated,B_corroborated,Fix broken multisig pubkey sorting,https://github.com/monero-project/monero/commit/20f603c6bedf4a4b3dd785e535b509970237d92d
+monero,,,,Unrated,C_candidate,rpc: reject wrong sized txid,https://github.com/monero-project/monero/commit/13eee1d6abb035232acee3d757137d154f0ebb94
+monero,,,,Unrated,C_candidate,Fix incorrect lenght of command INS_PREFIX_HASH,https://github.com/monero-project/monero/commit/ec46069248a8f38aed9d07277a1c253e6cd2f02f
+monero,,,,Unrated,C_candidate,Fix incorrect lenght of command INS_PREFIX_HASH,https://github.com/monero-project/monero/commit/4e6d587275cc8d97f1fcf3ca650d9b3fb32c633f
+monero,,,,Unrated,C_candidate,[master] MMS: New 'config_checksum' subcommand,https://github.com/monero-project/monero/commit/7d0b7e83efff1a29f730dfb65fa79cb72cc92d48
+monero,,,,Unrated,C_candidate,[release-v0.16] MMS: New 'config_checksum' subcommand,https://github.com/monero-project/monero/commit/c5c85925e2ebde0e0b3ac993ca6034536ea6ae79
+monero,,,,Unrated,C_candidate,wallet2: fix multisig data clearing stomping on a vector,https://github.com/monero-project/monero/commit/705c78b797751926f824bc607d728f68f902808b
+monero,,,,Unrated,C_candidate,wallet2: fix multisig data clearing stomping on a vector,https://github.com/monero-project/monero/commit/c17fe815a2792d13c2385dedeb7aa9ee3a9322c9
+monero,,,,Unrated,C_candidate,simplewallet: add missing calls to on_command,https://github.com/monero-project/monero/commit/5e0ea6e95c080976ed8c98fdc74bdd79979a19d7
+monero,,,,Unrated,C_candidate,Fixed bugs for take_slice and byte_stream->byte_slice,https://github.com/monero-project/monero/commit/29e563bb1ed0be0f358235faf1b1848b222b584d
+monero,,,,Unrated,C_candidate,wallet2: fix subaddress expansion when receiving monero,https://github.com/monero-project/monero/commit/7a8c1eece9b6dcb52109dc7c8b4518e0c7439a5b
+monero,,,,Unrated,B_corroborated,trezor: adapt to new passphrase mechanism,https://github.com/monero-project/monero/commit/e509ede2aa7263cc49d3378bc8c833a62300211d
+monero,,,,Unrated,C_candidate,use memwipe on secret k/alpha values,https://github.com/monero-project/monero/commit/613071f4fa6a823834198ae8d180a5af72e71ded
+monero,,,,Unrated,C_candidate,Add timelock verification on device,https://github.com/monero-project/monero/commit/688a3e87e712123d182ae6715610c461988f9e74
+monero,,,,Unrated,B_corroborated,wallet: fix exceptions getting the hash of a pruned tx,https://github.com/monero-project/monero/commit/d438e6a28c53b1746d03c889dd276e3f342b8f79
+monero,,,,Unrated,C_candidate,wallet2: fix store-tx-info loading,https://github.com/monero-project/monero/commit/2e9d1e6e1f7dde7c70c7181cdf19407cc17157dd
+monero,,,,Unrated,C_candidate,wallet2: reject zero keys in json input,https://github.com/monero-project/monero/commit/50e59cfadad6215c74bbba9524b72ea1bf783641
+monero,,,,Unrated,B_corroborated,wallet2: guard against race with multiple decrypt_keys users,https://github.com/monero-project/monero/commit/f717d5936c522b6be978b9bb3f88d2750658fa08
+monero,,,,Unrated,C_candidate,net_ssl: load default certificates in CA mode on Windows,https://github.com/monero-project/monero/commit/2d1afceb0d76ac57b6b40a8b1ac11e55b0d23344
+monero,,,,Unrated,C_candidate,db_lmdb: guard against non NUL terminated keys,https://github.com/monero-project/monero/commit/402dd2078cc8ecb83564c7ee494dad0feb11b9df
+monero,,,,Unrated,C_candidate,make d2h et al. constant-time,https://github.com/monero-project/monero/commit/443b1e9fee964873ede0fde61dc34d834473b47b
+monero,,,,Unrated,C_candidate,Replace memset with memwipe.,https://github.com/monero-project/monero/commit/b2ad757f487ceb41da917871e2330d00b1b4669e
+monero,,,,Unrated,C_candidate,wallet2: make keys unlocker reentrant,https://github.com/monero-project/monero/commit/3b8dcc290d87fd16698b6dca161ded22ee681fdc
+monero,,,,Unrated,C_candidate,device: bounds checking in Ledger send_secret/receive_secret,https://github.com/monero-project/monero/commit/296ec7c9bba3ff83af473085dd654b88f5f3e6a6
+monero,,,,Unrated,B_corroborated,Add hmac over encrypted value during transaction,https://github.com/monero-project/monero/commit/d25acd7a1dbd05b24fba13fc4910886948ab90ba
+monero,,,,Unrated,C_candidate,rpc: don't include an address in mining_status when not mining,https://github.com/monero-project/monero/commit/495a7e5b97b3795ac598e699a659f50ec0d9a313
+monero,,,,Unrated,C_candidate,MLSAG speedup and additional checks,https://github.com/monero-project/monero/commit/3a0451a8be43154f0da06dd9c693ed6f0c657042
+monero,,,,Unrated,B_corroborated,wallet2: fix cold signing losing tx keys,https://github.com/monero-project/monero/commit/894cc81e835848a42b24c2a3efaf7261f170cf2c
+monero,,,,Unrated,C_candidate,reject setting lookahead major or minor to 0,https://github.com/monero-project/monero/commit/839fc6256b7a51c0120a476b592ea780ab97e46b
+monero,,,,Unrated,C_candidate,Replace std::random_shuffle with std::shuffle,https://github.com/monero-project/monero/commit/7b9a420787c71624ff0e9c6bcfe1e72c74feb677
+monero,,,,Unrated,C_candidate,wallet2: fix change subaddress mixup when sending pre rct outputs,https://github.com/monero-project/monero/commit/b2bfcab6182706cd55033ee539f88ce4dd07523b
+monero,,,,Unrated,C_candidate,cryptonote: throw on tx hash calculation error,https://github.com/monero-project/monero/commit/67baa3a66b07f5b6320911eed49ca91e2a5d037a
+monero,,,,Unrated,C_candidate,serialization: fail on read_varint error,https://github.com/monero-project/monero/commit/d6bb9ecc6fe618840417df45f750dfb584cb549e
+monero,,,,Unrated,C_candidate,cryptonote: throw on tx hash calculation error,https://github.com/monero-project/monero/commit/f2152192529a6e307ac2befeaa8c4887544697da
+monero,,,,Unrated,C_candidate,serialization: fail on read_varint error,https://github.com/monero-project/monero/commit/db2b9fba651670a9c8f86c316f36bc9d9dbb82cc
+monero,,,,Unrated,C_candidate,epee: fix SSL autodetect on reconnection,https://github.com/monero-project/monero/commit/b0a04f7d45271031072ff1d65ec7d9ea139e8950
+monero,,,,Unrated,B_corroborated,Fix allow any cert mode in wallet rpc when configured over rpc,https://github.com/monero-project/monero/commit/9bfa4c20ca9df1df3966cb1f4c14f14b6e8c2202
+monero,,,,Unrated,B_corroborated,wallet: fix certificate fingerprint length check,https://github.com/monero-project/monero/commit/615f287aeccf803b4ed2b783002444cda486e432
+monero,,,,Unrated,B_corroborated,password: do not use line input on windows,https://github.com/monero-project/monero/commit/e1016bce1414e213a83f119d4db98f579f78d104
+monero,,,,Unrated,C_candidate,net_utils: fix m_ssl type from time_t to bool,https://github.com/monero-project/monero/commit/f61a315e8bb1742c98fd9d5a81dc33b7ed0f75cc
+monero,,,,Unrated,C_candidate,mnemonics: fix 4 byte UTF-8 rewriting,https://github.com/monero-project/monero/commit/7e5158aa97b1708c22478435ae69e26ec5c7f6ce
+monero,,,,Unrated,C_candidate,change SSL certificate fingerprint whitelisting from SHA1 to SHA-256,https://github.com/monero-project/monero/commit/5e0da6fb68446612844970be1e862f0e5bc25183
+monero,,,,Unrated,C_candidate,wallet2: fix wrong change being recorded in sweep_all,https://github.com/monero-project/monero/commit/c519d1df347e826fc058ecf3d4230bf245a76bbe
+monero,,,,Unrated,B_corroborated,Enabling daemon-rpc SSL now requires non-system CA verification,https://github.com/monero-project/monero/commit/2e578b8214b8b47d7ddefceb1cbf2d8129e85a5a
+monero,,,,Unrated,B_corroborated,Require manual override for user chain certificates.,https://github.com/monero-project/monero/commit/d58f368289709e0869c9b7927778339670cb85a7
+monero,,,,Unrated,C_candidate,Require server verification when SSL is enabled.,https://github.com/monero-project/monero/commit/0416764caec5b2d504c820e71d74a4934c3e2c3e
+monero,,,,Unrated,C_candidate,Add `verify_fail_if_no_cert` option for proper client authentication,https://github.com/monero-project/monero/commit/96d602ac84d856c26a9065bfccbe2b98237db271
+monero,,,,Unrated,C_candidate,"Change default SSL to ""enabled"" if user specifies fingerprint/certific",https://github.com/monero-project/monero/commit/1f5ed328aa3b0501bd85774dc960c17a73d79db3
+monero,,,,Unrated,C_candidate,Do not require client certificate unless server has some whitelisted.,https://github.com/monero-project/monero/commit/f18a069fcc5ad5d18bde93d9ee2902354f2add9d
+monero,,,,Unrated,B_corroborated,crypto: replace rand<T>()%N idiom with unbiased rand_idx(N),https://github.com/monero-project/monero/commit/a2195b9b7fba5da7f47903961db3fb31f6d7146c
+monero,,,,Unrated,C_candidate,wallet2: support multi out txes without change in sanity check,https://github.com/monero-project/monero/commit/15f27c80b90a669beaa426afee016410b6db3970
+monero,,,,Unrated,C_candidate,wallet2: set confirmations to 0 for pool txes in proofs,https://github.com/monero-project/monero/commit/3f1e9e84c0e8259154ad29fb5d8172d9c2e2c60e
+monero,,,,Unrated,B_corroborated,wallet_rpc_server: error out on getting the spend key from a hot walle,https://github.com/monero-project/monero/commit/36c037ec4748d26fdc8f95b60f758ad34c7aba9f
+monero,,,,Unrated,B_corroborated,wallet_rpc_server: error out on getting the spend key from a hot walle,https://github.com/monero-project/monero/commit/f825055d224f9757d49dcc21c87d5d8b56d5fbc5
+monero,,,,Unrated,C_candidate,wallet_rpc_server: set confirmations to 0 for pending/pool txes,https://github.com/monero-project/monero/commit/01efdc6a7e5fb541a779a06e0158c2c8b8f811b3
+monero,,,,Unrated,C_candidate,wallet2: sanity check new tx before sending,https://github.com/monero-project/monero/commit/b05f10f82e6e8d26a105ac2fb7e9ac55ba2865ed
+monero,,,,Unrated,B_corroborated,wallet2: set seed language when creating from json,https://github.com/monero-project/monero/commit/328d291fe4394b84c106762c5355eaa45c4cbcb0
+monero,,,,Unrated,C_candidate,wallet2: fix generation from json when restore height is not set,https://github.com/monero-project/monero/commit/a52366c1bfe783f8c2089afc3dac24a6a71325a4
+monero,,,,Unrated,C_candidate,Fix computation of ephemeral destination address with multiple output ,https://github.com/monero-project/monero/commit/9d505eb14e4c3c44f7bd350094ee87c6fc34b403
+monero,,,,Unrated,C_candidate,wallet_rpc_server: add missing --rpc-ssl-allowed-fingerprints,https://github.com/monero-project/monero/commit/aac4e2f585b745c135cb1b8a9287cb5985309371
+monero,,,,Unrated,B_corroborated,Wallet API: multisig_tx_set passing bug fixed,https://github.com/monero-project/monero/commit/5ade72818bf6d012bba02ff60f28a9965d6b674b
+monero,,,,Unrated,C_candidate,wallet2: do not use invalid keys as fake outs in rings,https://github.com/monero-project/monero/commit/3f6f90bb313aad478b41a538b7007f21009d7e65
+monero,,,,Unrated,B_corroborated,Fix computation of change address + Fix v11 fork,https://github.com/monero-project/monero/commit/470527138a9417af0e895a94dd64e773796612e4
+monero,,,,Unrated,C_candidate,wallet2: fix mishandling rct outputs in coinbase tx,https://github.com/monero-project/monero/commit/fa2fbc3917774ee9615e1bcf1437d57ab400018f
+monero,,,,Unrated,C_candidate,wallet2: fix mishandling rct outputs in coinbase tx,https://github.com/monero-project/monero/commit/b2b71d3ad26202486860d210a506f2994c2c984b
+monero,,,,Unrated,B_corroborated,wallet: fix payment ID decryption for construction data,https://github.com/monero-project/monero/commit/3233fdea02ff62fcb1689cee0375b61c32e7cb83
+monero,,,,Unrated,C_candidate,cryptonote: Fix enum check in expand_transaction_2,https://github.com/monero-project/monero/commit/fec359a641986784c1f0e99ae215bcae9f4380bc
+monero,,,,Unrated,B_corroborated,wallet: do not display daemon controlled text if untrusted,https://github.com/monero-project/monero/commit/9092fc4bfdc99c08899c4c0ade231af840d23bcd
+monero,,,,Unrated,C_candidate,wallet2: finalize_multisig now rejects non N-1/N multisig wallets,https://github.com/monero-project/monero/commit/de9dcdd179721c9ca1c4ddcf41315d695c6579d0
+monero,,,,Unrated,B_corroborated,device/trezor: store tx_prefix_hash in tx key aux,https://github.com/monero-project/monero/commit/c5e0539cb53e26c70427c456c8e121cc7bc89989
+monero,,,,Unrated,B_corroborated,wallet2: cut down on the number of useless derivation threads,https://github.com/monero-project/monero/commit/808a1f1e8aeffedf24d2cf52b5d3e20e0b96efaa
+monero,,,,Unrated,B_corroborated,"device/trezor: device/trezor: correct device initialization, status ch",https://github.com/monero-project/monero/commit/d71f89e2a26720021f7509f8c1eee87645f48529
+monero,,,,Unrated,C_candidate,ringct: fix dummy bulletproofs on ledger in fake mode,https://github.com/monero-project/monero/commit/ac665418f0a7ef92ce9b27ecdd88914482f19ee5
+monero,,,,Unrated,B_corroborated,wallet_rpc_server: account for watch-only/non-deterministic/multisig w,https://github.com/monero-project/monero/commit/7ae36e91f6ce75ec24b3a25478992b3a71f9ee35
+monero,,,,Unrated,B_corroborated,simplewallet: don't skip asking for password when watch-only,https://github.com/monero-project/monero/commit/5878fe95ce422a509eae8c5c69e0e6d59e5d64a6
+monero,,,,Unrated,C_candidate,dns_utils: do not exit if DNS records are corrupt,https://github.com/monero-project/monero/commit/71eb32a976512b294e077861a3123842e20611b6
+monero,,,,Unrated,B_corroborated,crypto: fix AES encryption on big endian,https://github.com/monero-project/monero/commit/42d8d5085e96732e96fcb39f4b851bc85f4e4a8b
+monero,,,,Unrated,C_candidate,wallet2: rewrite keys file in a safer manner,https://github.com/monero-project/monero/commit/e86af52e2f0a990a9797c4e4a3a6b4a6df496c02
+monero,,,,Unrated,C_candidate,mnemonics: fix words_to_bytes on big endian,https://github.com/monero-project/monero/commit/91eaea9c72f7104820aff15792ec70a3e69e7f35
+monero,,,,Unrated,B_corroborated,crypto: fixed incremental keccak API on big-endian platforms,https://github.com/monero-project/monero/commit/ed36335c969a1061e555724467263e22d1738cce
+monero,,,,Unrated,C_candidate,device: fixed Ledger Nano S device selection,https://github.com/monero-project/monero/commit/825d836f9f6ee724cf5b44ce720ad0bc26730ba0
+monero,,,,Unrated,C_candidate,device: fixed Ledger Nano S device selection,https://github.com/monero-project/monero/commit/c28ea6b6179a4b82c79f9da1e54f3be4e6947226
+monero,,,,Unrated,C_candidate,spawn: close all file descriptors before execve,https://github.com/monero-project/monero/commit/e4ce26c79fabc59f92c971f4f2af34bfb1aa9e94
+monero,,,,Unrated,C_candidate,util: close keys file lock on exec,https://github.com/monero-project/monero/commit/a69fc05a0cf8eb9d3247bbb0006546ba4994a310
+monero,,,,Unrated,C_candidate,wallet_rpc_server: fix change_wallet_password RPC,https://github.com/monero-project/monero/commit/99d45a95787010fd9e38390b6ab350df8a738287
+monero,,,,Unrated,C_candidate,wallet_rpc_server: fix change_wallet_password RPC,https://github.com/monero-project/monero/commit/7ae3ebc7a8d94e098cb2df0ca0cd5c5909271666
+monero,,,,Unrated,B_corroborated,wallet2_api: fix generating new wallet in the GUI,https://github.com/monero-project/monero/commit/32ba6f3adb808f3221c6d6cffd23872034ee8cf2
+monero,,,,Unrated,B_corroborated,wallet2_api: fix generating new wallet in the GUI,https://github.com/monero-project/monero/commit/0cdd4b074ebab612d7d0a6ebaf3efffb1f9435ef
+monero,,,,Unrated,B_corroborated,SOFTWARE is the default wallet device,https://github.com/monero-project/monero/commit/d886b97fe216846647aea2560d423c138e0d67d4
+monero,,,,Unrated,C_candidate,simplewallet: fix view key parsing in --generate-from-view-key,https://github.com/monero-project/monero/commit/2509717b11979cf4e291c1f83eb83845728d4428
+monero,,,,Unrated,C_candidate,simplewallet: fix view key parsing in --generate-from-view-key,https://github.com/monero-project/monero/commit/14ed029b241d00f6a711b9362de4ab094ec30ea2
+monero,,,,Unrated,B_corroborated,Merge pull request #4482,https://github.com/monero-project/monero/commit/e0fa7fa38488784efd1cbb87922b3079370e0b55
+monero,,,,Unrated,B_corroborated,wallet: fix --generate-from-json using wrong password,https://github.com/monero-project/monero/commit/25e5890d37a1b243d4b8aadb45743d715bd4d0f9
+monero,,,,Unrated,C_candidate,Merge pull request #4409,https://github.com/monero-project/monero/commit/e4130e6ae6314b7364e0411edd84f3c0fdc0b5e5
+monero,,,,Unrated,C_candidate,epee: fix invalid memory write reading an array entry,https://github.com/monero-project/monero/commit/58ee1f2bdeb012ccc2668c5206b4e4094f3eab7a
+monero,,,,Unrated,B_corroborated,epee: fix stack overflow on crafted input,https://github.com/monero-project/monero/commit/f61cd54465a793308aa02ef3e34ea20be517e5ad
+monero,,,,Unrated,C_candidate,wallet2: fix duplicate output making it to the RPC,https://github.com/monero-project/monero/commit/e350cc5ad557eba67790551f96bbbcfc97173480
+monero,,,,Unrated,C_candidate,epee: fix invalid memory write reading an array entry,https://github.com/monero-project/monero/commit/45683ee02c39f6e57f1f5e1065f4295292a0d8cf
+monero,,,,Unrated,C_candidate,bulletproofs: multiply points by 8 first thing in verification,https://github.com/monero-project/monero/commit/1dd5c73f62edc9edc54f46bbff2f5eb43ee9a0e0
+monero,,,,Unrated,C_candidate,Fixed Keccak implementation on big-endian platforms,https://github.com/monero-project/monero/commit/9bf0105e251fdedb5bd2cc2f04d99339d640f0af
+monero,,,,Unrated,B_corroborated,wallet: use wipeable_string in more places where a secret is used,https://github.com/monero-project/monero/commit/56b50faab20166fc77e67d12bcd9f424c621f875
+monero,,,,Unrated,B_corroborated,crypto: never return zero in random32_unbiased,https://github.com/monero-project/monero/commit/7434df1cc6e96b5d98ea6e3ec095eaae4ac9a95c
+monero,,,,Unrated,C_candidate,Check inputs to addKeys are in range,https://github.com/monero-project/monero/commit/a1359ad43c9263c919f8c39b54224ac9fc992d74
+monero,,,,Unrated,C_candidate,bulletproofs: reject points not in the main subgroup,https://github.com/monero-project/monero/commit/c42917624849daeac0b4bc2fb1cd1f2539470b28
+monero,,,,Unrated,C_candidate,Bulletproof aggregated verification and tests,https://github.com/monero-project/monero/commit/2a8fcb421bc41eb254f95379dd73238915dd509d
+monero,,,,Unrated,C_candidate,wallet2: import_multisig forward refresh exception,https://github.com/monero-project/monero/commit/7a76354c8bcbe85f6553914241da5ac1bb932b37
+monero,,,,Unrated,C_candidate,cryptonote_format_utils: do not early out on invalid tx pubkeys,https://github.com/monero-project/monero/commit/93e7627d5a3d071418141a03b587d728e90dcd98
+monero,,,,Unrated,C_candidate,electrum-words: fix bytes_to_words on big endian,https://github.com/monero-project/monero/commit/c955257c4ad4118c30ee757ffc00599379ad3f7c
+monero,,,,Unrated,B_corroborated,add and use constant time 32 byte equality function,https://github.com/monero-project/monero/commit/d2e26c23f3caa7928c46c3a6bded85fdc1a68cb3
+monero,,,,Unrated,C_candidate,Do memwipe for critical secret keys copied to rct::key,https://github.com/monero-project/monero/commit/1f2409e9e2c15e1b96c2bcb3d7bfd77091b2a504
+monero,,,,Unrated,B_corroborated,crypto: make secret_key automatically mlock,https://github.com/monero-project/monero/commit/ab74dc277aac3922a266ccae30fa2c30d9222790
+monero,,,,Unrated,C_candidate,common: add a class to safely wrap mlock/munlock,https://github.com/monero-project/monero/commit/70271fa7888f44bb6ec11058853256fc3055037f
+monero,,,,Unrated,C_candidate,store secret keys encrypted where possible,https://github.com/monero-project/monero/commit/e9ffa91257b672009e8b8c84027378f3893a6d01
+monero,,,,Unrated,B_corroborated,wallet: wipe seed from memory where appropriate,https://github.com/monero-project/monero/commit/ea37614efe518ff8f363ddf2465301687e04d977
+monero,,,,Unrated,B_corroborated,wallet: disable core dumps on startup in release mode,https://github.com/monero-project/monero/commit/43074891479b4883645b06c4cc5341469d9cd9cd
+monero,,,,Unrated,B_corroborated,crypto: do not use boost::value_initialized to init null skey/pkey,https://github.com/monero-project/monero/commit/0496c7c91abbf8ec20cc70f383868957c6f9adc9
+monero,,,,Unrated,B_corroborated,wallet2: ensure outputs are processed only once,https://github.com/monero-project/monero/commit/58f28cadf8318d7a0e0e8fd85f257acfef34f62e
+monero,,,,Unrated,B_corroborated,crypto: remove slight bias in key generation due to modulo,https://github.com/monero-project/monero/commit/61caab8a8c8a4e4239216c861c4d1eba5bcfd76e
+monero,,,,Unrated,C_candidate,wallet2: fix double counting outs if the tx pubkey is duplicated,https://github.com/monero-project/monero/commit/8c331a6d2639732b7807fada2ecdae989034220d
+monero,,,,Unrated,B_corroborated,device_ledger: fix buffer underflow on bad data from device,https://github.com/monero-project/monero/commit/41662ebcc7ada8ee550c4da083b35876fb8d0117
+monero,,,,Unrated,B_corroborated,device_ledger: fix potential buffer overflow from bad size calc,https://github.com/monero-project/monero/commit/076b7e1076f75fa8910e7330de1481becf1b7ce1
+monero,,,,Unrated,C_candidate,simplewallet: init trusted daemon flag to false when autodetecting,https://github.com/monero-project/monero/commit/0429cabefd260ba74dd5909f045b9d5f10a254be
+monero,,,,Unrated,B_corroborated,wallet2: fix read buffer overflow in import_key_images,https://github.com/monero-project/monero/commit/b323d90f675991571a9cb97a0a3e9727a1811fd2
+monero,,,,Unrated,B_corroborated,wallet: do not log by default if we're not asked to log to console,https://github.com/monero-project/monero/commit/7ce841cc2ffa03ee2793c8c1b45e7da1c18d9f8e
+monero,,,,Unrated,C_candidate,util: consider Tor/I2P addresses to be non local,https://github.com/monero-project/monero/commit/082e0a1bef720c83068b31344387f74c1d86063c
+monero,,,,Unrated,B_corroborated,simplewallet: add optional trusted/untrusted argument to set_daemon,https://github.com/monero-project/monero/commit/85d2ae4ad7f9ef162d68f46e9297407d24d6b383
+monero,,,,Unrated,B_corroborated,simplewallet: add --untrusted-daemon option,https://github.com/monero-project/monero/commit/f6dbb967f8a8207b70d8c1f6269fabc237f7c535
+monero,,,,Unrated,B_corroborated,device_ledger: fix buffer underflow on bad data from device,https://github.com/monero-project/monero/commit/34de7bc267984340d0c6c0afcbb1069af2f81e6d
+monero,,,,Unrated,C_candidate,simplewallet: init trusted daemon flag to false when autodetecting,https://github.com/monero-project/monero/commit/9d7f6e60899bf0099b0a468a687420e715518e3f
+monero,,,,Unrated,B_corroborated,wallet2: fix bulletproof cold signing,https://github.com/monero-project/monero/commit/d7a6b72c15f898c45a71831cca04cf0fc968ad91
+monero,,,,Unrated,B_corroborated,simplewallet: add optional trusted/untrusted argument to set_daemon,https://github.com/monero-project/monero/commit/8962f0032fa526582094307a4844d274c1c9f512
+monero,,,,Unrated,C_candidate,cryptonote: make sure outPk setup always happens,https://github.com/monero-project/monero/commit/ede213f65c45a97e041002d7a80eaf6bb851766a
+monero,,,,Unrated,C_candidate,cryptonote: make sure outPk setup always happens,https://github.com/monero-project/monero/commit/6f859e4328dca30e37dc70d2ea0c0eee869f478c
+monero,,,,Unrated,B_corroborated,crypto: fix initialization order issue with random mutex,https://github.com/monero-project/monero/commit/90a16b119f3f35900d0bfc304e8cae2dad20a84b
+monero,,,,Unrated,B_corroborated,device: fix endianess dependence on subaddress secret key generation,https://github.com/monero-project/monero/commit/a71e4dabe8c3b1033763e79fb349c21ef72727cf
+monero,,,,Unrated,B_corroborated,device: fix endianess dependence on subaddress secret key generation,https://github.com/monero-project/monero/commit/0beb94f323fe9743ebdaed6f837fbf2f22c90147
+monero,,,,Unrated,C_candidate,ringdb: use the genesis block as a db name,https://github.com/monero-project/monero/commit/504428ab4a7aa7773832acdc3de0baad22d6b9b7
+monero,,,,Unrated,B_corroborated,simplewallet: add a warning when getting a daemon error in transfer,https://github.com/monero-project/monero/commit/c5024c5b73823380a51112935b77487f55da11b5
+monero,,,,Unrated,C_candidate,keypair::generate: always require hw::device to avoid possible mistake,https://github.com/monero-project/monero/commit/8705beaf51c12d7eab5f56f615ec529a2a8efc27
+monero,,,,Unrated,C_candidate,Ledger HW Bug fixes,https://github.com/monero-project/monero/commit/73dd883d5112e2e8be1a465aca3b3fb48b651afd
+monero,,,,Unrated,B_corroborated,Wallet API: corrected testnet/mainnet ordering,https://github.com/monero-project/monero/commit/55a65f3269826b9e1cc6a3fb2770b8bc4761e39b
+monero,,,,Unrated,B_corroborated,"wallet api: when restoring from EnglishOld, set language to English",https://github.com/monero-project/monero/commit/71bff546d3224ba6fa49e39296ae0752f1267b70
+monero,,,,Unrated,B_corroborated,simplewallet: set seed language when restoring from english-old seed,https://github.com/monero-project/monero/commit/399120ddad4435c6b44f955ae3aed2fd8f761cf8
+monero,,,,Unrated,C_candidate,wallet2: don't throw when spent amount is inconsistent,https://github.com/monero-project/monero/commit/0133b3481a43c92edfff253722f544d12d040fa9
+monero,,,,Unrated,C_candidate,keccak: fix mdlen bounds sanity checking,https://github.com/monero-project/monero/commit/e4646379a6fb5d1dcff71cc38db5e60802a21dcb
+monero,,,,Unrated,B_corroborated,simplewallet: double check a new multisig wallet is multisig,https://github.com/monero-project/monero/commit/8cea8d0cef647b429af87036718347b629c5d4dc
+monero,,,,Unrated,C_candidate,keccak: fix sanity check bounds test,https://github.com/monero-project/monero/commit/03887f1140331326e3e6ca0a24161dd7ab74af1e
+monero,,,,Unrated,C_candidate,call _exit instead of abort in release mode,https://github.com/monero-project/monero/commit/851bd057ecfa2997252429f86362b0a710a1af8d
+monero,,,,Unrated,C_candidate,cryptonote_tx_utils: fixed logic bug in get_destination_view_key_pub,https://github.com/monero-project/monero/commit/402c9eef0e25d8a295367206ea9f1aebdea7c6d7
+monero,,,,Unrated,C_candidate,ringct: handle exceptions verifying bulletproofs in worker threads,https://github.com/monero-project/monero/commit/ff5626d78574140cde6f5f2c911637e2adde10f1
+monero,,,,Unrated,B_corroborated,wallet2: switch to chacha20 instead of chacha8,https://github.com/monero-project/monero/commit/5ad312a1c3c0491444338758119f332030b8fa2c
+monero,,,,Unrated,C_candidate,wallet2: guard against the dameon sending blocks before last checkpoin,https://github.com/monero-project/monero/commit/9996d5e96c71cfcf1d693dd6ca533c6a4176bd10
+monero,,,,Unrated,C_candidate,wipeable_string: fix buffer overread,https://github.com/monero-project/monero/commit/6ccc51f64513e2c05afed453385af68bde072d8d
+monero,,,,Unrated,C_candidate,blake256: fix wrong hash when computed in parts,https://github.com/monero-project/monero/commit/8a4610c315a6c9be69c6076e27d912a88fa433c2
+monero,,,,Unrated,C_candidate,"wallet2: fix m_key_image_{partial,known} in_light_wallet code",https://github.com/monero-project/monero/commit/277a5aefaa56e540bfa126e7d30f1fc3bc5a3774
+monero,,,,Unrated,C_candidate,"simplewallet: lock idle scope in {im,ex}port_{key_images,outputs}",https://github.com/monero-project/monero/commit/586ee64209ecf9e6ec7fe3f18edc07b127941184
+monero,,,,Unrated,B_corroborated,wipeable_string: move a wipe from reserve to grow,https://github.com/monero-project/monero/commit/6c94516fb49f450f291c2092b829f3094215cf04
+monero,,,,Unrated,C_candidate,wipeable_string: fix clear and push_back,https://github.com/monero-project/monero/commit/9ec44a2b06799709fcba197372f596f85f74feb8
+monero,,,,Unrated,C_candidate,check accessing an element past the end of a container,https://github.com/monero-project/monero/commit/b49ddc766de47b40aa705a0a0c0bb901c743908d
+monero,,,,Unrated,C_candidate,check return value for generate_key_derivation and derive_public_key,https://github.com/monero-project/monero/commit/2305bf260d852135fab53a0a2e95dce8994d7afc
+monero,,,,Unrated,C_candidate,add empty container sanity checks when using front() and back(),https://github.com/monero-project/monero/commit/45a1c4c0885584554668c89bd6976474af01e2f5
+monero,,,,Unrated,B_corroborated,change the N-1/N multisig second message signer for auth,https://github.com/monero-project/monero/commit/ceabc4f92b8b3a5c3426e4257654608cdb54797a
+monero,,,,Unrated,C_candidate,Match surae's recommendation to derive multisig keys,https://github.com/monero-project/monero/commit/e36f5b6021eb541d72fee4b2d5643ba42fd4d9dd
+monero,,,,Unrated,B_corroborated,wallet: guard against partly initialized multisig wallet,https://github.com/monero-project/monero/commit/265290388bd2134108d689818518f7d9c830292c
+monero,,,,Unrated,B_corroborated,Scrub keys from memory just before scope end.,https://github.com/monero-project/monero/commit/7193b89fe567327bb78f4c61c887b2e2fad2ed51
+monero,,,,Unrated,C_candidate,wallet2: error out in get_seed if the language is invalid,https://github.com/monero-project/monero/commit/043494924bbeb2cea7d1ae95bc111c703e608f14
+monero,,,,Unrated,C_candidate,updates: use https for updates,https://github.com/monero-project/monero/commit/a1d44f2746955abbf170f407f6613e3bddae3225
+monero,,,,Unrated,B_corroborated,catch wallet decrypt false positive,https://github.com/monero-project/monero/commit/a1e3670b33c2671f5b6f233c8373fc529ffb96f2
+monero,,,,Unrated,C_candidate,new wipeable_string class to replace std::string passphrases,https://github.com/monero-project/monero/commit/3dffe71b72c3b5dd1246ed74ee4cd1ad89aaccfa
+monero,,,,Unrated,C_candidate,use memwipe in a few relevant places,https://github.com/monero-project/monero/commit/549508296d5824093d22eccb3af5976c325c6329
+monero,,,,Unrated,C_candidate,add a memwipe function,https://github.com/monero-project/monero/commit/000666ff784185583c76f33bf0882a08fd9c29f2
+monero,,,,Unrated,C_candidate,simplewallet: prevent (wrong) integrated adresses on accounts > 0,https://github.com/monero-project/monero/commit/c0ae52c0810963dd678adf6a948d396223c92379
+monero,,,,Unrated,C_candidate,wallet2: detect multiple outputs from a tx to different subaddresses,https://github.com/monero-project/monero/commit/d875a9ff905997062366162880ba46a359b1f7f9
+monero,,,,Unrated,C_candidate,wallet2: check generate_key_derivation return value,https://github.com/monero-project/monero/commit/6cbe7bcdd277b3dc2773870a68f555d430f63065
+monero,,,,Unrated,B_corroborated,Wallet RPC: Add prompt-for-password flag,https://github.com/monero-project/monero/commit/ef941855ae38717dc133dbe60e1725d89c2a9cda
+monero,,,,Unrated,C_candidate,simplewallet: wrong ns for input_line in sweep_single (fix #2634),https://github.com/monero-project/monero/commit/c4587e83f84fa0ecfcfa5c4538697ae96162afe2
+monero,,,,Unrated,C_candidate,simplewallet: forbid 0 ring size,https://github.com/monero-project/monero/commit/2677ade5023a05e97375ee3d97e2c4aab6c54b8f
+monero,,,,Unrated,C_candidate,mnemonics: support for arbitrary (if multiple of 4 bytes) length data,https://github.com/monero-project/monero/commit/2d1ccc1b882c46e3b988a641314c15dd33eb5e66
+monero,,,,Unrated,C_candidate,"keccak: some paranoid ""can't happen"" checks",https://github.com/monero-project/monero/commit/4877aca2b6e3ebc90ed86df3d4db4dfb06de7d51
+monero,,,,Unrated,C_candidate,wallet2 bugfix: supply missing subaddr_account arg to balance() and un,https://github.com/monero-project/monero/commit/37c3792b00ed7e3af0380dddd9fea2e01bebd5e6
+monero,,,,Unrated,B_corroborated,Fix file permission issue,https://github.com/monero-project/monero/commit/0bf09154462a9030b4f288e0455198d775342a42
+monero,,,,Unrated,B_corroborated,"wallet: encrypt (un)signed tx, also optionally save unencrypted raw tx",https://github.com/monero-project/monero/commit/d74336d5c9ecee247181b472cebf0c09a386bce4
+monero,,,,Unrated,C_candidate,wallet_rpc_server: fix index for newly added address book entry,https://github.com/monero-project/monero/commit/ffe27127266d42d9dda26fea227775ba60133bce
+monero,,,,Unrated,C_candidate,wallet2: guard against daemon sending txes in the wrong order,https://github.com/monero-project/monero/commit/a15e8583029bcdbc45665b470252a1815e5fe5d1
+monero,,,,Unrated,C_candidate,rpc: order transactions in the order they were requested,https://github.com/monero-project/monero/commit/8fe5f609d18ab68434615a8c7c007a6b56124801
+monero,,,,Unrated,C_candidate,Do not create file when RPC user/pass is given and use file locking,https://github.com/monero-project/monero/commit/9c83f8063d799cd5209e05ec2286d0fecaa67bb7
+monero,,,,Unrated,B_corroborated,crypto: use malloc instead of alloca,https://github.com/monero-project/monero/commit/b5345ef4f08eee2b7e36853ca3efede44ab4a091
+monero,,,,Unrated,C_candidate,WalletAPI: only allow trusted daemon when importing key images,https://github.com/monero-project/monero/commit/d58700e003ab3126fd21cb6df0a9a27365f5fc02
+monero,,,,Unrated,B_corroborated,electrum-words: fix seed mistakenly thought to be old style,https://github.com/monero-project/monero/commit/bb708ab8c307dfc98fbadd09c6a0ceee098e4e1b
+monero,,,,Unrated,C_candidate,wallet2: check key image validity domain in import_key_images,https://github.com/monero-project/monero/commit/a374a522df6fcee357c9803c6765135ae60c1ba7
+monero,,,,Unrated,B_corroborated,Wallet API: fix Cold signing split tx,https://github.com/monero-project/monero/commit/0a7885bf19417afd5147aec95320fca47dbf1cd2
+monero,,,,Unrated,C_candidate,mnemonics: sanity checks for word lists,https://github.com/monero-project/monero/commit/6e6794786ae6f9a81281dd4467c834f70040b77c
+monero,,,,Unrated,C_candidate,wallet_rpc_server: make a few RPCs unavailable in restricted mode,https://github.com/monero-project/monero/commit/e9175cec07cc6f9f357888e2440b2c917b83f29a
+monero,,,,Unrated,C_candidate,core: protect precomputed block hashes with SHA256,https://github.com/monero-project/monero/commit/583a7b5c74239aa9e645ea5b604e4504b323271f
+monero,,,,Unrated,B_corroborated,"Add server auth to monerod, and client auth to wallet-cli and wallet-r",https://github.com/monero-project/monero/commit/ce7fcbb4aea884bb4bf433cf419ffa267f859c87
+monero,,,,Unrated,B_corroborated,simplewallet: option to always ask password for any crytical operation,https://github.com/monero-project/monero/commit/f97526e641a96ce7525673704ade98b3b3ee19d3
+monero,,,,Unrated,B_corroborated,core: fix integrated addresses breaking with auto zero change,https://github.com/monero-project/monero/commit/b5cb8861c731cd80176eb6e8e1dcaa36ec51b61e
+monero,,,,Unrated,C_candidate,mnemonics: fix language detection with checksum word,https://github.com/monero-project/monero/commit/f5f4109f9a64a562f977c11087bd3175a591236b
+monero,,,,Unrated,B_corroborated,Wallet api: Update trustedDaemon when daemon is changed,https://github.com/monero-project/monero/commit/0d3918e15bc01589cf7aaf50faf0ba615f07298c
+monero,,,,Unrated,C_candidate,wallet2: check the node returned the real output when requested,https://github.com/monero-project/monero/commit/cebae0c510b49f8eb77f6ace34b91601a62830c4
+monero,,,,Unrated,C_candidate,simplewallet: hardcode Monero's donation address,https://github.com/monero-project/monero/commit/d36669fd75de38709283f820458f5883f0a93ed7
+monero,,,,Unrated,C_candidate,addressbook updates,https://github.com/monero-project/monero/commit/3b4539ee7e75779029fc77d66263c0ae164af396
+monero,,,,Unrated,B_corroborated,Fix sending outputs from a tx with more than one pubkey,https://github.com/monero-project/monero/commit/f4a3ce15c196c2e8c723ab459be69e60d7de6007
+monero,,,,Unrated,C_candidate,ringct: add sc_check calls in MLSAG_Ver for ss and cc,https://github.com/monero-project/monero/commit/3b00527500b08859a75cf94a78c55656bcc2f99e
+monero,,,,Unrated,B_corroborated,Added confirmation before binding wallet-rpc to external IP,https://github.com/monero-project/monero/commit/18462aa065d8008f554466143ad48332f7e89cd9
+monero,,,,Unrated,C_candidate,ringct: luigi1111's changes to fix and speedup Borromean sigs,https://github.com/monero-project/monero/commit/46a0dcc1d2a31b41f5c75009d70476010f7fbacf
+monero,,,,Unrated,B_corroborated,wallet: fix exporting outputs and key images with txes with two pubkey,https://github.com/monero-project/monero/commit/7abfc5474c0f86e16c405f154570310468b635c2
+monero,,,,Unrated,C_candidate,wallet2_api: fix payment ids from integrated addresses being ignored,https://github.com/monero-project/monero/commit/69b188c4b2d1604ef5bb60b67e215c58e5ffac94
+monero,,,,Unrated,B_corroborated,wallet2: fix illegal memory access removing newlines from password,https://github.com/monero-project/monero/commit/d01f5c7f1f1fcf929fec95bd39054ebf449de36b
+monero,,,,Unrated,C_candidate,wallet2: fix decrypting a bit too much in authenticated mode,https://github.com/monero-project/monero/commit/e6264a2c359a0b6dc946034e7025af327d4623b4
+monero,,,,Unrated,B_corroborated,wallet2: try all tx keys when scanning a new transaction,https://github.com/monero-project/monero/commit/11ae1873f8cd4e041abf25f08fa4969e75aa8b40
+monero,,,,Unrated,B_corroborated,core: remove any tx pubkey from extra before adding one,https://github.com/monero-project/monero/commit/23d80b15fdb99819ea12ae94b1223d6972de70c8
+monero,,,,Unrated,B_corroborated,simplewallet: spell out change when signing a transfer,https://github.com/monero-project/monero/commit/47413a56263a323776a79520d48e1542197bd9d8
+monero,,,,Unrated,C_candidate,simplewallet: include amount sent in transfer confirmation,https://github.com/monero-project/monero/commit/bd4da1852574c7cab4aeacc8cecf8fa26dd0894e
+monero,,,,Unrated,B_corroborated,wallet: encrypt outputs and key images files with the view key,https://github.com/monero-project/monero/commit/8aba0d4b4cfdf0103c7bb3096efc45224ad6de6d
+monero,,,,Unrated,B_corroborated,wallet: print tx overview on submit_transfer too,https://github.com/monero-project/monero/commit/1f9e6a46d8887c4c29803ff5e639d1cf192865de
+monero,,,,Unrated,C_candidate,ringct: check the size of amount_keys is the same as destinations,https://github.com/monero-project/monero/commit/ffd8c41f36dc38db96bef169dbe2bfe20652d8f8
+monero,,,,Unrated,C_candidate,ringct: always shutdown the boost io service,https://github.com/monero-project/monero/commit/836669d276c1efda3f2805b17f0488a12bf3e85b
+monero,,,,Unrated,B_corroborated,wallet: fix pre-rct cold wallet signing not splitting change,https://github.com/monero-project/monero/commit/31abac4daf74f82cf9cd7c779ebb2ed8ded1d598
+monero,,,,Unrated,C_candidate,"simplewallet: factor locked_transfer, and fix a few rough edges",https://github.com/monero-project/monero/commit/ff8825210d7c09eab044f51375a5bbb6ba2a28b1
+monero,,,,Unrated,C_candidate,Always confirm transfers defaults to ON/YES,https://github.com/monero-project/monero/commit/04da979f46980f262a0936d1b7e0b1f95f514adc
+monero,,,,Unrated,B_corroborated,wallet: do not announce pool txes as money spent/received (yet),https://github.com/monero-project/monero/commit/9f31e2d8c0e78b283d063d2e3a72f69053bb8d78
+monero,,,,Unrated,C_candidate,libwallet_api: do not use fast-refresh on recovery,https://github.com/monero-project/monero/commit/8b20cbfa7dcdae314ae8090b3fe0bd83deae0116
+monero,,,,Unrated,B_corroborated,epee: optionally restrict HTTP service to a configurable user agent,https://github.com/monero-project/monero/commit/eeb2bbc0fcc9c5afa2c3aa12915b4d3f31115e56
+monero,,,,Unrated,B_corroborated,wallet: keep change dest separate from other dests,https://github.com/monero-project/monero/commit/1dd5b0b7dff60d45aa3d5d33f8be304f3e222c7a
+monero,,,,Unrated,B_corroborated,wallet: transfer_selected_rct now also selects fake outs,https://github.com/monero-project/monero/commit/b951bc8780f9a11ccf8dbc1ee89c2aa550bad101
+monero,,,,Unrated,C_candidate,ringct: use Cryptonote serialization to hash non prunable data,https://github.com/monero-project/monero/commit/074e60260919fb0da19db125f3c9a16bcff2773f
+monero,,,,Unrated,C_candidate,rct amount key modified as per luigi1111's recommendations,https://github.com/monero-project/monero/commit/d4b62a1e295a7fb19de6081733b1d8e0610cbf08
+monero,,,,Unrated,B_corroborated,rct: rework the verification preparation process,https://github.com/monero-project/monero/commit/d93746b6d37dd5b99d16331ec8e24e8a1f7e4652
+monero,,,,Unrated,B_corroborated,wallet: do not try to use rct txes a few blocks before the fork,https://github.com/monero-project/monero/commit/c27194a44426ee680fd6a3992685637b8431be39
+monero,,,,Unrated,C_candidate,rct: make the amount key derivable by a third party with the tx key,https://github.com/monero-project/monero/commit/9b70856ccb97943249f6e76b19f8abce5cd7aabe
+monero,,,,Unrated,C_candidate,ringct: fix size unit mismatch calling keccak,https://github.com/monero-project/monero/commit/35dce5c70c6dcf4d39316b46a8f7d623040cda11
+monero,,,,Unrated,B_corroborated,wallet: update spent status when an accepted tx disappears,https://github.com/monero-project/monero/commit/acbe06d8e931c2a35bd37e0a5d41159ce3ab5da9
+monero,,,,Unrated,B_corroborated,wallet: reset output spent status on blockchain reorg,https://github.com/monero-project/monero/commit/089df4af831520e0a16b643b876da37222bf4663
+monero,,,,Unrated,C_candidate,ringct: catch errors from ge_frombytes_vartime,https://github.com/monero-project/monero/commit/73d59f17e1a75788a5375bc8fcefcaf6277f12bc
+monero,,,,Unrated,C_candidate,ringct: add missing size check for ecdhInfo,https://github.com/monero-project/monero/commit/359f46901ee5c46fe125248ccb769fe27188a61a
+monero,,,,Unrated,C_candidate,ringct: change asserts to return false for boolean functions,https://github.com/monero-project/monero/commit/229968eafc8a6cb83611bfd6030196d5ca9f4b7c
+monero,,,,Unrated,C_candidate,ringct: txn fee stuff,https://github.com/monero-project/monero/commit/f8c04ad94fff9df079b59f197a49e19478385725
+monero,,,,Unrated,C_candidate,ringct: add check for destinations/amount size being equal,https://github.com/monero-project/monero/commit/63856cad29b87348db04102190de5d1d45d03a7e
+monero,,,,Unrated,C_candidate,ringct: changes to hashToPointSimple to calcualte H2 values,https://github.com/monero-project/monero/commit/55ff136e12d7425426e2196c6018f3123dd5e40d
+monero,,,,Unrated,B_corroborated,"ringct: compare keys with bitwise equality, not crypto ops",https://github.com/monero-project/monero/commit/63733b17850e46d9209a9d0f47e6f7b192d6553e
+monero,,,,Unrated,C_candidate,ringct: fix size argument to cn_fast_hash,https://github.com/monero-project/monero/commit/98f4c6f7eba9d4862390e2ea649328221764cf83
+monero,,,,Unrated,C_candidate,Fix sc_0 to skGen in ProveRange,https://github.com/monero-project/monero/commit/09fb9f4b75d29e1211f62038c794e6c63420e05e
+monero,,,,Unrated,C_candidate,ringct: lock access to the PRNG,https://github.com/monero-project/monero/commit/86b4426191b44eb9ab0c428e910dede9f7398dc1
+monero,,,,Unrated,B_corroborated,libwallet_api: Wallet::amountFromString fixed,https://github.com/monero-project/monero/commit/bcf7b67cd6f85cdf8bf7799aa3890a56ea58ddc8
+monero,,,,Unrated,B_corroborated,libwallet_api: do not store wallet on close if status is not ok,https://github.com/monero-project/monero/commit/b1a5a937ff6177723c729f94624e282351de27bb
+monero,,,,Unrated,B_corroborated,simplewallet: do not suggest removing cache if the password was wrong,https://github.com/monero-project/monero/commit/e596e25367d490d5826ec58fdba81e4aaf06bccf
+monero,,,,Unrated,C_candidate,wallet2_api: use uint64_t for amounts,https://github.com/monero-project/monero/commit/87b1153f3748a5031f5292451c13259aaf6c7c36
+monero,,,,Unrated,C_candidate,merged with upstream,https://github.com/monero-project/monero/commit/3dd4b4ccf978338dd270184f1e955a163cf7fa52
+monero,,,,Unrated,B_corroborated,crypto: make clear generate_random_bytes is not thread safe,https://github.com/monero-project/monero/commit/d539be33590f7dfb0013187502744286f2959ee3
+monero,,,,Unrated,C_candidate,Don't allow 'flush_txpool' and 'setbans' JSON_RPC methods when running,https://github.com/monero-project/monero/commit/9f8bc4946b3993ad4437936dcae705d2c8f1116a
+monero,,,,Unrated,C_candidate,merged with upstream,https://github.com/monero-project/monero/commit/566166aafd29bbca1f4916d4383752945892eb20
+monero,,,,Unrated,B_corroborated,random: call abort(3) instead of assert in must_succeed macro,https://github.com/monero-project/monero/commit/31587bdd153040fa641bd0f5967b69a3b0a9559f
+monero,,,,Unrated,C_candidate,simplewallet: set strict umask at start,https://github.com/monero-project/monero/commit/ed61a2ccc1bc38a8e58ecef17e5831d1e406cd0b
+monero,,,,Unrated,C_candidate,util: add a function to set umask to 077,https://github.com/monero-project/monero/commit/7385c036bdd2e9254be99024ddcec639b668f68a
+monero,,,,Unrated,B_corroborated,wallet: fix --generate-from-keys saving as watch only,https://github.com/monero-project/monero/commit/878ab5d896c1a9cb5c50c36a0ded5da998c941d5
+monero,,,,Unrated,B_corroborated,wallet: make load_keys check types when loading JSON,https://github.com/monero-project/monero/commit/b4eada907ca2551d8f0372b40c5af0106b973d50
+monero,,,,Unrated,C_candidate,simplewallet: check watch-only view key matches standard address,https://github.com/monero-project/monero/commit/f6abc5324f602ded6a0424445c033f5a8622ab22
+monero,,,,Unrated,B_corroborated,wallet: check a key image isn't already present when adding one,https://github.com/monero-project/monero/commit/c7b96b91ed33afc666afed3d960597c3e9628790
+monero,,,,Unrated,C_candidate,use load_file_to_string and exit with error on file read errors,https://github.com/monero-project/monero/commit/c5baf30208817ebb6f07541ed49f9067b910272a
+monero,,,,Unrated,B_corroborated,wallet: use mutex protected random generation api,https://github.com/monero-project/monero/commit/5dc53c2cb0236b63cdbc7e77c4e6b5d992bc1b1b
+monero,,,,Unrated,B_corroborated,wallet: only return tx keys via RPC if requested,https://github.com/monero-project/monero/commit/d91eb8c7b43fc73b9333de800500f217e370cc4b
+monero,,,,Unrated,C_candidate,blockchain_db: store key images for tx without outputs too,https://github.com/monero-project/monero/commit/533acc30eda7792c802ea8b6417917fa99b8bc2b
+monero,,,,Unrated,C_candidate,mnemonics: fix prefix extraction with non ASCII text,https://github.com/monero-project/monero/commit/ea33cadebf93995c86559f233d4c79d65ff1f860
+monero,,,,Unrated,C_candidate,Set dnssec_valid value correctly in dns_utils; fix address_from_url te,https://github.com/monero-project/monero/commit/3ade396406493708da31e69cd3e3b3d1cbb04924
+monero,,,,Unrated,C_candidate,Fix standard address deserialization,https://github.com/monero-project/monero/commit/f6da25a32e944b028b7d9c2e4a0769543d5ba19e
+monero,,,,Unrated,B_corroborated,simplewallet: Don't log view key and spend key,https://github.com/monero-project/monero/commit/f24bcd51999feb50b5f84ddfe1341b345b673224
+monero,,,,Unrated,C_candidate,DNSSEC added (hardcoded key),https://github.com/monero-project/monero/commit/dbf46a721af5d54792bca80fc1c439c1badc9069
+monero,,,,Unrated,C_candidate,fixed English word list issue: 'launchpad' should be 'ourselves',https://github.com/monero-project/monero/commit/c01069f35253586ac2fbc3d507c7ed3ccdd900ce
+monero,,,,Unrated,C_candidate,fixed English word list issue: 'incline' should have remained 'inline',https://github.com/monero-project/monero/commit/10e4132e22ccc0f1a41763adee74699ebedb5ffc
+monero,,,,Unrated,C_candidate,db_lmdb: do not keep a dangling pointer to stack objects,https://github.com/monero-project/monero/commit/1d23db220ad584b3af1cc243cd3a1193bb1deeed
+monero,,,,Unrated,B_corroborated,deterministic wallet use of twelve words fixed,https://github.com/monero-project/monero/commit/2e11eb150444086dd936b10680bf354b548cc1f5
+monero,,,,Unrated,B_corroborated,"ensure that keccak is called on view spend key, not a possibly pre-sc_",https://github.com/monero-project/monero/commit/21a3c46a1b422514a375334da172074afe69b7fd
+monero,,,,Unrated,B_corroborated,Rewrites to old wallet file correctly,https://github.com/monero-project/monero/commit/031ca23ce9adcdb802097f93017e4acab87d4b37
+monero,,,,Unrated,C_candidate,core_rpc_server: fix overreads in slow_memmem,https://github.com/monero-project/monero/commit/add803be89c1538d4b98d3fc0e25930b96a78fb2
+monero,,,,Unrated,C_candidate,minor English wordlist tweaks,https://github.com/monero-project/monero/commit/010bfcfd18497b5f77cef62d60a56a556dfeadd4
+monero,,,,Unrated,C_candidate,quick hacky fix for broken TXT reads,https://github.com/monero-project/monero/commit/c4d6658f4cfe5c5b153f59b0619f6c4ad8a47496
+monero,,,,Unrated,C_candidate,Don't show Old English as an available option,https://github.com/monero-project/monero/commit/443d46a6f1569e64b606c921298c4f3bf69d8dd9
+monero,,,,Unrated,C_candidate,Had missed const and had to use .at instead of [],https://github.com/monero-project/monero/commit/3e6b6bad2d731ca778da9c3bcfdb1b1001a85cd7
+monero,,,,Unrated,C_candidate,"Cut short word lists to 1626 words, added attribution to Electrum, som",https://github.com/monero-project/monero/commit/fa723d8af8f624d5719dcfa5a0cf1fc1b45be01e
+monero,,,,Unrated,C_candidate,Fixed artifacts from cherry-picking devel->master,https://github.com/monero-project/monero/commit/24f325a33d149125b7cf5e91615cbc9e5b686a2b
+monero,,,,Unrated,C_candidate,change to allow (at least a bit) for multiple TXT records,https://github.com/monero-project/monero/commit/c14c7e16839b6cfe32527f2b01a9a1507e3d419e
+monero,,,,Unrated,B_corroborated,output rng fix from boolberry,https://github.com/monero-project/monero/commit/08205f01d94b739424fa09d880cf36f4ea4722f9
+monero,,,,Unrated,C_candidate,"Fix tree-hash cnt n^2. Asserts, comment. Squash2",https://github.com/monero-project/monero/commit/2ef0aee81d20c002ed50d6dec4baceee1ac40b44
+monero,,,,Unrated,B_corroborated,check its deterministic wallet before printing seed,https://github.com/monero-project/monero/commit/6575d4ebe5a4c4a6c8eb6bff16120e08563440bb
+monero,,,,Unrated,B_corroborated,wallet rpc: actually populate the extra while assembling a transaction,https://github.com/monero-project/monero/commit/a59b6205cd24b5c4ebc2641006ec99d981143752
+monero,,,,Unrated,C_candidate,Fix assert bug in base58 encode,https://github.com/monero-project/monero/commit/7259f07a200fd583deb0dca1372bbe5fd760b440
+monero,,,,Unrated,C_candidate,change hash for keygen from blake to keccak,https://github.com/monero-project/monero/commit/205494f0d1bee85444d087f45d58558329f8c4ae
+monero,,,,Unrated,B_corroborated,allow two-random-numbers wallet generation (but not as default),https://github.com/monero-project/monero/commit/da37b6f15b6eb1f7b4ac9802a3350413d303a5c9
+monero,,,,Unrated,C_candidate,stupid signed arithmetic.,https://github.com/monero-project/monero/commit/537b911af1db1258a6db226de3b7c55cb5779e21
+monero,,,,Unrated,C_candidate,more pointer-based derp,https://github.com/monero-project/monero/commit/8bc032ed092e65e944e9032bc6042ae118346fa9
+monero,,,,Unrated,C_candidate,fixed some pointer- and loop-based derps,https://github.com/monero-project/monero/commit/72c3f36ca44a4be4d237095fd14e1ff862af5864
+monero,,,,Unrated,C_candidate,"missing '.at' on two map calls.  built on some machines, very strange.",https://github.com/monero-project/monero/commit/8661f9a970aca5812d0838bc3fb33fbae0ec4cd2
+monero,,,,Unrated,C_candidate,Update cryptonote_format_utils.cpp,https://github.com/monero-project/monero/commit/ed444b7175d8d9d62a7077aaf59e70d071d2fad6
+monero,,,,Unrated,C_candidate,Warn user on attempting to remove build directory for make clean,https://github.com/monero-project/monero/commit/8e92162d2c522d6dfa34cd7729c96231967e21c8
+viem,,,,Unrated,B_corroborated,fix: default uint/int size in validateTypedData (#4961),https://github.com/wevm/viem/commit/fca3ff599e16172a86a9d1f6ce7057ea91246056
+viem,,,,Unrated,C_candidate,fix: guard consumed nonce 0 in `NonceManager` stale-source check (#19),https://github.com/wevm/viem/commit/87b581c3a485a21625f85e0c2b19c3e96f32fd41
+viem,,,,Unrated,C_candidate,"fix(contract): append dataSuffix in simulate, carry it on the returned",https://github.com/wevm/viem/commit/4d035836be286f4cc4d88b308f97c91ee8bb5f93
+viem,,,,Unrated,B_corroborated,"fix(ens): block unsafe avatar uri hosts, add fetch timeout and metadat",https://github.com/wevm/viem/commit/0aaeb362bed7661b1351bc6407ff67914c6c9e8f
+viem,,,,Unrated,B_corroborated,fix(erc4337): select simple7702 implementation from resolved entrypoin,https://github.com/wevm/viem/commit/4d75030f26cc5d8110d829429cee5e970a7e0b31
+viem,,,,Unrated,B_corroborated,"fix(tempo): keep dex.place, dex.placeFlip, and policy.create call args",https://github.com/wevm/viem/commit/fb0d67cccbd37bcc04f338cc2d618fc00c2a124c
+viem,,,,Unrated,C_candidate,fix(tempo): omit multisig bootstrap init for explicit nonce keys (#33),https://github.com/wevm/viem/commit/17a7ee14180bc83314d7cab70820b195f4e86155
+viem,,,,Unrated,B_corroborated,fix: retry whole send operation per fallback transport for local accou,https://github.com/wevm/viem/commit/1c4e0b781c45e496ad136da817815c7e8cdcbfb8
+viem,,,,Unrated,C_candidate,feat: finalize CCIP Read APIs,https://github.com/wevm/viem/commit/8ac8b762837b88d928ba56a496cc316198d55b30
+viem,,,,Unrated,C_candidate,fix: handle zero-width types in `encodeAbiParameters` and `decodeAbiPa,https://github.com/wevm/viem/commit/515b637cde2d0338f012abfb501f1983440e4e76
+viem,,,,Unrated,B_corroborated,Applied relay call review feedback,https://github.com/wevm/viem/commit/23b0a3d971855502d6d31ba04ae32844e9a3d7bf
+viem,,,,Unrated,C_candidate,fix(tempo): normalize prefilled fee payer signatures,https://github.com/wevm/viem/commit/e7a1ae01a26474e4f6a6617523e779d24ed301b8
+viem,,,,Unrated,C_candidate,fix(tempo): preserve keyType/keyId/keyData in formatTransactionRequest,https://github.com/wevm/viem/commit/ef3f4334f81bffc40bc2666103d3f2210f6da004
+viem,,,,Unrated,B_corroborated,fix(wallet): preserve account context in local signTransaction,https://github.com/wevm/viem/commit/a35453de8bcf398cb7a79635528312855c0e570a
+viem,,,,Unrated,B_corroborated,fix(tempo): fee payer presign flow in relay pattern,https://github.com/wevm/viem/commit/0b4bde619e71eefa206381e1be43b02ff4b1305b
+viem,,,,Unrated,C_candidate,fix: don't overwrite client-provided keyAuthorization with fill respon,https://github.com/wevm/viem/commit/87c04ee1a82c4a8778bad22257a1d1bf5ccf7ccd
+viem,,,,Unrated,C_candidate,fix: correct XLayer testnet chain ID and mainnet RPC URL (#4389),https://github.com/wevm/viem/commit/d4bb76cfd30edf70644ff796e3e2ae17647fea67
+viem,,,,Unrated,C_candidate,feat(tempo): require chain id on key auths,https://github.com/wevm/viem/commit/1adb83804d5f6c3f36d5f293de88532330d52dc7
+viem,,,,Unrated,B_corroborated,fix: add EIP712Domain type definition to user operation and transactio,https://github.com/wevm/viem/commit/2c14b867e4262db8bb4f4ddb3cf8ccab1c3bf644
+viem,,,,Unrated,C_candidate,fix: user operation hash calculation,https://github.com/wevm/viem/commit/892ebea16241fd4403c691022297463e2fad2d5b
+viem,,,,Unrated,C_candidate,fix: correct EIP-7702 UserOperation hash calculation,https://github.com/wevm/viem/commit/e368bc5997d9190c47dc9f44b3f159837a5b1eb4
+viem,,,,Unrated,C_candidate,feat: simplify verifyHash; append magicBytes to tempo sigs,https://github.com/wevm/viem/commit/e0aab4351c98b1d74c97a34af509d5f8e5654d4c
+viem,,,,Unrated,C_candidate,fix: resolves #3836,https://github.com/wevm/viem/commit/c2acc0df1aceeb81753d7c0d8c525c1480638497
+viem,,,,Unrated,C_candidate,fix: fix zksync default calldata (#3658),https://github.com/wevm/viem/commit/5d9bdabd61a95a22a914c78c242fa9cfbc803ed1
+viem,,,,Unrated,C_candidate,fix: resolves #3593,https://github.com/wevm/viem/commit/982e2cadbe8647fbe59108080b5cb13327cbfbaa
+viem,,,,Unrated,B_corroborated,feat: prefer `signTypedData` on owners for `toCoinbaseSmartWallet` (#3,https://github.com/wevm/viem/commit/295e4f9e1a8aab79f88f8e59c4d5e7ac25def1ae
+viem,,,,Unrated,C_candidate,change detection method,https://github.com/wevm/viem/commit/350ae53f4e94ec676a30eb3eabf23834d8c73db0
+viem,,,,Unrated,B_corroborated,fix: `domain`'s `chainId` was not getting the types correctly when `bi,https://github.com/wevm/viem/commit/f6fa1913e42ed58c028d3e0f9db30b054b567681
+viem,,,,Unrated,C_candidate,fix: resolves #2999,https://github.com/wevm/viem/commit/dbf13c0362b890765a7a25703d92f2b756fdbf4e
+viem,,,,Unrated,C_candidate,fix: resolves #2888,https://github.com/wevm/viem/commit/c2cd08162b81c64f4fc5812d4f4f863408eb4afa
+viem,,,,Unrated,C_candidate,fix: enforce `r` + `s` hex values to be padded to 32 bytes,https://github.com/wevm/viem/commit/759e34dde23ca50275d9e4df38805e8f0b285753
+viem,,,,Unrated,C_candidate,fix: resolves #2306,https://github.com/wevm/viem/commit/ddfce938e4760f60be54ee97802d819cc2b052d8
+viem,,,,Unrated,C_candidate,fix: parsing SIWE message containing domain with port (#2303),https://github.com/wevm/viem/commit/271893feb0cf26a4fb1ad4a04a16e5186542fdce
+viem,,,,Unrated,C_candidate,fix(siwe): createSiweMessage domain validation,https://github.com/wevm/viem/commit/fdfcbaba1c45166583ccd577128e6ced411e13bd
+viem,,,,Unrated,B_corroborated,fix: legacy transaction address recovery,https://github.com/wevm/viem/commit/45fc1d55c64b00de60889c25a35fcc9778597dfb
+viem,,,,Unrated,C_candidate,fix: resolves #2183,https://github.com/wevm/viem/commit/735726cac2f7136d8ce82ec5911fd8dde78a1339
+viem,,,,Unrated,C_candidate,fix: celo tx type detection - fixes #1863,https://github.com/wevm/viem/commit/367eef3aa1879172df46cfd803419747d81086ff
+viem,,,,Unrated,C_candidate,feat: better legacy eip155 tx serializing (#1438),https://github.com/wevm/viem/commit/8e52fcb8565a9fadce4da31e924894881804f9d2
+viem,,,,Unrated,B_corroborated,fix: `chainId` assignment in `signTransaction` action,https://github.com/wevm/viem/commit/b6aace909c8f27c49a393813e2569b98a72083ca
+viem,,,,Unrated,C_candidate,fix: incorrect bigint->bytes32 conversion in `hexToSignature` (#1102),https://github.com/wevm/viem/commit/0edea858fe28bd9d7cb7c5b9b8ebde72025cf71d
+viem,,,,Unrated,C_candidate,fix: ensure that getEnsAddress returns the correct padded address leng,https://github.com/wevm/viem/commit/51ccc6c9453538b98e7e580cec44d9b15f0d3500
+viem,,,,Unrated,C_candidate,fix: `getFunctionSelector`/`getEventSelector` returning incorrect sele,https://github.com/wevm/viem/commit/11410bab795c390734adab093ab78da127fb68c4
+viem,,,,Unrated,C_candidate,fix: `EIP712Domain` to support empty `name` (#758),https://github.com/wevm/viem/commit/67b628df19edead79d8c6ef4755b407b3ce0486f
+viem,,,,Unrated,C_candidate,fix: support empty string in EIP712Domain name,https://github.com/wevm/viem/commit/65476613cf1a5cb9996ec9ec1b9c47d00b0f2d75
+viem,,,,Unrated,C_candidate,fix: decimals with leading zeroes (#635),https://github.com/wevm/viem/commit/99bda2bc059c3641e4609d50b4abc5915c01e490
+viem,,,,Unrated,C_candidate,feat: ethers adapter,https://github.com/wevm/viem/commit/6fc2f08d32685bb12a0d871488cb9470071d7f12
+viem,,,,Unrated,C_candidate,fix: don't utf-8 encode hex string when calling stringToBytes,https://github.com/wevm/viem/commit/8e274a01875763a03f70a8565dc192a476ca16cb
+viem,,,,Unrated,B_corroborated,fix: allow recovery id as v when recovering public key (#545),https://github.com/wevm/viem/commit/1c1350e62b60229a8dae89178d15c748177ad214
+viem,,,,Unrated,C_candidate,fix: `hashMessage` bytes conversion (#475),https://github.com/wevm/viem/commit/64a2f51799431faf28946127a3d62373051d8553
+viem,,,,Unrated,C_candidate,fix: resolve 0x-prefixed ENS names (#290),https://github.com/wevm/viem/commit/ef2bbafa2b372bfa8fa1b29ffabea75ca3ea1122
+viem,,,,Unrated,C_candidate,fix: removed unnecessary trimming of decoded RLP hex value,https://github.com/wevm/viem/commit/07000b650b6cce41c99a4ccf609f5fccce818244
+viem,,,,Unrated,C_candidate,fix: decode empty string parts (#169),https://github.com/wevm/viem/commit/3bb05e639f313d300b87aa454a17216be1c36299
+viem,,,,Unrated,C_candidate,feat: assert chain on send txn (#97),https://github.com/wevm/viem/commit/fb20f48a07f7ed364aa3d340a7e6ddf97e63b608
+viem,,,,Unrated,C_candidate,fix: parseUnit conversion,https://github.com/wevm/viem/commit/517aaca980ec101f484088f4207d9600a8685a0c
+viem,,,,Unrated,B_corroborated,fix: fixed issue where postinstall/preinstall hooks were published to ,https://github.com/wevm/viem/commit/43700d94660ee2478d867fcf4abcc0dac64f90d0
+viem,,,,Unrated,C_candidate,fix: use eth_chainId instead of net_version,https://github.com/wevm/viem/commit/fa54d3ffe583efa85833fbfd75b260febb7fb234
+wagmi,,,,Unrated,B_corroborated,fix(tempo): always provide JSON-RPC account in `getClient` (#5117),https://github.com/wevm/wagmi/commit/9e8418a1f751622846dde564ddd1eef4693f6005
+wagmi,,,,Unrated,B_corroborated,fix(tempo): restrict `signable` account hydration in `connector.getCli,https://github.com/wevm/wagmi/commit/28b1437ec427e426b43543203f95ba8dc81ae649
+wagmi,,,,Unrated,B_corroborated,fix(tempo): restrict signable account hydration in connector getClient,https://github.com/wevm/wagmi/commit/15258ad4058483bb69603f9feb343efd44977bea
+wagmi,,,,Unrated,B_corroborated,fix(tempo): webauth keyauth chainId wiring (#5024),https://github.com/wevm/wagmi/commit/2f4316ced40944b3af01534e4b6e9c1a4455c7a6
+wagmi,,,,Unrated,B_corroborated,fix: update chainId check in getConnectorClient (#4733),https://github.com/wevm/wagmi/commit/986b96427a4bb743d2673dfbc7e8cb5041316db3
+wagmi,,,,Unrated,C_candidate,feat: chain check (#4023),https://github.com/wevm/wagmi/commit/f0ea0b2a7fe193dadfeb49a4c8031ee451c638b5
+wagmi,,,,Unrated,B_corroborated,fix(connectors): remove ledger due to security vulnerability,https://github.com/wevm/wagmi/commit/53ca1f7eb411d912e11fcce7e03bd61ed067959c
+wagmi,,,,Unrated,C_candidate,fix: pass `chain` to `sendTransaction`/`writeContract` (#3076),https://github.com/wevm/wagmi/commit/4c36831b7aa44d03b5c0decf64dcd20faae28a67
+wagmi,,,,Unrated,B_corroborated,fix: assert chainId on watchSigner,https://github.com/wevm/wagmi/commit/87f3eef9c0794a539143aded60e485d712ac161a
+wagmi,,,,Unrated,C_candidate,fix: ensure result of `useSigner` does not broadcast to other `useSign,https://github.com/wevm/wagmi/commit/215664f46ad2a945b5adb795a19ffbf8027999ea

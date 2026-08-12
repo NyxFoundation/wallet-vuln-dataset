@@ -108,4 +108,5 @@ done
 echo
 [ -n "$FAILED" ] && echo "=== REPOS SKIPPED (enumeration failed):$FAILED ==="
 echo "=== sweep done. Fold in with: ==="
-echo "  uv run python scripts/merge_keywordless.py --out data/silent_fix_llm.csv"
+echo "  uv run python scripts/merge_keywordless.py            # report"
+echo "  uv run python scripts/merge_keywordless.py --write    # apply"

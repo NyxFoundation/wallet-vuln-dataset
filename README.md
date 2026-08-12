@@ -1,7 +1,7 @@
 # wallet-vuln-dataset
 
 Every security fix that crypto wallet developers have quietly shipped, collected from
-their own public repositories. 33,744 fixes across 174 wallets, hardware firmwares,
+their own public repositories. 34,526 fixes across 174 wallets, hardware firmwares,
 smart-contract accounts and signing libraries.
 
 Almost none of them have a CVE. That is the point.
@@ -91,7 +91,7 @@ believed you approved, while your seed stayed exactly where it was supposed to b
 | File | Size | What |
 |---|---:|---|
 | [`data/keywordless_sweep_wave1.csv`](data/keywordless_sweep_wave1.csv) | 1.6 MB | **start here.** 4,608 fixes from ten mass-market wallets, one row each, with the reason it was judged a security fix |
-| `data/wallet_vulns.parquet` | 95 MB | the full corpus — 33,744 rows, all columns, before/after code inline |
+| `data/wallet_vulns.parquet` | 95 MB | the full corpus — 34,526 rows, all columns, before/after code inline |
 | `data/wallet_vulns.preview.csv` | 6 MB | key columns only, browsable in the GitHub UI |
 | `data/raw/train.classified.parquet` | 31 MB | pre-filter snapshot, for reproducing the curation |
 | [`data/wave1_mechanisms.csv`](data/wave1_mechanisms.csv) | 1.7 MB | the same 4,608 fixes labelled by defect mechanism |
@@ -105,9 +105,9 @@ believed you approved, while your seed stayed exactly where it was supposed to b
 import pandas as pd
 df = pd.read_parquet("data/wallet_vulns.parquet")
 
-df[df.authority_tier.isin(["A_authoritative", "B_corroborated"])]  # 22,133 strongest
+df[df.authority_tier.isin(["A_authoritative", "B_corroborated"])]  # 22,413 strongest
 df[df.security_verdict != "refuted"]                               # drop the denied
-df[df.contest == "all-commits"]                                    # 3,896 keyword-free
+df[df.contest == "all-commits"]                                    # 4,675 keyword-free
 df[df.mechanism == "signed-differs-from-shown"]                    # by what went wrong
 ```
 
@@ -119,16 +119,16 @@ The full CSV export is not committed — at 305 MB it exceeds GitHub's file limi
 | | rows |
 |---|---:|
 | raw snapshot | 94,388 |
-| curated | **33,744** |
-| └ strongest evidence (`A_authoritative` ∪ `B_corroborated`) | **22,133** |
-| by tier | A_authoritative 1,421 · A_dependency 628 · B_corroborated 20,712 · C_candidate 10,983 |
-| by severity | Critical 1 · High 228 · Medium 846 · Low 49 · Info 11,646 · Unrated 20,974 |
-| with a STRIDE category | 8,703 |
-| with a CWE-Top-25 id | 8,238 |
+| curated | **34,526** |
+| └ strongest evidence (`A_authoritative` ∪ `B_corroborated`) | **22,413** |
+| by tier | A_authoritative 1,421 · A_dependency 628 · B_corroborated 20,992 · C_candidate 11,485 |
+| by severity | Critical 1 · High 228 · Medium 846 · Low 49 · Info 11,650 · Unrated 21,752 |
+| with a STRIDE category | 8,705 |
+| with a CWE-Top-25 id | 8,241 |
 | found by the LLM classifier alone | 7,057 |
-| └ from the keyword-free sweep | 3,896 |
-| `security_verdict` | unassessed 24,299 · assessed 7,934 · refuted 1,511 |
-| with a defect `mechanism` | **6,803** across 22 kinds · 2,642 read but unattributable · 24,299 unread |
+| └ from the keyword-free sweep | 4,675 |
+| `security_verdict` | unassessed 24,031 · assessed 8,833 · refuted 1,662 |
+| with a defect `mechanism` | **6,802** across 22 kinds · 2,639 read but unattributable · 25,085 unread |
 
 **97% of rows are Info or Unrated** because nobody ever graded them. Unrated means no
 grader existed, not low impact.
@@ -245,7 +245,8 @@ Two custody models get explicit coverage:
 
 ## Keyword-free sweep: where it stands
 
-Ten mass-market repositories done. Every eligible commit judged, no keyword consulted.
+Sixteen mass-market repositories done. Every eligible commit judged, no keyword
+consulted.
 
 | repo | commits judged | fixes found | rate |
 |---|---:|---:|---:|
@@ -259,12 +260,25 @@ Ten mass-market repositories done. Every eligible commit judged, no keyword cons
 | WalletConnect (monorepo) | 4,095 | 143 | 3.5% |
 | sparrowwallet/sparrow | 1,938 | 103 | 5.3% |
 | safe-fndn/safe-smart-account | 845 | 75 | 8.9% |
-| **total** | **60,204** | **4,608** | **7.7%** |
+| monero-project/monero | 6,791 | 457 | 6.7% |
+| btcpayserver/btcpayserver | 6,137 | 261 | 4.3% |
+| ethers-io/ethers.js | 2,207 | 80 | 3.6% |
+| wevm/viem | 4,269 | 67 | 1.6% |
+| monero-project/monero-gui | 837 | 19 | 2.3% |
+| wevm/wagmi | 2,046 | 15 | 0.7% |
+| **total** | **82,491** | **5,507** | **6.7%** |
 
 Each repository's most common failure class matches what that repository is for —
 `transport` for the dapp-to-wallet channel, `contract` for the smart account, `approval`
 for the system that grants third-party code wallet rights, `signing` and `firmware` for
 the hardware signers. The classifier is never told which repository it is reading.
+
+The second wave was chosen to test whether popularity predicts yield. It does not.
+The three most-depended-on libraries in the registry — `viem`, `wagmi` and `ethers` —
+returned 1.6%, 0.7% and 3.6%, while `monero`, a wallet that holds keys itself, returned
+6.7%. `wagmi`'s 15 fixes in 2,046 commits is the lowest of anything swept. A hooks layer
+over a signing library has little of its own to get wrong; the rate tracks how close the
+code sits to keys and signatures, not how many projects import it.
 
 **Rate is the wrong way to rank the queue.** Electrum's 6.3% is unremarkable, but across
 15,311 commits it produced 962 fixes — 21% of everything found. What matters is rate ×
