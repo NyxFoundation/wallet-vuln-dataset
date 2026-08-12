@@ -422,9 +422,14 @@ uv run --with matplotlib --with numpy --with uharfbuzz --with fonttools \
 ```
 
 Labels are Japanese, and worded for a reader who has never worked on a wallet:
-"custody path" appears as 資産の保管・送金処理, "advisory" as 公開された脆弱性情報.
-Titles state what each figure shows; the takeaway sits in the subtitle. Every
-number is read from `data/`, never typed in.
+"custody path" appears as 資産の保管・送金処理, and an advisory as 登録された脆弱性情報 —
+registered, not 公表された (announced). The figures may only claim the record is
+missing, which is all the corpus can see; BTCPay's 2FA bypass was announced loudly
+and is still absent from it. Titles state what each figure shows; the takeaway sits
+in the subtitle. Every number is read from `data/`, never typed in.
+
+`scripts/poster_figures.py` imports `style.py` from the repository root, so it needs
+`PYTHONPATH=.` when run from anywhere other than that root.
 
 ## Layout
 

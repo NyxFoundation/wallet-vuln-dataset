@@ -77,17 +77,22 @@ def fig_ratio(out="fig1_ratio.png"):
     fig, ax = S.new(12.8, 5.6, xlim=(-W * 0.015, W * 1.30), ylim=(-1.62, 1.30))
 
     # silent fixes
-    S.t(ax, 0, 1.10, "公表されずに修正された欠陥", fp="bold", size=15.5, color=S.INK, va="center")
+    S.t(ax, 0, 1.10, "登録なく出荷された修正", fp="bold", size=15.5, color=S.INK, va="center")
     S.t(ax, 0, 0.83, "10 製品の全変更履歴を 1 件ずつ判定",
         fp="reg", size=11, color=S.MUTED, va="center")
     S.rrect(ax, 0, 0.36, silent, 0.32, fc=S.RUST, ec="none", rs=0.02, z=2)
     S.t(ax, silent + W * 0.015, 0.52, f"{silent:,}", fp="black", size=30,
         color=S.RUST, va="center")
 
+    # "登録なく" not "公表されずに": the corpus can only observe whether a
+    # CVE/GHSA record exists, and the two come apart. BTCPay's TOTP 2FA bypass
+    # shipped in an emergency release under active exploitation, with press
+    # coverage, and still has no GitHub advisory — it counts as silent here and
+    # was in no sense undisclosed.
     # advisory rows, segmented
-    S.t(ax, 0, -0.10, "脆弱性情報が公開された修正", fp="bold", size=15.5,
+    S.t(ax, 0, -0.10, "脆弱性情報が登録された修正", fp="bold", size=15.5,
         color=S.INK, va="center")
-    S.t(ax, 0, -0.37, "CVE 番号などが付与されているもの", fp="reg", size=11,
+    S.t(ax, 0, -0.37, "CVE・GHSA 番号が付与されているもの", fp="reg", size=11,
         color=S.MUTED, va="center")
     x = 0.0
     for n, c in ((conf, S.RUST), (dep, S.SLATE), (rest, S.lighten(S.SLATE, 0.60))):
@@ -117,9 +122,9 @@ def fig_ratio(out="fig1_ratio.png"):
 
     fig.subplots_adjust(top=0.775, bottom=0.03, left=0.045, right=0.985)
     S.title_block(fig,
-                  "公開された脆弱性情報と、公表されずに修正された欠陥の件数",
+                  "脆弱性情報が登録された修正と、登録なく出荷された修正の件数",
                   "暗号資産ウォレット 10 製品のソースコード変更履歴より。"
-                  "公開情報を伴う 1,325 件のうち、製品自身の資産保管処理の欠陥は 51 件。",
+                  "登録のある 1,325 件のうち、製品自身の資産保管処理の欠陥は 51 件。",
                   x=0.045, y=0.965)
     return S.save(fig, out)
 
@@ -199,7 +204,7 @@ def fig_composition(out="fig2b_composition.png"):
 
     fig.subplots_adjust(top=0.845, bottom=0.055, left=0.235, right=0.985)
     S.title_block(fig,
-                  "公表されずに修正された欠陥 4,608 件の原因別内訳",
+                  "CVE・GHSA に記録のない修正 4,608 件の原因別内訳",
                   "暗号資産ウォレット 10 製品の全変更履歴より。原因は 23 分類、"
                   "うち特定できたものが 94.9%。",
                   x=0.045, y=0.972)
@@ -276,7 +281,7 @@ def fig_folk(out="fig4_folk.png"):
     fig.subplots_adjust(top=0.80, bottom=0.05, left=0.045, right=0.90)
     S.title_block(fig,
                   "欠陥の所在の内訳 — 電子署名・画面表示の誤りと、鍵そのものの漏洩",
-                  f"非公開で修正された {len(SIL):,} 件の分類。",
+                  f"CVE・GHSA に記録のない {len(SIL):,} 件の分類。",
                   x=0.045, y=0.965)
     return S.save(fig, out)
 
