@@ -52,7 +52,8 @@ path.** The other 96% are:
 
 The keyword-free sweep of ten repositories found **4,608**. A ratio of 90 : 1.
 
-Four mechanisms appear in the silent fixes and **never once** in an advisory:
+Five mechanisms appear in the silent fixes and **never once** in an advisory —
+598 fixes in total:
 
 | mechanism | silent | advisory |
 |---|---:|---:|
@@ -60,6 +61,7 @@ Four mechanisms appear in the silent fixes and **never once** in an advisory:
 | dapp origin, pairing and session binding | 131 | **0** |
 | timing, power and fault-injection resistance | 107 | **0** |
 | signature replay across chain / domain / session | 103 | **0** |
+| deeplink, QR and custom-scheme handling | 27 | **0** |
 
 The only mechanism advisories over-represent is `dependency-supply-chain` — 7.8%
 against 0.5%. **Wallet projects publish advisories mainly when reacting to a CVE in
@@ -345,6 +347,26 @@ Every row's `label` names the part of the custody chain that broke:
 
 `build-ci` and `test` rows are meta-work that survived the gate. They are labelled as
 such so they can be excluded.
+
+## Figures
+
+`docs/figures/` holds the five figures behind the findings above, regenerated
+from the committed tables so they cannot drift from the data:
+
+| Figure | Shows |
+|---|---|
+| `fig1_ratio.png` | what the strongest evidence tier actually contains |
+| `fig2_mechanisms.png` | per-mechanism gap, and the five never disclosed |
+| `fig3_stack.png` | which part of the custody stack breaks, by software role |
+| `fig4_folk.png` | signing and display failures against key leakage |
+| `fig5_yield.png` | why yield alone is the wrong way to order the work |
+
+```bash
+uv run --with matplotlib --with numpy --with uharfbuzz --with fonttools \
+    --with pandas --with pyarrow python scripts/poster_figures.py
+```
+
+Labels are Japanese. Every number is read from `data/`, never typed in.
 
 ## Layout
 

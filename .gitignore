@@ -11,3 +11,4 @@ data/labels.csv
 data/wallet_vulns.csv
 scratchpad_*.log
 scratchpad_crawl_full.log
+style.py
