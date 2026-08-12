@@ -39,20 +39,20 @@ CLASS_JA = {
 }
 MECH_JA = {
     "input-bounds-parsing": "入力の長さ・境界検査",
-    "signed-differs-from-shown": "署名対象と表示内容の乖離",
-    "authorization-check": "呼び出し元の権限検査",
+    "signed-differs-from-shown": "署名する内容と画面表示の不一致",
+    "authorization-check": "呼び出し元の権限確認",
     "key-derivation-storage": "鍵の導出・保管",
     "encoding-canonicalization": "エンコード・正規化",
     "key-lifetime-in-memory": "鍵のメモリ残留",
     "signature-verification-gap": "署名検証の欠落・無効化",
     "state-race-concurrency": "状態競合・レース",
-    "origin-session-auth": "オリジン・セッション認証",
+    "origin-session-auth": "接続元・セッションの認証",
     "side-channel-fault": "サイドチャネル・故障注入",
-    "replay-scope": "署名の再利用スコープ",
+    "replay-scope": "署名の使い回し防止",
     "nonce-or-randomness": "nonce・乱数",
     "curve-point-validation": "曲線・点の検証",
     "uri-deeplink-handling": "URI・ディープリンク",
-    "dependency-supply-chain": "依存パッケージ",
+    "dependency-supply-chain": "外部ライブラリ",
     "other": "特定できず",
 }
 
@@ -70,17 +70,17 @@ def fig_ratio(out="fig1_ratio.png"):
     fig, ax = S.new(12.8, 5.6, xlim=(-W * 0.015, W * 1.30), ylim=(-1.62, 1.30))
 
     # silent fixes
-    S.t(ax, 0, 1.10, "静かに直された欠陥", fp="bold", size=15.5, color=S.INK, va="center")
-    S.t(ax, 0, 0.83, "10 リポジトリの全コミットを判定（キーワード不使用）",
+    S.t(ax, 0, 1.10, "公表されずに修正された欠陥", fp="bold", size=15.5, color=S.INK, va="center")
+    S.t(ax, 0, 0.83, "10 製品の全変更履歴を 1 件ずつ判定",
         fp="reg", size=11, color=S.MUTED, va="center")
     S.rrect(ax, 0, 0.36, silent, 0.32, fc=S.RUST, ec="none", rs=0.02, z=2)
     S.t(ax, silent + W * 0.015, 0.52, f"{silent:,}", fp="black", size=30,
         color=S.RUST, va="center")
 
     # advisory rows, segmented
-    S.t(ax, 0, -0.10, "advisory / 格付け severity を持つ行", fp="bold", size=15.5,
+    S.t(ax, 0, -0.10, "脆弱性情報が公開された修正", fp="bold", size=15.5,
         color=S.INK, va="center")
-    S.t(ax, 0, -0.37, "本コーパスで最も証拠が強い層", fp="reg", size=11,
+    S.t(ax, 0, -0.37, "CVE 番号などが付与されているもの", fp="reg", size=11,
         color=S.MUTED, va="center")
     x = 0.0
     for n, c in ((conf, S.RUST), (dep, S.SLATE), (rest, S.lighten(S.SLATE, 0.60))):
@@ -94,23 +94,25 @@ def fig_ratio(out="fig1_ratio.png"):
     # 51 against a 4,608 scale is a sliver, so the callout carries it. Parked in the
     # empty upper-right of this row so it clears both the row total and the legend,
     # with the arrow approaching from the right rather than across the subtitle.
-    S.t(ax, W * 0.56, -0.16, f"うち カストディ経路の欠陥は\nわずか {conf} 件（4%）",
+    S.t(ax, W * 0.56, -0.16, f"うち 資産の保管・送金処理の欠陥は\nわずか {conf} 件（4%）",
         fp="bold", size=15.5, color=S.RUST, va="center", linespacing=1.5)
     S.arrow(ax, (W * 0.545, -0.34), (conf * 2.2, -0.60),
             color=S.RUST_L, lw=1.7, ms=12, rad=-0.26)
 
-    for i, (c, lab, n) in enumerate(((S.RUST, "カストディ経路の欠陥", conf),
-                                     (S.SLATE, "依存パッケージの CVE への追随", dep),
+    for i, (c, lab, n) in enumerate(((S.RUST, "資産の保管・送金処理の欠陥", conf),
+                                     (S.SLATE, "外部ライブラリの脆弱性への追随", dep),
                                      (S.lighten(S.SLATE, 0.60),
-                                      "運用作業・カストディ外の不具合", rest))):
+                                      "体制整備・資産処理以外の不具合", rest))):
         yy = -1.14 - i * 0.22
         S.rrect(ax, 0, yy - 0.055, W * 0.016, 0.125, fc=c, ec="none", rs=0.02, z=3)
         S.t(ax, W * 0.030, yy + 0.008, f"{lab}   {n:,}", fp="med", size=11.5,
             color=S.SOFT, va="center")
 
     fig.subplots_adjust(top=0.775, bottom=0.03, left=0.045, right=0.985)
-    S.title_block(fig, "開示された脆弱性の 96% は、ウォレット自身の欠陥ではない",
-                  "同一の分類器が diff を読んで判定。advisory 側 1,325 行／静かな修正 4,608 件。",
+    S.title_block(fig,
+                  "公開された脆弱性情報と、公表されずに修正された欠陥の件数",
+                  "暗号資産ウォレット 10 製品のソースコード変更履歴より。"
+                  "公開情報を伴う 1,325 件のうち、製品自身の資産保管処理の欠陥は 51 件。",
                   x=0.045, y=0.965)
     return S.save(fig, out)
 
@@ -143,13 +145,13 @@ def fig_mechanisms(out="fig2_mechanisms.png"):
             S.t(ax, -0.30, i, "0", fp="bold", size=10.5, color=S.RUST,
                 ha="left", va="center")
 
-    S.t(ax, t.s.max() * 0.86, n - 0.55, "静かな修正", fp="bold", size=13, color=S.RUST,
+    S.t(ax, t.s.max() * 0.86, n - 0.55, "公表されず修正", fp="bold", size=13, color=S.RUST,
         ha="center", va="center")
-    S.t(ax, 2.9, n - 0.55, "advisory", fp="bold", size=13, color=S.SLATE,
+    S.t(ax, 2.9, n - 0.55, "公開された", fp="bold", size=13, color=S.SLATE,
         ha="center", va="center")
     nz = t[t.n_a == 0]
     S.t(ax, 17.4, -0.66,
-        f"太字＝advisory では一度も記述されなかったメカニズム"
+        f"太字＝公開情報では一度も記述されなかった原因"
         f"（{len(nz)} 種・計 {int(nz.n_s.sum()):,} 件）",
         fp="bold", size=12, color=S.RUST, ha="right", va="center")
 
@@ -163,8 +165,9 @@ def fig_mechanisms(out="fig2_mechanisms.png"):
     ax.grid(axis="x", color=S.HAIR, lw=0.9)
     ax.set_axisbelow(True)
     fig.subplots_adjust(top=0.855, bottom=0.075, left=0.225, right=0.975)
-    S.title_block(fig, "開示は、鍵の残留とセッション認証を一度も語らない",
-                  "各メカニズムが占める割合。右の数字は静かな修正の件数。",
+    S.title_block(fig,
+                  "欠陥の原因別に見た、公開情報と非公開修正の構成比の差",
+                  "各原因が占める割合（%）。右端の数字は非公開で修正された件数。",
                   x=0.045, y=0.975)
     return S.save(fig, out)
 
@@ -200,8 +203,10 @@ def fig_heatmap(out="fig3_stack.png"):
         S.t(ax, j + 0.5, nr + 0.14, CLASS_JA[cls], fp="med", size=11, color=S.SOFT,
             ha="center", va="bottom", linespacing=1.25)
     fig.subplots_adjust(top=0.775, bottom=0.06, left=0.175, right=0.985)
-    S.title_block(fig, "壊れる場所は、そのソフトウェアの役割で決まる",
-                  "行内での割合（%）。分類器はどのリポジトリを読んでいるか知らされていない。",
+    S.title_block(fig,
+                  "ソフトウェアの種別と、発生する欠陥の種類の関係",
+                  "各行内での割合（%）。判定した分類器には、"
+                  "どの種別のソフトウェアを読んでいるかを与えていない。",
                   x=0.045, y=0.965)
     return S.save(fig, out)
 
@@ -215,12 +220,12 @@ def fig_folk(out="fig4_folk.png"):
 
     rows = [
         (1.34, sign, S.RUST,
-         "署名・表示の欠陥",
-         "承認していない内容に有効な署名が付く／画面が違うものを見せる",
+         "電子署名・画面表示の欠陥",
+         "利用者が承認していない内容に有効な署名が付く／画面が別の内容を表示する",
          f"署名 {int(vc.get('signing',0)):,} ＋ UI偽装 {int(vc.get('ui_deception',0)):,}"),
         (0.34, keys, S.SLATE,
          "鍵素材の欠陥",
-         "シードや鍵が漏れる・弱く生成される・メモリに残る", None),
+         "秘密鍵や復元用フレーズが漏れる・弱く生成される・メモリに残る", None),
     ]
     for y, v, c, head, desc, note in rows:
         S.t(ax, 0, y + 0.60, head, fp="bold", size=16, color=S.INK, va="center")
@@ -232,89 +237,17 @@ def fig_folk(out="fig4_folk.png"):
             S.t(ax, v + sign * 0.014, y - 0.26, note, fp="med", size=10.5,
                 color=S.MUTED, va="center")
 
-    S.t(ax, 0, -0.28, "「シードフレーズを守れば安全」という助言は、欠陥の所在を説明していない。",
+    S.t(ax, 0, -0.28, "「復元用フレーズを守れば安全」という一般的な助言は、欠陥の所在と一致しない。",
         fp="bold", size=14, color=S.RUST, va="center")
     fig.subplots_adjust(top=0.80, bottom=0.05, left=0.045, right=0.90)
-    S.title_block(fig, "鍵は守られたまま、署名だけが裏切る",
-                  f"キーワードを使わず回収した {len(SIL):,} 件の内訳。",
+    S.title_block(fig,
+                  "欠陥の所在の内訳 — 電子署名・画面表示の誤りと、鍵そのものの漏洩",
+                  f"非公開で修正された {len(SIL):,} 件の分類。",
                   x=0.045, y=0.965)
     return S.save(fig, out)
 
 
 # --- 5. why yield is the wrong sort key ------------------------------------
-def fig_yield(out="fig5_yield.png"):
-    import glob
-    import os
-    rows = []
-    g = SIL.groupby("wallet").size()
-    for pq in sorted(glob.glob(str(ROOT / "scratchpad_crawl/allcommits/*.parquet"))):
-        slug = os.path.basename(pq)[:-8]
-        judged = len(pd.read_parquet(pq, columns=["id"]))
-        hits = int(g.get(slug, 0))
-        if hits:
-            rows.append((slug, judged, hits, hits / judged * 100))
-    d = pd.DataFrame(rows, columns=["slug", "judged", "hits", "rate"])
-
-    # Six repos sit inside one small corner, so label placement is specified per
-    # repo rather than by a single rule: (dx in commits, dy in points, ha).
-    PLACE = {
-        "safe-contracts":  (300, 3.05, "left"),
-        "bitcoinjs-lib":   (0, 1.40, "center"),
-        "ledger-app-eth":  (0, 1.55, "center"),
-        "sparrow":         (-260, -1.05, "center"),
-        "metamask-snaps":  (250, -1.05, "center"),
-        "walletconnect":   (-520, -1.05, "center"),
-        "rabby":           (620, -1.05, "center"),
-        "wallet-core":     (250, 1.40, "center"),
-        "electrum":        (0, 1.55, "center"),
-        "trezor-firmware": (0, 1.60, "center"),
-    }
-
-    fig, ax = S.new(12.8, 6.8, axis_off=False)
-    ax.set_xlim(-900, d.judged.max() * 1.19)
-    ax.set_ylim(0, d.rate.max() * 1.34)
-    for _, r in d.iterrows():
-        big = r.hits >= 900
-        ax.scatter([r.judged], [r.rate], s=r.hits * 1.45,
-                   color=S.RUST if big else S.SLATE, alpha=0.36 if big else 0.30,
-                   ec=S.RUST if big else S.SLATE, lw=1.7, zorder=3)
-        dx, dy, ha = PLACE.get(r.slug, (0, 1.4, "center"))
-        S.t(ax, r.judged + dx, r.rate + dy, f"{r.slug}\n{int(r.hits):,} 件",
-            fp="bold" if big else "med", size=11.5 if big else 10,
-            color=S.RUST if big else S.SOFT, ha=ha,
-            va="bottom" if dy > 0 else "top", linespacing=1.3, zorder=5)
-
-    # anchored to electrum, which is the point being made
-    e = d[d.slug == "electrum"].iloc[0]
-    S.t(ax, e.judged - 700, d.rate.max() * 0.90,
-        "率 6.2% は平凡。しかし履歴が長いため\nこの 1 リポジトリだけで全体の 21% を産んだ",
-        fp="bold", size=12.5, color=S.RUST, ha="center", va="center", linespacing=1.5)
-    S.arrow(ax, (e.judged - 700, d.rate.max() * 0.775), (e.judged - 150, e.rate + 1.75),
-            color=S.RUST_L, lw=1.6, ms=11, rad=-0.22)
-
-    ax.set_xlabel("判定したコミット数", fontproperties=S.F["med"], fontsize=12,
-                  color=S.SOFT, labelpad=10)
-    ax.set_ylabel("セキュリティ修正の割合", fontproperties=S.F["med"], fontsize=12,
-                  color=S.SOFT, labelpad=10)
-    ax.set_yticks(range(0, 21, 5))
-    ax.set_yticklabels([f"{v}%" for v in range(0, 21, 5)],
-                       fontproperties=S.F["med"], fontsize=10.5, color=S.MUTED)
-    ax.set_xticks([0, 5000, 10000, 15000, 20000])
-    ax.set_xticklabels(["0", "5,000", "10,000", "15,000", "20,000"],
-                       fontproperties=S.F["med"], fontsize=10.5, color=S.MUTED)
-    for sp in ("top", "right"):
-        ax.spines[sp].set_visible(False)
-    for sp in ("bottom", "left"):
-        ax.spines[sp].set_color(S.FAINT)
-    ax.grid(color=S.HAIR, lw=0.9)
-    ax.set_axisbelow(True)
-    fig.subplots_adjust(top=0.815, bottom=0.115, left=0.075, right=0.975)
-    S.title_block(fig, "収率の高い順に掘るのは誤り",
-                  "円の面積は発見した修正の件数。掘るべき量は 率 × 履歴の長さ で決まる。",
-                  x=0.045, y=0.965)
-    return S.save(fig, out)
-
-
 if __name__ == "__main__":
-    for f in (fig_ratio, fig_mechanisms, fig_heatmap, fig_folk, fig_yield):
+    for f in (fig_ratio, fig_mechanisms, fig_heatmap, fig_folk):
         print(f())

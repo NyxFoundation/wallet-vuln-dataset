@@ -350,23 +350,25 @@ such so they can be excluded.
 
 ## Figures
 
-`docs/figures/` holds the five figures behind the findings above, regenerated
+`docs/figures/` holds the four figures behind the findings above, regenerated
 from the committed tables so they cannot drift from the data:
 
 | Figure | Shows |
 |---|---|
-| `fig1_ratio.png` | what the strongest evidence tier actually contains |
-| `fig2_mechanisms.png` | per-mechanism gap, and the five never disclosed |
-| `fig3_stack.png` | which part of the custody stack breaks, by software role |
-| `fig4_folk.png` | signing and display failures against key leakage |
-| `fig5_yield.png` | why yield alone is the wrong way to order the work |
+| `fig1_ratio.png` | disclosed advisories against fixes shipped without one |
+| `fig2_mechanisms.png` | the two populations by defect cause, and the five causes never disclosed |
+| `fig3_stack.png` | software type against the kind of defect that occurs in it |
+| `fig4_folk.png` | signing and display failures against leakage of the key itself |
 
 ```bash
 uv run --with matplotlib --with numpy --with uharfbuzz --with fonttools \
     --with pandas --with pyarrow python scripts/poster_figures.py
 ```
 
-Labels are Japanese. Every number is read from `data/`, never typed in.
+Labels are Japanese, and worded for a reader who has never worked on a wallet:
+"custody path" appears as 資産の保管・送金処理, "advisory" as 公開された脆弱性情報.
+Titles state what each figure shows; the takeaway sits in the subtitle. Every
+number is read from `data/`, never typed in.
 
 ## Layout
 
