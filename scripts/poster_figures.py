@@ -17,7 +17,12 @@ import style as S
 
 ROOT = Path(__file__).resolve().parent.parent
 ADV = pd.read_csv(ROOT / "data/advisory_mechanisms.csv")
-SIL = pd.read_csv(ROOT / "data/wave1_mechanisms.csv")
+# All sixteen swept repositories, not the first ten. wave1_mechanisms.csv is kept
+# as the published wave-1 artefact; the figures read the union so they do not
+# quietly describe a subset of what has been collected.
+SIL = pd.read_csv(ROOT / "data/silent_mechanisms.csv")
+N_SIL = len(SIL)
+N_REPO = SIL["wallet"].nunique()
 
 _sp = ilu.spec_from_file_location("w", ROOT / "collection/wallets.py")
 _w = ilu.module_from_spec(_sp); _sp.loader.exec_module(_w)
@@ -31,6 +36,9 @@ CAT_JA = {
     "browser_extension": "ブラウザ拡張",
     "infra": "接続基盤",
     "smart_account": "スマート\nコントラクト口座",
+    "node_wallet": "フルノード\nウォレット",
+    "mobile": "モバイル",
+    "mpc_tss": "MPC・分散署名",
 }
 CLASS_JA = {
     "signing": "署名", "key_material": "鍵素材", "firmware": "ファーム\nウェア",
@@ -78,7 +86,7 @@ def fig_ratio(out="fig1_ratio.png"):
 
     # silent fixes
     S.t(ax, 0, 1.10, "登録なく出荷された修正", fp="bold", size=15.5, color=S.INK, va="center")
-    S.t(ax, 0, 0.83, "10 製品の全変更履歴を 1 件ずつ判定",
+    S.t(ax, 0, 0.83, f"{N_REPO} 製品の全変更履歴を 1 件ずつ判定",
         fp="reg", size=11, color=S.MUTED, va="center")
     S.rrect(ax, 0, 0.36, silent, 0.32, fc=S.RUST, ec="none", rs=0.02, z=2)
     S.t(ax, silent + W * 0.015, 0.52, f"{silent:,}", fp="black", size=30,
@@ -123,7 +131,7 @@ def fig_ratio(out="fig1_ratio.png"):
     fig.subplots_adjust(top=0.775, bottom=0.03, left=0.045, right=0.985)
     S.title_block(fig,
                   "脆弱性情報が登録された修正と、登録なく出荷された修正の件数",
-                  "暗号資産ウォレット 10 製品のソースコード変更履歴より。"
+                  f"暗号資産ウォレット {N_REPO} 製品のソースコード変更履歴より。"
                   "登録のある 1,325 件のうち、製品自身の資産保管処理の欠陥は 51 件。",
                   x=0.045, y=0.965)
     return S.save(fig, out)
@@ -204,17 +212,24 @@ def fig_composition(out="fig2b_composition.png"):
 
     fig.subplots_adjust(top=0.845, bottom=0.055, left=0.235, right=0.985)
     S.title_block(fig,
-                  "CVE・GHSA に記録のない修正 4,608 件の原因別内訳",
-                  "暗号資産ウォレット 10 製品の全変更履歴より。原因は 23 分類、"
-                  "うち特定できたものが 94.9%。",
+                  f"CVE・GHSA に記録のない修正 {N_SIL:,} 件の原因別内訳",
+                  f"暗号資産ウォレット {N_REPO} 製品の全変更履歴より。原因は 23 分類、"
+                  f"うち特定できたものが "
+                  f"{(SIL.mechanism != 'other').mean() * 100:.1f}%。",
                   x=0.045, y=0.972)
     return S.save(fig, out)
 
 
 # --- 3. where what breaks in the custody stack -----------------------------
 def fig_heatmap(out="fig3_stack.png"):
-    order_c = ["hardware_firmware", "smart_account", "infra", "wallet_sdk",
-               "browser_extension", "desktop"]
+    # Read the categories off the data. A hardcoded list of six silently dropped
+    # node_wallet — monero, btcpay and monero-gui, 682 fixes, 12.5% of the table —
+    # from a figure whose whole claim is "software type against defect type".
+    order_c = [c for c in SIL.cat.value_counts().index if c in CAT_JA]
+    unknown = sorted(set(SIL.cat.dropna()) - set(CAT_JA))
+    if unknown:
+        raise SystemExit(f"fig3: no Japanese label for {unknown}; the figure would "
+                         f"drop them silently")
     order_v = ["signing", "key_material", "firmware", "ui_deception",
                "transport", "contract", "memory", "approval"]
     ct = pd.crosstab(SIL.cat, SIL.vuln_class, normalize="index") * 100

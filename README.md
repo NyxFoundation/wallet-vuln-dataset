@@ -53,8 +53,8 @@ path.** The rest:
 
 That last group is security *process* work — reviewers added to CODEOWNERS, code
 annotated with CVE references, a fuzz harness for an already-fixed CVE — plus real
-bugs outside custody, like a server-side cursor leak. The keyword-free sweep of ten
-repositories found **4,608** custody fixes. A ratio of 90 : 1.
+bugs outside custody, like a server-side cursor leak. The keyword-free sweep of sixteen
+repositories found **5,457** custody fixes. A ratio of 107 : 1.
 
 **What cannot be claimed from this.** An earlier version of this section said five
 defect mechanisms never appear in an advisory. That does not survive. Restricted to
@@ -68,18 +68,18 @@ not.
 
 ## What breaks, in order
 
-Of the 4,608 fixes recovered by reading every commit of ten widely-used wallets:
+Of the 5,457 fixes recovered by reading every commit of sixteen widely-used wallets:
 
 | | fixes | what actually goes wrong |
 |---|---:|---|
-| `signing` | 1,418 | a signature ends up valid over something you never agreed to |
-| `key_material` | 968 | the seed or key leaks, is weakly generated, or is left in memory |
-| `firmware` | 628 | boot verification, PIN handling, or the trusted display on a hardware wallet |
-| `ui_deception` | 572 | you approve the wrong thing because the screen told you something false |
-| `transport` | 358 | the channel between a dapp and your wallet lets in an origin it should not |
-| `memory` | 182 | memory corruption in firmware or native crypto code |
-| `platform` | 162 | an OS or browser escape reaches the key store |
-| `approval` | 109 | spend authority is obtained without ever touching your key |
+| `signing` | 1,632 | a signature ends up valid over something you never agreed to |
+| `key_material` | 1,190 | the seed or key leaks, is weakly generated, or is left in memory |
+| `firmware` | 630 | boot verification, PIN handling, or the trusted display on a hardware wallet |
+| `ui_deception` | 628 | you approve the wrong thing because the screen told you something false |
+| `transport` | 437 | the channel between a dapp and your wallet lets in an origin it should not |
+| `memory` | 244 | memory corruption in firmware or native crypto code |
+| `platform` | 237 | an OS or browser escape reaches the key store |
+| `approval` | 168 | spend authority is obtained without ever touching your key |
 
 **Signing and UI deception together outweigh key leakage.** The common mental model —
 "keep your seed phrase safe and you are fine" — does not match where the bugs are. Most
@@ -94,7 +94,8 @@ believed you approved, while your seed stayed exactly where it was supposed to b
 | `data/wallet_vulns.parquet` | 95 MB | the full corpus — 34,526 rows, all columns, before/after code inline |
 | `data/wallet_vulns.preview.csv` | 6 MB | key columns only, browsable in the GitHub UI |
 | `data/raw/train.classified.parquet` | 31 MB | pre-filter snapshot, for reproducing the curation |
-| [`data/wave1_mechanisms.csv`](data/wave1_mechanisms.csv) | 1.7 MB | the same 4,608 fixes labelled by defect mechanism |
+| [`data/silent_mechanisms.csv`](data/silent_mechanisms.csv) | 2.0 MB | **all 5,457 sweep fixes** labelled by defect mechanism — what the figures read |
+| [`data/wave1_mechanisms.csv`](data/wave1_mechanisms.csv) | 1.7 MB | the wave-1 subset, kept as published |
 | [`data/advisory_mechanisms.csv`](data/advisory_mechanisms.csv) | 403 KB | all 1,325 advisory-bearing rows, read from the diff, with the verdict and its reason |
 | [`data/mechanism_comparison.csv`](data/mechanism_comparison.csv) | — | disclosed vs silent, per mechanism |
 | [`data/mechanisms.csv`](data/mechanisms.csv) | 1.1 MB | every mechanism label, keyed by commit URL — the source of the corpus column |
@@ -448,7 +449,7 @@ the committed tables so they cannot drift from the data:
 | Figure | Shows |
 |---|---|
 | `fig1_ratio.png` | disclosed advisories against fixes shipped without one |
-| `fig2b_composition.png` | all 4,608 silent fixes by defect mechanism, in five groups |
+| `fig2b_composition.png` | all 5,457 silent fixes by defect mechanism, in five groups |
 | `fig3_stack.png` | software type against the kind of defect that occurs in it |
 | `fig4_folk.png` | signing and display failures against leakage of the key itself |
 
