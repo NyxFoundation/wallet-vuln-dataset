@@ -168,7 +168,23 @@ CVE and GHSA are used only to calibrate. The corpus comes from commit history, t
 The third recovers what the second cannot, by construction: a fix whose message says
 "cleanup" matches no keyword. Measured against each other on the same repositories, rows
 recovered without keywords survive an independent security check **69%** of the time
-against **24.6%** for keyword-gated rows. Keywords buy recall by spending precision.
+against **24.6%** for keyword-gated rows. Keywords buy precision by spending recall.
+
+How much recall: of the 5,406 fixes recovered by reading 13 repositories end to end,
+**4,352 — 81% — contain none of the crawler's 26 search terms anywhere in the commit
+message.** Per repository the share runs from 59% (`metamask-snaps`) to 85%
+(`trezor-firmware`, `monero`, `safe-contracts`). And the test is generous to keywords:
+GitHub's commit search indexes the message, while this matched subject *and* body, so
+the real miss rate is at least this high.
+
+`ethers` shows what the misses look like. 42 of its 80 fixes have a title with no
+security word in it, several of them literally `admin: updated dist files`, and under
+that title sit: `splitSignature` inverting the recovery parameter so a signature
+recovers the wrong signer; BIP-39 entropy derived with the wrong wordlist for
+non-English mnemonics; a mnemonic not normalised before derivation, so the same phrase
+typed with different spacing yields different keys; IDNA validation admitting unassigned
+code points, allowing ENS homograph spoofing; and an ENS name resolving to the zero
+address being treated as valid, sending funds to `0x0`.
 
 Method: [`docs/silent_fix_detection.md`](docs/silent_fix_detection.md) ·
 limits: [`docs/limitations.md`](docs/limitations.md)
