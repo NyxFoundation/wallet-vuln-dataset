@@ -1,10 +1,15 @@
 # wallet-vuln-dataset
 
 Every security fix that crypto wallet developers have quietly shipped, collected from
-their own public repositories. 34,526 fixes across 174 wallets, hardware firmwares,
+their own public repositories. **16,854 fixes** across 174 wallets, hardware firmwares,
 smart-contract accounts and signing libraries.
 
 Almost none of them have a CVE. That is the point.
+
+The file holds 34,526 rows. The other 17,672 were read by two independent classifiers
+that both said "not a security fix", and they are kept — labelled `refuted`, not deleted —
+because what a broad gate over-admits is worth being able to see. Start from
+`df[df.security_verdict != "refuted"]`.
 
 ## What this says about the wallet you use
 
@@ -106,9 +111,9 @@ believed you approved, while your seed stayed exactly where it was supposed to b
 import pandas as pd
 df = pd.read_parquet("data/wallet_vulns.parquet")
 
-df[df.authority_tier.isin(["A_authoritative", "B_corroborated"])]  # 22,413 strongest
-df[df.security_verdict != "refuted"]                               # drop the denied
-df[df.contest == "all-commits"]                                    # 4,675 keyword-free
+df[df.security_verdict != "refuted"]                               # 16,854 — start here
+df[df.contest == "all-commits"]                                    # 4,676 read from diffs
+df[df.authority_tier.isin(["A_authoritative", "B_corroborated"])]  # 22,884 broad
 df[df.mechanism == "signed-differs-from-shown"]                    # by what went wrong
 ```
 
@@ -120,16 +125,17 @@ The full CSV export is not committed — at 305 MB it exceeds GitHub's file limi
 | | rows |
 |---|---:|
 | raw snapshot | 94,388 |
-| curated | **34,526** |
-| └ strongest evidence (`A_authoritative` ∪ `B_corroborated`) | **22,413** |
+| curated | 34,526 |
+| └ **survives both classifiers** (`security_verdict != "refuted"`) | **16,854** |
 | by tier | A_authoritative 1,421 · A_dependency 628 · B_corroborated 20,992 · C_candidate 11,485 |
+| by tier, not refuted | A_authoritative 175 · A_dependency 19 · B_corroborated 12,525 · C_candidate 4,135 |
 | by severity | Critical 1 · High 228 · Medium 846 · Low 49 · Info 11,650 · Unrated 21,752 |
 | with a STRIDE category | 8,705 |
 | with a CWE-Top-25 id | 8,241 |
 | found by the LLM classifier alone | 7,057 |
-| └ from the keyword-free sweep | 4,675 |
-| `security_verdict` | unassessed 24,031 · assessed 8,833 · refuted 1,662 |
-| with a defect `mechanism` | **6,802** across 22 kinds · 2,639 read but unattributable · 25,085 unread |
+| └ from the keyword-free sweep | 4,676 |
+| `security_verdict` | assessed 15,174 · refuted 17,672 · unassessed 1,680 |
+| with a defect `mechanism` | 7,537 across 22 kinds · 2,732 read but unattributable · 24,257 unread |
 
 **97% of rows are Info or Unrated** because nobody ever graded them. Unrated means no
 grader existed, not low impact.
@@ -151,23 +157,35 @@ in `other` 5.1% of the time, while rows inherited from the keyword crawl do so 2
 the time — a thinner record makes a weaker label. And a row judged *not* to be a security
 fix is 90% `other`, which is correct: there is no defect to attribute.
 
-`security_verdict` records what two independent LLM passes concluded. `refuted` means
-both denied it is a security fix. **Those 1,662 rows are still included** — 70% of the
-corpus has not been assessed at all, and filtering only the assessed part would hold the
-read rows to a standard the unread ones escape.
+`security_verdict` records what two independent LLM passes concluded. `refuted` means both
+denied it is a security fix, and those 17,672 rows stay in the file rather than being
+deleted, so what the gate over-admitted stays inspectable. 1,680 rows are still
+`unassessed`: 634 could not be read at all (263 whose diff would not fetch, 74 with no
+diff, 276 whose two answer fields contradicted each other, 21 never reached), and the rest
+predate the columns the join needs. They are neither confirmed nor denied and say so.
 
-**Read this before trusting the tier names.** A pass over those unassessed rows is running
-now, and on the 8,461 judged so far — spread across 142 of 174 repositories, so not one
-repo's quirk — **88% come back as not a security fix**: 86% of `B_corroborated`, 91% of
-`C_candidate`, and 96% of the `A_authoritative` rows in this group. That is the population
-admitted by keyword and heuristic signals and never checked by a reader, so a high rate is
-expected rather than surprising — and it agrees with an independent measurement, that
-keyword-gated rows survive a STRIDE check only 24.6% of the time.
+**Do not read the tier names as quality.** Every row the gate had admitted without a
+reader — 23,258 of them — has now been read. **85.8% came back as not a security fix.**
+That is the whole reason `refuted` is 17,672 rows and the corpus's usable size is 16,854
+rather than 34,526.
 
-What it means concretely: the 22,413-row "strongest evidence" slice is *broad*, not clean.
-Until the pass finishes, take `contest == "all-commits"` (4,675 rows, each read from its
-diff) or `security_verdict == "assessed"` as the vetted parts, and treat the rest as
-candidates. The number above is interim and will be replaced by the complete one.
+| tier | assessed | refuted | share refuted |
+|---|---:|---:|---:|
+| `A_authoritative` | 84 | 1,246 | 94% |
+| `A_dependency` | 7 | 609 | 99% |
+| `B_corroborated` | 11,303 | 8,938 | 44% |
+| `C_candidate` | 3,780 | 6,879 | 65% |
+
+The rate is high because this is exactly the population that keyword and heuristic signals
+admitted and no reader ever checked, and it lands where an independent measurement said it
+would: keyword-gated rows survive a STRIDE check 24.6% of the time. `A_authoritative` at
+94% is the same fact as the advisory census above — an advisory id mostly marks security
+*process* work, not a defect fix.
+
+Two checks that the verdict is not just noise. All 4,676 keyword-free rows survive, none
+refuted — they were admitted because a reader said yes in the first place, so a filter that
+threw them out would be broken. And `B_corroborated`, the tier built from two independent
+signals stacking, is the only tier that survives more often than not.
 
 ## How fixes are found
 
