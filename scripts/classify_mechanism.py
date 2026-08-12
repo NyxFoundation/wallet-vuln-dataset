@@ -31,18 +31,27 @@ import pandas as pd
 MECHANISMS = [
     "nonce-or-randomness",       # nonce bias/reuse/hardcoded, RNG failure ignored, weak entropy
     "signature-verification-gap",# verification missing, stubbed, short-circuited, result discarded
-    "signed-differs-from-shown", # trusted display, tx preview, the user approved something else
+    "signed-differs-from-shown", # trusted display, blind signing, tx preview, user approved something else
     "encoding-canonicalization", # RLP/DER/bech32/typed-data/punycode/normalisation
     "input-bounds-parsing",      # length, bounds, malformed input, OOB, integer overflow
     "curve-point-validation",    # on-curve, low-order, subgroup, malleability, r/s bounds
     "key-lifetime-in-memory",    # key/seed left in memory, logged, swapped, not zeroed
     "key-derivation-storage",    # derivation path, KDF params, at-rest encryption, backup
-    "authorization-check",       # handler/endpoint/plugin reachable without the right caller
+    "authorization-check",       # WHICH caller may act: handler/plugin/method reachable by the wrong one
+    "missing-authentication",    # WHETHER anyone authenticated at all before a fund-affecting action
     "origin-session-auth",       # dapp origin, pairing, session binding, permission scope
     "side-channel-fault",        # timing, power, fault injection, constant-time
     "replay-scope",              # cross-chain, cross-domain, cross-session reuse of a signature
     "uri-deeplink-handling",     # deeplink, QR, custom scheme, in-app browser target
     "state-race-concurrency",    # request mutated after review, TOCTOU, races
+    # Added after reading the 1,075 fixes an earlier taxonomy could only call
+    # "other". None of them were unclassifiable; the list simply had no bucket.
+    "transport-encryption",      # plaintext HTTP, missing/incorrect TLS or certificate validation
+    "code-injection-context",    # XSS, script-context breakout, template/regex escaping
+    "secure-boot-rollback",      # firmware signature enforcement, downgrade/rollback, secure element attestation
+    "privilege-isolation",       # sandbox, privilege dropping, process separation, entitlements
+    "protocol-counterparty",     # a peer/LSP/swap counterparty trusted to behave; double-spend, confusion
+    "type-state-consistency",    # missing consistency guard, silent fallthrough on an unexpected type/state
     "dependency-supply-chain",   # vulnerable dep, build/release integrity
     "other",
 ]
@@ -58,6 +67,12 @@ Rules:
   user was shown something other than what was authorised.
 - "signature-verification-gap" is for verification that was absent, stubbed, or whose
   result was ignored.
+- Blind signing — the device or UI signs data it cannot render — is
+  "signed-differs-from-shown", not a verification gap.
+- "authorization-check" is about WHICH caller is allowed; "missing-authentication" is
+  about whether anything authenticated the actor at all.
+- Prefer a specific mechanism over "other". Only answer "other" when the text
+  genuinely does not say what went wrong.
 - If the text does not describe a specific mechanism, answer "other".
 - Output ONLY a JSON array of {"i": <index>, "m": "<mechanism>"} for all records, in
   order. No prose, no fences.

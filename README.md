@@ -35,43 +35,36 @@ of Trezor's firmware commits surfaced 1,956 security fixes, including:
 None of these have a CVE. If you had checked Trezor's advisory page, you would have seen
 nothing, and concluded nothing was wrong.
 
-## What disclosure misses
+## What the disclosure record contains
 
 The wallet ecosystem's own advisories and the fixes it ships quietly were read the
-same way — an LLM over the diff, one fixed taxonomy of 16 defect mechanisms, no
-knowledge of which side a row came from.
+same way — an LLM over the diff, one taxonomy of 23 defect mechanisms, no knowledge
+of which side a row came from.
 
 Of the 1,325 rows carrying an advisory id or a graded severity — the strongest
 evidence tier in this corpus — **51 (4%) are a defect in the wallet's own custody
-path.** The other 96% are:
+path.** The rest:
 
-- security *process* work: adding reviewers to CODEOWNERS, annotating code with CVE
-  references, adding a fuzz harness for an already-fixed CVE
-- third-party dependency bumps: `tar`, `jspdf`, `qs`, `rails`, `rubyzip`
-- real bugs outside custody: a server-side MongoDB cursor leak, a UI validation error
+| | rows |
+|---|---:|
+| a defect in the wallet's own custody path | **51** |
+| following a CVE in a third-party dependency | 146 |
+| not a defect fix at all | 1,128 |
 
-The keyword-free sweep of ten repositories found **4,608**. A ratio of 90 : 1.
+That last group is security *process* work — reviewers added to CODEOWNERS, code
+annotated with CVE references, a fuzz harness for an already-fixed CVE — plus real
+bugs outside custody, like a server-side cursor leak. The keyword-free sweep of ten
+repositories found **4,608** custody fixes. A ratio of 90 : 1.
 
-Five mechanisms appear in the silent fixes and **never once** in an advisory —
-598 fixes in total:
-
-| mechanism | silent | advisory |
-|---|---:|---:|
-| key left in memory / logged / not zeroed | 230 | **0** |
-| dapp origin, pairing and session binding | 131 | **0** |
-| timing, power and fault-injection resistance | 107 | **0** |
-| signature replay across chain / domain / session | 103 | **0** |
-| deeplink, QR and custom-scheme handling | 27 | **0** |
-
-The only mechanism advisories over-represent is `dependency-supply-chain` — 7.8%
-against 0.5%. **Wallet projects publish advisories mainly when reacting to a CVE in
-something they depend on, not when fixing their own custody code.**
-
-Full comparison: [`data/mechanism_comparison.csv`](data/mechanism_comparison.csv).
-The 51 confirmed custody fixes among the advisories distribute much like the silent
-ones, so the gap is not a difference in *kind* of bug — it is that the advisory
-population is mostly not custody bugs at all. At n=51 that is an observation, not a
-statistical claim.
+**What cannot be claimed from this.** An earlier version of this section said five
+defect mechanisms never appear in an advisory. That does not survive. Restricted to
+the 51 advisory rows that are genuinely custody fixes, 7 of 22 mechanisms are
+absent — and drawing 51 rows at random from the silent distribution leaves 7.4
+absent by chance. The mechanism comparison between the two populations is
+underpowered, and the zeros in the earlier version came from using all 1,325
+advisory rows as the denominator when 1,274 of them repair no defect. The count
+comparison above is a full census and stands; the *composition* comparison does
+not.
 
 ## What breaks, in order
 
@@ -350,15 +343,13 @@ such so they can be excluded.
 
 ## Figures
 
-`docs/figures/` holds the figures behind the findings above, regenerated from the
-committed tables so they cannot drift from the data. `fig2` and `fig2b` are two
-readings of the same comparison — pick one:
+`docs/figures/` holds the four figures behind the findings above, regenerated from
+the committed tables so they cannot drift from the data:
 
 | Figure | Shows |
 |---|---|
 | `fig1_ratio.png` | disclosed advisories against fixes shipped without one |
-| `fig2_mechanisms.png` | the two populations by defect cause, and the five causes never disclosed |
-| `fig2b_composition.png` | the same finding as two 100% columns — a difference in shape, readable at a glance |
+| `fig2b_composition.png` | all 4,608 silent fixes by defect mechanism, in five groups |
 | `fig3_stack.png` | software type against the kind of defect that occurs in it |
 | `fig4_folk.png` | signing and display failures against leakage of the key itself |
 
