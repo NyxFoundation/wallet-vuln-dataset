@@ -119,7 +119,15 @@ def fig_ratio(out="fig1_ratio.png"):
 
 # --- 2. mechanism gap ------------------------------------------------------
 def fig_mechanisms(out="fig2_mechanisms.png"):
-    """Dumbbell. The four mechanisms an advisory has never once described."""
+    """Paired bars, NOT a dumbbell.
+
+    The first version drew each cause as two dots joined by a line. A dumbbell
+    means "moved from A to B" or "the ends of one range", and these two numbers
+    are neither: each is a share of its OWN population (4,608 silent fixes,
+    1,325 disclosed rows). Joined on one axis they read as a split that should
+    total 100%, which makes a cause with no advisory look like it should sit at
+    100% rather than at 0. Separate bars per series carry no such implication.
+    """
     sv = SIL.mechanism.value_counts(normalize=True) * 100
     av = ADV.mechanism.value_counts(normalize=True) * 100
     t = pd.DataFrame({"s": sv, "a": av}).fillna(0.0)
@@ -128,47 +136,158 @@ def fig_mechanisms(out="fig2_mechanisms.png"):
     t = t.drop(index=["other"], errors="ignore").sort_values("s")
 
     n = len(t)
-    fig, ax = S.new(12.8, 0.52 * n + 3.0, axis_off=False)
-    ax.set_xlim(-1.4, 17.6); ax.set_ylim(-0.9, n - 0.1)
-    for i, (m, r) in enumerate(t.iterrows()):
-        zero = r.n_a == 0
-        ax.plot([r.a, r.s], [i, i], color=S.lighten(S.RUST, 0.72) if zero
-                else S.lighten(S.SLATE, 0.66), lw=2.6, solid_capstyle="round", zorder=2)
-        ax.plot([r.a], [i], "o", ms=8, color=S.SLATE if not zero else S.PAPER,
-                mec=S.SLATE if not zero else S.RUST, mew=1.8, zorder=4)
-        ax.plot([r.s], [i], "o", ms=10, color=S.RUST, zorder=4)
-        S.t(ax, -0.55, i, MECH_JA.get(m, m), fp="med" if not zero else "bold",
-            size=11.5, color=S.INK if not zero else S.RUST, ha="right", va="center")
-        S.t(ax, r.s + 0.34, i, f"{int(r.n_s):,}", fp="bold", size=10.5,
-            color=S.RUST, va="center")
-        if zero:
-            S.t(ax, -0.30, i, "0", fp="bold", size=10.5, color=S.RUST,
-                ha="left", va="center")
+    ROW, BAR = 1.0, 0.34
+    fig, ax = S.new(12.8, 0.66 * n + 3.2, axis_off=False)
+    ax.set_xlim(-0.35, 20.4)
+    ax.set_ylim(-1.15, n * ROW)
 
-    S.t(ax, t.s.max() * 0.86, n - 0.55, "公表されず修正", fp="bold", size=13, color=S.RUST,
-        ha="center", va="center")
-    S.t(ax, 2.9, n - 0.55, "公開された", fp="bold", size=13, color=S.SLATE,
-        ha="center", va="center")
+    for i, (m, r) in enumerate(t.iterrows()):
+        y = i * ROW
+        zero = r.n_a == 0
+        S.t(ax, -0.55, y + 0.20, MECH_JA.get(m, m), fp="bold" if zero else "med",
+            size=12, color=S.RUST if zero else S.INK, ha="right", va="center")
+
+        # silent, on top
+        S.rrect(ax, 0, y + 0.20, max(r.s, 0.02), BAR, fc=S.RUST, ec="none", rs=0.03, z=2)
+        S.t(ax, r.s + 0.28, y + 0.37, f"{r.s:.1f}%   {int(r.n_s):,} 件", fp="bold",
+            size=11, color=S.RUST, va="center")
+
+        # disclosed, beneath
+        if zero:
+            S.t(ax, 0.22, y - 0.03, "0 件（1 件も無い）", fp="bold", size=11,
+                color=S.RUST, va="center")
+        else:
+            S.rrect(ax, 0, y - 0.20, max(r.a, 0.02), BAR, fc=S.SLATE, ec="none",
+                    rs=0.03, z=2)
+            S.t(ax, r.a + 0.28, y - 0.03, f"{r.a:.1f}%   {int(r.n_a):,} 件", fp="med",
+                size=11, color=S.SLATE, va="center")
+
+    # series key, drawn once at the top instead of a detached legend
+    ytop = n * ROW - 0.42
+    S.rrect(ax, 0, ytop, 0.55, 0.26, fc=S.RUST, ec="none", rs=0.03, z=3)
+    S.t(ax, 0.78, ytop + 0.13, "公表されず修正された 4,608 件のうちの割合", fp="bold",
+        size=12, color=S.RUST, va="center")
+    S.rrect(ax, 9.6, ytop, 0.55, 0.26, fc=S.SLATE, ec="none", rs=0.03, z=3)
+    S.t(ax, 10.38, ytop + 0.13, "脆弱性情報が公開された 1,325 件のうちの割合",
+        fp="med", size=12, color=S.SLATE, va="center")
+
     nz = t[t.n_a == 0]
-    S.t(ax, 17.4, -0.66,
-        f"太字＝公開情報では一度も記述されなかった原因"
-        f"（{len(nz)} 種・計 {int(nz.n_s.sum()):,} 件）",
+    S.t(ax, -0.55, -0.80,
+        f"太字＝公開情報の側に 1 件も無い原因（{len(nz)} 種・計 {int(nz.n_s.sum()):,} 件）",
         fp="bold", size=12, color=S.RUST, ha="right", va="center")
 
     ax.set_yticks([])
     ax.set_xticks(range(0, 16, 5))
     ax.set_xticklabels([f"{v}%" for v in range(0, 16, 5)],
                        fontproperties=S.F["med"], fontsize=10.5, color=S.MUTED)
-    for s in ("top", "right", "left"):
-        ax.spines[s].set_visible(False)
+    for sp in ("top", "right", "left"):
+        ax.spines[sp].set_visible(False)
     ax.spines["bottom"].set_color(S.FAINT)
     ax.grid(axis="x", color=S.HAIR, lw=0.9)
     ax.set_axisbelow(True)
-    fig.subplots_adjust(top=0.855, bottom=0.075, left=0.225, right=0.975)
+    fig.subplots_adjust(top=0.865, bottom=0.065, left=0.235, right=0.985)
     S.title_block(fig,
-                  "欠陥の原因別に見た、公開情報と非公開修正の構成比の差",
-                  "各原因が占める割合（%）。右端の数字は非公開で修正された件数。",
-                  x=0.045, y=0.975)
+                  "欠陥の原因別に見た、公開情報と非公開修正のそれぞれの構成比",
+                  "2 本の棒は別々の母数に対する割合であり、足して 100% にはならない。",
+                  x=0.045, y=0.977)
+    return S.save(fig, out)
+
+
+# --- 2b. the same gap, as two objects side by side -------------------------
+def fig_composition(out="fig2b_composition.png"):
+    """Two 100% columns. Read in one glance instead of fifteen rows.
+
+    The paired-bar version is accurate but asks the reader to compare thirty
+    numbers. Normalising each population to its own column instead makes the
+    finding a difference in SHAPE: the disclosed column is nine-tenths material
+    whose cause cannot be named, plus dependency work; the silent column is
+    made of specific custody failures. Each column really is 100%, so nothing
+    here invites the "these should add up" misreading either.
+    """
+    GROUPS = [
+        ("signed-differs-from-shown", "署名内容と画面表示の不一致", S.RUST),
+        ("signature-verification-gap", "署名検証の欠落・無効化", S.lighten(S.RUST, 0.30)),
+        ("nonce-or-randomness", "nonce・乱数の生成", S.lighten(S.RUST, 0.52)),
+        ("key-lifetime-in-memory", "鍵のメモリ残留", S.GOLD),
+        ("key-derivation-storage", "鍵の導出・保管", S.lighten(S.GOLD, 0.42)),
+        ("origin-session-auth", "接続元・セッションの認証", S.TEAL),
+        ("authorization-check", "呼び出し元の権限確認", S.lighten(S.TEAL, 0.42)),
+        ("input-bounds-parsing", "入力の長さ・境界検査", S.PLUM),
+        ("encoding-canonicalization", "エンコード・正規化", S.lighten(S.PLUM, 0.42)),
+        ("__rest__", "その他の技術的原因", S.OLIVE),
+        ("dependency-supply-chain", "外部ライブラリの脆弱性", S.SLATE),
+        ("other", "原因を特定できる記述が無い", S.lighten(S.SLATE, 0.66)),
+    ]
+    named = {g[0] for g in GROUPS} - {"__rest__"}
+
+    def compose(df):
+        vc = df.mechanism.value_counts()
+        out = {}
+        for key, _, _ in GROUPS:
+            out[key] = int(vc[[k for k in vc.index if k not in named]].sum()) \
+                if key == "__rest__" else int(vc.get(key, 0))
+        return out, len(df)
+
+    cs, ns = compose(SIL)
+    ca, na = compose(ADV)
+
+    fig, ax = S.new(12.8, 7.8, xlim=(0, 12.8), ylim=(-0.80, 7.10))
+    CW, TOP, BOT = 1.72, 5.95, 0.35
+    H = TOP - BOT
+
+    def column(x, comp, total, head, sub, col):
+        S.t(ax, x + CW / 2, TOP + 0.72, head, fp="bold", size=14, color=col,
+            ha="center", va="center", linespacing=1.35)
+        S.t(ax, x + CW / 2, TOP + 0.22, sub, fp="med", size=12, color=S.MUTED,
+            ha="center", va="center")
+        y = TOP
+        for key, _, c in GROUPS:
+            v = comp[key]
+            if not v:
+                continue
+            h = H * v / total
+            ax.add_patch(S.plt.Rectangle((x, y - h), CW, h, fc=c, ec=S.PAPER,
+                                         lw=1.4, zorder=2))
+            if h > 0.30:
+                pct = v / total * 100
+                S.t(ax, x + CW / 2, y - h / 2, f"{pct:.0f}%", fp="bold",
+                    size=12 if h > 0.55 else 10.5,
+                    color=S.PAPER if c in (S.RUST, S.SLATE, S.TEAL, S.PLUM, S.OLIVE,
+                                           S.GOLD) else S.INK,
+                    ha="center", va="center", zorder=5)
+            y -= h
+
+    column(0.55, cs, ns, "公表されず\n修正された欠陥", f"{ns:,} 件", S.RUST)
+    column(3.35, ca, na, "脆弱性情報が\n公開された修正", f"{na:,} 件", S.SLATE)
+
+    # legend, ordered as the stack is
+    lx, ly = 6.05, TOP + 0.10
+    for key, lab, c in GROUPS:
+        if not (cs[key] or ca[key]):
+            continue
+        ax.add_patch(S.plt.Rectangle((lx, ly - 0.11), 0.30, 0.24, fc=c, ec="none",
+                                     zorder=3))
+        weight = "bold" if ca[key] == 0 and cs[key] else "med"
+        S.t(ax, lx + 0.46, ly, lab, fp=weight, size=11.8,
+            color=S.RUST if weight == "bold" else S.INK, va="center")
+        S.t(ax, 12.55, ly, f"{cs[key]:,} / {ca[key]:,}", fp="med", size=11,
+            color=S.MUTED, ha="right", va="center")
+        ly -= 0.455
+
+    S.t(ax, 6.05, ly - 0.10, "各行の数字＝公表されず修正 / 公開情報あり（件）",
+        fp="reg", size=10.5, color=S.MUTED, va="center")
+    S.t(ax, 6.05, ly - 0.48, "太字＝公開情報の側に 1 件も存在しない原因",
+        fp="bold", size=11.5, color=S.RUST, va="center")
+
+    S.t(ax, 3.35 + CW / 2, BOT - 0.42,
+        "公開情報の 9 割は、原因を特定できる\n技術的記述を含んでいない",
+        fp="bold", size=12.5, color=S.SLATE, ha="center", va="top", linespacing=1.45)
+
+    fig.subplots_adjust(top=0.815, bottom=0.02, left=0.03, right=0.985)
+    S.title_block(fig,
+                  "公開情報と非公開修正は、原因の構成そのものが異なる",
+                  "各列はそれぞれの母集団を 100% とした構成比。",
+                  x=0.045, y=0.965)
     return S.save(fig, out)
 
 
@@ -249,5 +368,5 @@ def fig_folk(out="fig4_folk.png"):
 
 # --- 5. why yield is the wrong sort key ------------------------------------
 if __name__ == "__main__":
-    for f in (fig_ratio, fig_mechanisms, fig_heatmap, fig_folk):
+    for f in (fig_ratio, fig_mechanisms, fig_composition, fig_heatmap, fig_folk):
         print(f())

@@ -350,13 +350,15 @@ such so they can be excluded.
 
 ## Figures
 
-`docs/figures/` holds the four figures behind the findings above, regenerated
-from the committed tables so they cannot drift from the data:
+`docs/figures/` holds the figures behind the findings above, regenerated from the
+committed tables so they cannot drift from the data. `fig2` and `fig2b` are two
+readings of the same comparison — pick one:
 
 | Figure | Shows |
 |---|---|
 | `fig1_ratio.png` | disclosed advisories against fixes shipped without one |
 | `fig2_mechanisms.png` | the two populations by defect cause, and the five causes never disclosed |
+| `fig2b_composition.png` | the same finding as two 100% columns — a difference in shape, readable at a glance |
 | `fig3_stack.png` | software type against the kind of defect that occurs in it |
 | `fig4_folk.png` | signing and display failures against leakage of the key itself |
 
