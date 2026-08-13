@@ -307,8 +307,8 @@ def fig_heatmap(out="fig3_stack.png"):
 
     nr, nc = ct.shape
     # +1 row of totals below the matrix, +1 band of group brackets above it
-    fig, ax = S.new(13.2, 0.78 * nr + 2.85,
-                    xlim=(-2.35, nc + 0.05), ylim=(-1.62, nr + 0.82))
+    fig, ax = S.new(13.2, 0.78 * nr + 3.05,
+                    xlim=(-2.35, nc + 0.05), ylim=(-1.86, nr + 0.82))
     for i, cat in enumerate(order_c):
         y = nr - 1 - i
         for j, cls in enumerate(order_v):
@@ -343,25 +343,25 @@ def fig_heatmap(out="fig3_stack.png"):
     for x0, x1, lab in ((0, 2, "署名・表示の欠陥"), (2, 4, "鍵・シードの欠陥")):
         tot = int(totals[["signing", "ui_deception"]].sum() if x0 == 0
                   else totals[["key_material", "memory"]].sum())
-        ax.plot([x0 + 0.06, x1 - 0.06], [-0.74, -0.74], color=S.SLATE,
+        ax.plot([x0 + 0.06, x1 - 0.06], [-0.72, -0.72], color=S.SLATE,
                 lw=1.6, zorder=3)
         # Two lines: a two-column bracket is 2.1in wide and this label on one line
         # is 2.8in, so side by side the pair collided over the middle column.
-        S.t(ax, (x0 + x1) / 2, -0.96, lab, fp="med", size=12.5, color=S.SLATE,
+        S.t(ax, (x0 + x1) / 2, -0.98, lab, fp="med", size=12.5, color=S.SLATE,
             ha="center", va="center")
-        # 0.34 units of leading, not 0.25: at 17pt the number nearly touched the
-        # label above it. The subtotal is the point of the block, so it is set
-        # larger than the label rather than the same size.
-        S.t(ax, (x0 + x1) / 2, -1.30, f"計 {tot:,} 件", fp="bold", size=17,
+        # 0.52 units between the centres. One unit is ~0.7in here, so that is a
+        # 26pt gap against 12.5pt + 17pt of type — roughly 11pt of clear space.
+        # 0.25 and then 0.34 both still read as crowded.
+        S.t(ax, (x0 + x1) / 2, -1.50, f"計 {tot:,} 件", fp="bold", size=17,
             color=S.SLATE, ha="center", va="center")
 
-    fig.subplots_adjust(top=1 - 1.50 / (0.78 * nr + 2.85), bottom=0.02,
+    fig.subplots_adjust(top=1 - 1.50 / (0.78 * nr + 3.05), bottom=0.02,
                         left=0.155, right=0.985)
     S.title_block(fig,
                   "ソフトウェア種別ごとの欠陥箇所の分布",
                   f"{T_SILENT}（{T_SILENT_DEF}）{len(SIL):,} 件。数値は各行内の割合（%）、"
                   f"3% 未満は非表示。分類器には種別を与えていない。",
-                  x=0.035, y=1 - 0.32 / (0.78 * nr + 2.85))
+                  x=0.035, y=1 - 0.32 / (0.78 * nr + 3.05))
     return S.save(fig, out)
 
 
