@@ -61,10 +61,15 @@ N_REPO = SIL["wallet"].nunique()
 # time it appears in each figure; the alternative wordings this file used to mix
 # ("登録なく出荷された修正", "CVE・GHSA に記録のない") made three figures look
 # like they described three populations.
+# 公開修正 / サイレント修正: symmetric, four characters each, and the pair reads
+# as one axis. The definition always rides along on first appearance, because
+# every fix in this corpus IS a public commit — "公開" here means the advisory
+# record is public, not the code, and without the parenthetical a reader could
+# take サイレント修正 to mean the change was hidden.
 T_SILENT = "サイレント修正"
-T_SILENT_DEF = "公開アドバイザリなし"
-T_DISCLOSED = "公開アドバイザリあり"
-T_DISCLOSED_DEF = "CVE・GHSA 番号が付与されているもの"
+T_SILENT_DEF = "CVE・GHSA 登録なし"
+T_DISCLOSED = "公開修正"
+T_DISCLOSED_DEF = "CVE・GHSA 登録あり"
 
 _sp = ilu.spec_from_file_location("w", ROOT / "collection/wallets.py")
 _w = ilu.module_from_spec(_sp); _sp.loader.exec_module(_w)
@@ -141,9 +146,12 @@ def fig_ratio(out="fig1_ratio.png"):
     # coverage, and still has no GitHub advisory — it counts as silent here and
     # was in no sense undisclosed.
     # advisory rows, segmented
-    S.t(ax, 0, -0.10, T_DISCLOSED, fp="bold", size=15.5,
-        color=S.INK, va="center")
-    S.t(ax, 0, -0.37, T_DISCLOSED_DEF, fp="reg", size=11,
+    # The definition rides on the heading instead of taking its own line, which
+    # frees the line above the bar for the callout — see below.
+    S.t(ax, 0, -0.10, T_DISCLOSED, fp="bold", size=15.5, color=S.INK, va="center")
+    # 公開修正 is 4 characters at 15.5pt = 0.86in, and this axis runs W*0.109 per
+    # inch, so the definition has to start beyond W*0.094 or it lands on the word.
+    S.t(ax, W * 0.108, -0.105, f"（{T_DISCLOSED_DEF}）", fp="reg", size=11,
         color=S.MUTED, va="center")
     x = 0.0
     for n, c in ((conf, S.RUST), (dep, S.SLATE), (rest, S.lighten(S.SLATE, 0.60))):
@@ -152,15 +160,15 @@ def fig_ratio(out="fig1_ratio.png"):
     S.t(ax, x + W * 0.015, -0.68, f"{len(ADV):,}", fp="black", size=30,
         color=S.SOFT, va="center")
 
-    # 51 of 4,608-scale is a sliver, so the callout carries it. Anchored right of
-    # the bar's own total so it cannot collide with the legend below.
-    # 51 against a 4,608 scale is a sliver, so the callout carries it. Parked in the
-    # empty upper-right of this row so it clears both the row total and the legend,
-    # with the arrow approaching from the right rather than across the subtitle.
-    S.t(ax, W * 0.56, -0.16, f"うち 資産の保管・送金処理の欠陥\n{conf} 件（4%）",
-        fp="bold", size=15.5, color=S.RUST, va="center", linespacing=1.5)
-    S.arrow(ax, (W * 0.545, -0.34), (conf * 2.2, -0.60),
-            color=S.RUST_L, lw=1.7, ms=12, rad=-0.26)
+    # 51 on a 4,349 scale is a sliver, so a callout has to carry it. Sitting it in
+    # the upper right meant a long curved arrow back to the left edge, and that
+    # arrow crossed the row's own total: the "1,325" had a line through it. The
+    # callout now sits directly ABOVE the sliver it describes, so the arrow is a
+    # short downward tick with nothing between the two.
+    S.t(ax, 0, -0.375, f"うち 資産の保管・送金処理の欠陥は {conf} 件（4%）",
+        fp="bold", size=14.5, color=S.RUST, va="center")
+    S.arrow(ax, (conf * 0.9, -0.455), (conf * 0.9, -0.545),
+            color=S.RUST_L, lw=1.7, ms=11, rad=0.0)
 
     for i, (c, lab, n) in enumerate(((S.RUST, "資産の保管・送金処理の欠陥", conf),
                                      (S.SLATE, "外部ライブラリの脆弱性対応", dep),
@@ -173,7 +181,7 @@ def fig_ratio(out="fig1_ratio.png"):
 
     fig.subplots_adjust(top=0.775, bottom=0.03, left=0.045, right=0.985)
     S.title_block(fig,
-                  f"{T_DISCLOSED}の修正と、{T_SILENT}の件数",
+                  f"{T_DISCLOSED}と{T_SILENT}の件数",
                   f"暗号資産ウォレット {N_REPO} 製品の全変更履歴を対象に、"
                   "各コミットの差分を 1 件ずつ判定した結果。",
                   x=0.045, y=0.965)
@@ -269,7 +277,7 @@ def fig_compare(out="fig2_compare.png"):
     fig.subplots_adjust(top=1 - 1.42 / (0.92 * n + 2.7), bottom=0.03,
                         left=0.035, right=0.985)
     S.title_block(fig,
-                  f"{T_DISCLOSED}の修正と{T_SILENT}の、原因別の内訳",
+                  f"{T_DISCLOSED}と{T_SILENT}の、原因別の内訳",
                   f"上から順に、{T_DISCLOSED}側に偏る原因から{T_SILENT}側に偏る原因へ。",
                   x=0.035, y=1 - 0.34 / (0.92 * n + 2.7))
     return S.save(fig, out)
@@ -299,8 +307,8 @@ def fig_heatmap(out="fig3_stack.png"):
 
     nr, nc = ct.shape
     # +1 row of totals below the matrix, +1 band of group brackets above it
-    fig, ax = S.new(13.2, 0.78 * nr + 3.1,
-                    xlim=(-2.35, nc + 0.05), ylim=(-1.60, nr + 1.78))
+    fig, ax = S.new(13.2, 0.78 * nr + 2.7,
+                    xlim=(-2.35, nc + 0.05), ylim=(-1.46, nr + 0.82))
     for i, cat in enumerate(order_c):
         y = nr - 1 - i
         for j, cls in enumerate(order_v):
@@ -328,29 +336,29 @@ def fig_heatmap(out="fig3_stack.png"):
     S.t(ax, -0.14, -0.42, "全体の件数", fp="med", size=11.5, color=S.INK,
         ha="right", va="center")
 
-    # Group brackets: the fig4 claim, drawn rather than stated. Two lines, because
-    # a bracket spans two columns and one line of this text is twice that wide —
-    # side by side the two labels collided over the middle column.
-    for x0, x1, lab in ((0, 2, "承認内容と異なる署名・表示"),
-                        (2, 4, "鍵・シードそのもの")):
+    # Group subtotals go UNDER the per-column totals, not above the matrix: the two
+    # kinds of total belong together, and reading one at the top and one at the
+    # bottom made the figure look like it had two different summaries. Short labels
+    # so each fits on one line inside its two-column bracket.
+    for x0, x1, lab in ((0, 2, "署名・表示の欠陥"), (2, 4, "鍵・シードの欠陥")):
         tot = int(totals[["signing", "ui_deception"]].sum() if x0 == 0
                   else totals[["key_material", "memory"]].sum())
-        # The line sits well clear of the count: at a 0.11-unit gap it ran through
-        # the numerals' descenders.
-        ax.plot([x0 + 0.06, x1 - 0.06], [nr + 0.88, nr + 0.88], color=S.SLATE,
+        ax.plot([x0 + 0.06, x1 - 0.06], [-0.74, -0.74], color=S.SLATE,
                 lw=1.6, zorder=3)
-        S.t(ax, (x0 + x1) / 2, nr + 1.44, lab, fp="med", size=12, color=S.SLATE,
+        # Two lines: a two-column bracket is 2.1in wide and this label on one line
+        # is 2.8in, so side by side the pair collided over the middle column.
+        S.t(ax, (x0 + x1) / 2, -0.97, lab, fp="med", size=12.5, color=S.SLATE,
             ha="center", va="center")
-        S.t(ax, (x0 + x1) / 2, nr + 1.16, f"{tot:,} 件", fp="bold", size=13,
+        S.t(ax, (x0 + x1) / 2, -1.22, f"計 {tot:,} 件", fp="bold", size=13,
             color=S.SLATE, ha="center", va="center")
 
-    fig.subplots_adjust(top=1 - 1.55 / (0.78 * nr + 3.1), bottom=0.02,
+    fig.subplots_adjust(top=1 - 1.50 / (0.78 * nr + 2.7), bottom=0.02,
                         left=0.155, right=0.985)
     S.title_block(fig,
                   "ソフトウェア種別ごとの欠陥箇所の分布",
                   f"{T_SILENT}（{T_SILENT_DEF}）{len(SIL):,} 件。数値は各行内の割合（%）、"
                   f"3% 未満は非表示。分類器には種別を与えていない。",
-                  x=0.035, y=1 - 0.32 / (0.78 * nr + 3.1))
+                  x=0.035, y=1 - 0.32 / (0.78 * nr + 2.7))
     return S.save(fig, out)
 
 

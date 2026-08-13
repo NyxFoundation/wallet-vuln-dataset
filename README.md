@@ -561,11 +561,15 @@ script so three figures cannot end up naming three populations:
 
 | | |
 |---|---|
-| **サイレント修正**（公開アドバイザリなし） | the silent side |
-| **公開アドバイザリあり**（CVE・GHSA 番号が付与されているもの） | the disclosed side |
+| **サイレント修正**（CVE・GHSA 登録なし） | the silent side |
+| **公開修正**（CVE・GHSA 登録あり） | the disclosed side |
 
-Deliberately not 公表されずに (undisclosed): the corpus sees whether a *record* exists, and
-BTCPay's 2FA bypass was announced loudly while still absent from every advisory feed.
+Four characters each, so the pair reads as one axis. The definition always rides along on
+first appearance, for a reason: every fix in this corpus **is** a public commit. 公開 here
+means the advisory record is public, not the code, and without the parenthetical a reader
+could take サイレント修正 to mean the change itself was hidden. Deliberately not 公表されず
+(undisclosed) either — BTCPay's 2FA bypass was announced loudly and is still absent from
+every advisory feed.
 Mechanism and column names use the vocabulary a corporate security function already has —
 入力値の検証不備, 権限チェックの欠落, 鍵の生成・保管の不備, 画面表示の偽装, 送金権限の付与,
 外部ライブラリの脆弱性対応 — rather than the taxonomy's wallet-internal English. Every
