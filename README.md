@@ -512,10 +512,18 @@ the committed tables so they cannot drift from the data:
 | `fig3_stack.png` | software type against defect location, with column totals and the signing-vs-key grouping |
 
 [`docs/poster_examples.md`](docs/poster_examples.md) holds five concrete fixes, one per
-mechanism that `fig2` finds significant, chosen so that no commit title reveals what the
-change does: `😄`, `Remove comments`, `Updated dist files.`, `Minor reorg of
-TransactionBuilder`, `feat(extapp): xtask build for ethereum app`. Titles, dates and
-per-repository advisory counts were checked against the GitHub API.
+mechanism that `fig2` finds significant, each with the source diff and a title that no
+keyword search reaches: `😄`, `Remove comments`, `feat(extapp): xtask build for ethereum
+app`, `Minor reorg of TransactionBuilder`, `Disallow deriving Ethereum keys`. Titles,
+dates, diffs and per-repository advisory counts were checked against the GitHub API.
+
+That check found something the corpus should record. `ethers` v4 keeps its compiled
+bundle at the repository root, so one fix is judged twice — once as the source commit and
+once as the "Updated dist files." commit that ships the built output. 18 of ethers' 73
+recovered fixes (25%) are bundle commits. No other repository of the sixteen does this,
+and it is 0.33% of the 5,457, so the ratios above do not move. It also invalidates an
+earlier check of mine that reported zero generated-output false positives: that test
+looked for paths under `dist/`, which never matches a repository that builds to its root.
 
 ```bash
 uv run --with matplotlib --with numpy --with uharfbuzz --with fonttools \
