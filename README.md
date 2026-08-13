@@ -511,6 +511,12 @@ the committed tables so they cannot drift from the data:
 | `fig2_compare.png` | defect-mechanism composition of the two records, ordered by the difference, significant rows marked |
 | `fig3_stack.png` | software type against defect location, with column totals and the signing-vs-key grouping |
 
+[`docs/poster_examples.md`](docs/poster_examples.md) holds five concrete fixes, one per
+mechanism that `fig2` finds significant, chosen so that no commit title reveals what the
+change does: `😄`, `Remove comments`, `Updated dist files.`, `Minor reorg of
+TransactionBuilder`, `feat(extapp): xtask build for ethereum app`. Titles, dates and
+per-repository advisory counts were checked against the GitHub API.
+
 ```bash
 uv run --with matplotlib --with numpy --with uharfbuzz --with fonttools \
     --with pandas --with pyarrow --with scipy python scripts/poster_figures.py
