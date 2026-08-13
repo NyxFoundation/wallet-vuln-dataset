@@ -59,23 +59,24 @@ path.** The rest:
 That last group is security *process* work — reviewers added to CODEOWNERS, code
 annotated with CVE references, a fuzz harness for an already-fixed CVE — plus real
 bugs outside custody, like a server-side cursor leak. The keyword-free sweep of sixteen
-repositories found **5,457** custody fixes. A ratio of 107 : 1.
+repositories found **4,349** custody fixes that reached a released version. A ratio of
+**85 : 1**.
 
 ### What the two records are made of
 
 The composition comparison does hold, on the right denominator and with a test. Of the
 rows on each side whose defect mechanism could be identified — 194 with an advisory,
-5,124 without — six differences survive Fisher's exact test with a Holm correction
+4,059 without — six differences survive Fisher's exact test with a Holm correction
 across all 22 mechanisms:
 
 | mechanism | with an advisory | no CVE/GHSA | Holm p |
 |---|---:|---:|---:|
-| a CVE in a dependency, bumped | **77.3%** (150) | 0.5% (28) | 4e-218 |
-| input length and bounds checking | 4.1% (8) | **17.0%** (870) | 2e-6 |
-| authorisation of the caller | 1.5% (3) | **13.2%** (675) | 3e-7 |
-| what is signed differs from what is shown | 1.5% (3) | **13.1%** (672) | 4e-7 |
-| key derivation and storage | 2.1% (4) | **10.7%** (546) | 2e-4 |
-| key left in memory | 0% (0) | **5.9%** (304) | 4e-4 |
+| a CVE in a dependency, bumped | **77.3%** (150) | 0.5% (22) | 4e-218 |
+| input length and bounds checking | 4.1% (8) | **16.5%** (670) | 2e-6 |
+| authorisation of the caller | 1.5% (3) | **12.6%** (511) | 3e-7 |
+| what is signed differs from what is shown | 1.5% (3) | **12.5%** (509) | 4e-7 |
+| key derivation and storage | 2.1% (4) | **11.5%** (467) | 2e-4 |
+| key left in memory | 0% (0) | **6.3%** (255) | 4e-4 |
 
 **Three quarters of the disclosed record is somebody else's CVE.** What a wallet
 publishes an advisory for is overwhelmingly a dependency it bumped; its own custody
@@ -93,18 +94,19 @@ survive correction for testing all 22.
 
 ## What breaks, in order
 
-Of the 5,457 fixes recovered by reading every commit of sixteen widely-used wallets:
+Of the 4,349 fixes recovered by reading every commit of sixteen widely-used wallets and
+verified to have reached a released version:
 
 | | fixes | what actually goes wrong |
 |---|---:|---|
-| `signing` | 1,632 | a signature ends up valid over something you never agreed to |
-| `key_material` | 1,190 | the seed or key leaks, is weakly generated, or is left in memory |
-| `firmware` | 630 | boot verification, PIN handling, or the trusted display on a hardware wallet |
-| `ui_deception` | 628 | you approve the wrong thing because the screen told you something false |
-| `transport` | 437 | the channel between a dapp and your wallet lets in an origin it should not |
-| `memory` | 244 | memory corruption in firmware or native crypto code |
-| `platform` | 237 | an OS or browser escape reaches the key store |
-| `approval` | 168 | spend authority is obtained without ever touching your key |
+| `signing` | 1,303 | a signature ends up valid over something you never agreed to |
+| `key_material` | 1,034 | the seed or key leaks, is weakly generated, or is left in memory |
+| `ui_deception` | 493 | you approve the wrong thing because the screen told you something false |
+| `firmware` | 458 | boot verification, PIN handling, or the trusted display on a hardware wallet |
+| `transport` | 339 | the channel between a dapp and your wallet lets in an origin it should not |
+| `memory` | 190 | memory corruption in firmware or native crypto code |
+| `platform` | 176 | an OS or browser escape reaches the key store |
+| `approval` | 102 | spend authority is obtained without ever touching your key |
 
 **Signing and UI deception together outweigh key leakage.** The common mental model —
 "keep your seed phrase safe and you are fine" — does not match where the bugs are. Most
@@ -119,7 +121,7 @@ believed you approved, while your seed stayed exactly where it was supposed to b
 | `data/wallet_vulns.parquet` | 95 MB | the full corpus — 34,526 rows, all columns, before/after code inline |
 | `data/wallet_vulns.preview.csv` | 6 MB | key columns only, browsable in the GitHub UI |
 | `data/raw/train.classified.parquet` | 31 MB | pre-filter snapshot, for reproducing the curation |
-| [`data/silent_mechanisms.csv`](data/silent_mechanisms.csv) | 2.0 MB | **all 5,457 sweep fixes** labelled by defect mechanism — what the figures read |
+| [`data/silent_mechanisms.csv`](data/silent_mechanisms.csv) | 2.0 MB | **all 5,457 sweep fixes** labelled by defect mechanism, plus `on_default` / `in_release` / `dup_subject`; the figures read the 4,349 that shipped and are not duplicates |
 | [`data/wave1_mechanisms.csv`](data/wave1_mechanisms.csv) | 1.7 MB | the wave-1 subset, kept as published |
 | [`data/advisory_mechanisms.csv`](data/advisory_mechanisms.csv) | 403 KB | all 1,325 advisory-bearing rows, read from the diff, with the verdict and its reason |
 | [`data/mechanism_comparison.csv`](data/mechanism_comparison.csv) | — | disclosed vs silent, per mechanism |
@@ -519,15 +521,28 @@ cannot be told apart from a developer tidying their own branch:
 [`scripts/check_shipped.py`](scripts/check_shipped.py) applies it, and three of the first
 five candidates failed it.
 
-**That check found the corpus overcounts.** Enumeration walks `git log --all`, so commits
-on unmerged branches are judged too. Of the sweep's 5,457 fixes, 4,168 (76%) are on the
-default branch; 613 more are squash-merged commits, of which **475 duplicate a fix already
-counted under its default-branch SHA**; and 676 sit only on feature branches, of which
-roughly 18% are nonetheless inside a release tag. Netting out, about **4,400 unique fixes
-reached a shipped product** and the disclosed-to-silent ratio is nearer **87 : 1** than
-107 : 1. The direction of every finding holds; the counts run about a fifth high. The
-figures and the tables above have not been rebuilt against this, which would need the gate
-to require default-branch reachability and drop the duplicates.
+**That check found the corpus overcounts, and the figures now correct for it.**
+Enumeration walks `git log --all`, so commits on unmerged branches are judged too. Of the
+sweep's 5,457 fixes, 892 never reached a released version and 475 more are a squash-merged
+pull request counted a second time under its own SHA. The three figures read the remaining
+**4,349**, and every count above is that population. The disclosed-to-silent ratio is
+**85 : 1**, not the 107 : 1 published earlier; the direction of every finding is unchanged
+and the counts were about a fifth high.
+
+The flags live in the data, not in a filter buried in the plotting code:
+[`scripts/mark_reachable.py`](scripts/mark_reachable.py) adds `on_default`, `in_release`
+and `dup_subject` to a mechanism table, and no row is deleted — a fix that never shipped
+is still evidence about how the project works.
+
+Two things that test does **not** do. It leaves rows it cannot test at `NA` and keeps them:
+1,155 advisory rows are identified by a pull-request URL, which contains no SHA to walk
+from, and every one of the 170 advisory rows that *is* testable did reach a release — so
+the advisory side of every comparison is unfiltered and unaffected. And `git log --all` is
+still the right way to enumerate: a fix on a maintenance branch is a real fix, which is why
+`in_release` rescues 397 rows that trunk never saw.
+
+`data/wallet_vulns.parquet` does not carry these columns yet. Applying them there means
+giving the gate a dependency on local clones, which it does not have today.
 
 ```bash
 uv run --with matplotlib --with numpy --with uharfbuzz --with fonttools \

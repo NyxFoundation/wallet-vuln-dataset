@@ -20,7 +20,39 @@ ADV = pd.read_csv(ROOT / "data/advisory_mechanisms.csv")
 # All sixteen swept repositories, not the first ten. wave1_mechanisms.csv is kept
 # as the published wave-1 artefact; the figures read the union so they do not
 # quietly describe a subset of what has been collected.
-SIL = pd.read_csv(ROOT / "data/silent_mechanisms.csv")
+def _analysable(df):
+    """Rows whose fix reached a product, counted once.
+
+    `git log --all` admits commits from branches that were never merged, and
+    counts a squash-merged pull request twice — once under the PR commit, once
+    under the squashed one. Neither is visible in the row, so
+    scripts/mark_reachable.py flags them and this drops them: without it the
+    silent side was 5,457 rows, 892 of which never shipped and 475 of which were
+    the same fix counted twice.
+
+    Rows whose flags are NA are KEPT. NA means "not testable" — an advisory row
+    identified by a pull-request URL has no SHA to walk from — and dropping the
+    untestable would be the loudest possible way to overstate this correction.
+    """
+    if "on_default" not in df.columns:
+        raise SystemExit("run scripts/mark_reachable.py first: the reachability "
+                         "columns are missing and the figure would overcount")
+
+    def flag(col, when_missing):
+        """CSV round-trips a boolean-with-NA column as the STRINGS "True"/"False".
+        `"False"` is a non-empty string and therefore truthy, so a naive read
+        silently kept every row — the filter reported 5,457 of 5,457 analysable."""
+        v = df[col]
+        if v.dtype == object:
+            v = v.map({"True": True, "False": False, True: True, False: False})
+        return v.astype("boolean").fillna(when_missing)
+
+    reached = flag("on_default", True) | flag("in_release", True)
+    return df[reached & ~flag("dup_subject", False)].copy()
+
+
+ADV = _analysable(ADV)
+SIL = _analysable(pd.read_csv(ROOT / "data/silent_mechanisms.csv"))
 N_SIL = len(SIL)
 N_REPO = SIL["wallet"].nunique()
 
