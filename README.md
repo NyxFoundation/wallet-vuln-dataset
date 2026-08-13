@@ -554,14 +554,22 @@ describing the collection process rather than the finding, and a figure contrast
 signing defects with key leakage was folded into `fig3` as a bracketed column group and
 a totals row — the same claim, read off one table instead of asserted in a second.
 
-Titles state what the figure shows and its scope; interpretation goes in the subtitle or
-a note, never in the title. Labels are Japanese, and worded for a reader who has never
-worked on a wallet:
-"custody path" appears as 資産の保管・送金処理, and an advisory as 登録された脆弱性情報 —
-registered, not 公表された (announced). The figures may only claim the record is
-missing, which is all the corpus can see; BTCPay's 2FA bypass was announced loudly
-and is still absent from it. Titles state what each figure shows; the takeaway sits
-in the subtitle. Every number is read from `data/`, never typed in.
+Titles state what the figure shows and its scope; interpretation goes in the subtitle or a
+note, never in the title. Labels are Japanese, worded for a security team that does not
+work on wallets. Two terms carry the whole set, defined once as constants at the top of the
+script so three figures cannot end up naming three populations:
+
+| | |
+|---|---|
+| **サイレント修正**（公開アドバイザリなし） | the silent side |
+| **公開アドバイザリあり**（CVE・GHSA 番号が付与されているもの） | the disclosed side |
+
+Deliberately not 公表されずに (undisclosed): the corpus sees whether a *record* exists, and
+BTCPay's 2FA bypass was announced loudly while still absent from every advisory feed.
+Mechanism and column names use the vocabulary a corporate security function already has —
+入力値の検証不備, 権限チェックの欠落, 鍵の生成・保管の不備, 画面表示の偽装, 送金権限の付与,
+外部ライブラリの脆弱性対応 — rather than the taxonomy's wallet-internal English. Every
+number is read from `data/`, never typed in.
 
 `scripts/poster_figures.py` imports `style.py` from the repository root, so it needs
 `PYTHONPATH=.` when run from anywhere other than that root.
