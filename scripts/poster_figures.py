@@ -56,6 +56,16 @@ SIL = _analysable(pd.read_csv(ROOT / "data/silent_mechanisms.csv"))
 N_SIL = len(SIL)
 N_REPO = SIL["wallet"].nunique()
 
+# The audience is security staff who do not work on wallets. "サイレント修正" is
+# the term the poster uses throughout, with its definition attached the first
+# time it appears in each figure; the alternative wordings this file used to mix
+# ("登録なく出荷された修正", "CVE・GHSA に記録のない") made three figures look
+# like they described three populations.
+T_SILENT = "サイレント修正"
+T_SILENT_DEF = "公開アドバイザリなし"
+T_DISCLOSED = "公開アドバイザリあり"
+T_DISCLOSED_DEF = "CVE・GHSA 番号が付与されているもの"
+
 _sp = ilu.spec_from_file_location("w", ROOT / "collection/wallets.py")
 _w = ilu.module_from_spec(_sp); _sp.loader.exec_module(_w)
 CATEGORY = {k: v["category"] for k, v in _w.WALLET_CONFIG.items()}
@@ -66,39 +76,39 @@ CAT_JA = {
     "desktop": "デスクトップ",
     "wallet_sdk": "ウォレット\nSDK・ライブラリ",
     "browser_extension": "ブラウザ拡張",
-    "infra": "接続基盤",
-    "smart_account": "スマート\nコントラクト口座",
+    "infra": "dApp 接続基盤",
+    "smart_account": "スマートコントラクト\nウォレット",
     "node_wallet": "フルノード\nウォレット",
     "mobile": "モバイル",
     "mpc_tss": "MPC・分散署名",
 }
 CLASS_JA = {
-    "signing": "署名", "key_material": "鍵素材", "firmware": "ファーム\nウェア",
-    "ui_deception": "UI偽装", "transport": "通信経路", "memory": "メモリ",
-    "contract": "コントラクト", "approval": "承認権限",
+    "signing": "電子署名", "key_material": "鍵・\nシード", "firmware": "ファーム\nウェア",
+    "ui_deception": "画面表示の\n偽装", "transport": "通信経路", "memory": "メモリ\n破壊",
+    "contract": "スマート\nコントラクト", "approval": "送金権限の\n付与",
 }
 MECH_JA = {
-    "input-bounds-parsing": "入力の長さ・境界検査",
+    "input-bounds-parsing": "入力値の検証不備",
     "signed-differs-from-shown": "署名する内容と画面表示の不一致",
-    "authorization-check": "呼び出し元の権限確認",
-    "key-derivation-storage": "鍵の導出・保管",
+    "authorization-check": "権限チェックの欠落",
+    "key-derivation-storage": "鍵の生成・保管の不備",
     "encoding-canonicalization": "エンコード・正規化",
-    "key-lifetime-in-memory": "鍵のメモリ残留",
-    "signature-verification-gap": "署名検証の欠落・無効化",
-    "state-race-concurrency": "状態競合・レース",
-    "origin-session-auth": "接続元・セッションの認証",
+    "key-lifetime-in-memory": "鍵がメモリに残る",
+    "signature-verification-gap": "署名検証の欠落",
+    "state-race-concurrency": "競合状態",
+    "origin-session-auth": "接続元の認証",
     "side-channel-fault": "サイドチャネル・故障注入",
-    "replay-scope": "署名の使い回し防止",
+    "replay-scope": "署名の使い回し",
     "nonce-or-randomness": "nonce・乱数",
-    "curve-point-validation": "曲線・点の検証",
+    "curve-point-validation": "楕円曲線の点の検証",
     "uri-deeplink-handling": "URI・ディープリンク",
     "dependency-supply-chain": "外部ライブラリ",
     "transport-encryption": "通信の暗号化",
-    "code-injection-context": "実行コンテキストへの注入",
+    "code-injection-context": "コード注入",
     "secure-boot-rollback": "セキュアブート・巻き戻し防止",
     "privilege-isolation": "権限分離・サンドボックス",
-    "protocol-counterparty": "プロトコル対向者の信頼前提",
-    "type-state-consistency": "型・状態の整合性検査",
+    "protocol-counterparty": "通信相手を信頼しすぎ",
+    "type-state-consistency": "型・状態の不整合",
     "missing-authentication": "認証の欠落",
     "other": "特定できず",
 }
@@ -117,8 +127,9 @@ def fig_ratio(out="fig1_ratio.png"):
     fig, ax = S.new(12.8, 5.6, xlim=(-W * 0.015, W * 1.30), ylim=(-1.62, 1.30))
 
     # silent fixes
-    S.t(ax, 0, 1.10, "登録なく出荷された修正", fp="bold", size=15.5, color=S.INK, va="center")
-    S.t(ax, 0, 0.83, f"{N_REPO} 製品の全変更履歴を 1 件ずつ判定",
+    S.t(ax, 0, 1.10, f"{T_SILENT}（{T_SILENT_DEF}）", fp="bold", size=15.5,
+        color=S.INK, va="center")
+    S.t(ax, 0, 0.83, f"{N_REPO} 製品の全変更履歴を 1 件ずつ判定し、出荷されたものだけを計上",
         fp="reg", size=11, color=S.MUTED, va="center")
     S.rrect(ax, 0, 0.36, silent, 0.32, fc=S.RUST, ec="none", rs=0.02, z=2)
     S.t(ax, silent + W * 0.015, 0.52, f"{silent:,}", fp="black", size=30,
@@ -130,9 +141,9 @@ def fig_ratio(out="fig1_ratio.png"):
     # coverage, and still has no GitHub advisory — it counts as silent here and
     # was in no sense undisclosed.
     # advisory rows, segmented
-    S.t(ax, 0, -0.10, "脆弱性情報が登録された修正", fp="bold", size=15.5,
+    S.t(ax, 0, -0.10, T_DISCLOSED, fp="bold", size=15.5,
         color=S.INK, va="center")
-    S.t(ax, 0, -0.37, "CVE・GHSA 番号が付与されているもの", fp="reg", size=11,
+    S.t(ax, 0, -0.37, T_DISCLOSED_DEF, fp="reg", size=11,
         color=S.MUTED, va="center")
     x = 0.0
     for n, c in ((conf, S.RUST), (dep, S.SLATE), (rest, S.lighten(S.SLATE, 0.60))):
@@ -152,9 +163,9 @@ def fig_ratio(out="fig1_ratio.png"):
             color=S.RUST_L, lw=1.7, ms=12, rad=-0.26)
 
     for i, (c, lab, n) in enumerate(((S.RUST, "資産の保管・送金処理の欠陥", conf),
-                                     (S.SLATE, "外部ライブラリの脆弱性への追随", dep),
+                                     (S.SLATE, "外部ライブラリの脆弱性対応", dep),
                                      (S.lighten(S.SLATE, 0.60),
-                                      "欠陥修正ではないもの（体制整備・資産処理以外）", rest))):
+                                      "欠陥の修正ではないもの（規程整備・記載追加など）", rest))):
         yy = -1.14 - i * 0.22
         S.rrect(ax, 0, yy - 0.055, W * 0.016, 0.125, fc=c, ec="none", rs=0.02, z=3)
         S.t(ax, W * 0.030, yy + 0.008, f"{lab}   {n:,}", fp="med", size=11.5,
@@ -162,7 +173,7 @@ def fig_ratio(out="fig1_ratio.png"):
 
     fig.subplots_adjust(top=0.775, bottom=0.03, left=0.045, right=0.985)
     S.title_block(fig,
-                  "脆弱性情報が登録された修正と、登録なく出荷された修正の件数",
+                  f"{T_DISCLOSED}の修正と、{T_SILENT}の件数",
                   f"暗号資産ウォレット {N_REPO} 製品の全変更履歴を対象に、"
                   "各コミットの差分を 1 件ずつ判定した結果。",
                   x=0.045, y=0.965)
@@ -218,7 +229,7 @@ def fig_compare(out="fig2_compare.png"):
     sig["ash"], sig["ssh"] = sig.a / na, sig.s / ns
     sig = sig.assign(d=sig.ssh - sig.ash).sort_values("d")     # disclosed-heavy first
 
-    HERE = {"dependency-supply-chain": "依存パッケージの脆弱性への追随"}
+    HERE = {"dependency-supply-chain": "外部ライブラリの脆弱性対応"}
     rows = [(HERE.get(x.m, MECH_JA.get(x.m, x.m)), x.ash, x.ssh, x.a, x.s, True)
             for _, x in sig.iterrows()]
     rows.append((f"有意差のない他 {len(rest)} 原因（合計）",
@@ -244,8 +255,8 @@ def fig_compare(out="fig2_compare.png"):
 
     # Legend stacked, not side by side: laid out on one line the second swatch
     # landed on top of the first entry's "n=194".
-    for row, (col, lab) in enumerate(((S.SLATE, f"公開アドバイザリあり  n={na}"),
-                                      (S.RUST, f"CVE・GHSA に記録なし  n={ns:,}"))):
+    for row, (col, lab) in enumerate(((S.SLATE, f"{T_DISCLOSED}（{T_DISCLOSED_DEF}）  n={na}"),
+                                      (S.RUST, f"{T_SILENT}（{T_SILENT_DEF}）  n={ns:,}"))):
         yy = n + 0.44 - row * 0.30
         S.rrect(ax, -0.60, yy - 0.07, 0.028, 0.15, fc=col, ec="none", rs=0.004, z=2)
         S.t(ax, -0.556, yy, lab, fp="med", size=12.5, color=col,
@@ -258,8 +269,8 @@ def fig_compare(out="fig2_compare.png"):
     fig.subplots_adjust(top=1 - 1.42 / (0.92 * n + 2.7), bottom=0.03,
                         left=0.035, right=0.985)
     S.title_block(fig,
-                  "公開アドバイザリのある修正と、記録のない修正の欠陥原因別構成比",
-                  "上から順に、公開側に偏る原因から記録のない側に偏る原因へ。",
+                  f"{T_DISCLOSED}の修正と{T_SILENT}の、原因別の内訳",
+                  f"上から順に、{T_DISCLOSED}側に偏る原因から{T_SILENT}側に偏る原因へ。",
                   x=0.035, y=1 - 0.34 / (0.92 * n + 2.7))
     return S.save(fig, out)
 
@@ -310,8 +321,8 @@ def fig_heatmap(out="fig3_stack.png"):
             color=S.MUTED, ha="right", va="center")
 
     for j, cls in enumerate(order_v):
-        S.t(ax, j + 0.5, nr + 0.16, CLASS_JA[cls].replace("\n", ""), fp="med",
-            size=11.5, color=S.SOFT, ha="center", va="bottom")
+        S.t(ax, j + 0.5, nr + 0.16, CLASS_JA[cls], fp="med", size=11.5,
+            color=S.SOFT, ha="center", va="bottom", linespacing=1.35)
         S.t(ax, j + 0.5, -0.42, f"{int(totals[cls]):,}", fp="bold", size=13,
             color=S.INK, ha="center", va="center")
     S.t(ax, -0.14, -0.42, "全体の件数", fp="med", size=11.5, color=S.INK,
@@ -321,7 +332,7 @@ def fig_heatmap(out="fig3_stack.png"):
     # a bracket spans two columns and one line of this text is twice that wide —
     # side by side the two labels collided over the middle column.
     for x0, x1, lab in ((0, 2, "承認内容と異なる署名・表示"),
-                        (2, 4, "鍵素材そのもの")):
+                        (2, 4, "鍵・シードそのもの")):
         tot = int(totals[["signing", "ui_deception"]].sum() if x0 == 0
                   else totals[["key_material", "memory"]].sum())
         # The line sits well clear of the count: at a 0.11-unit gap it ran through
@@ -337,7 +348,7 @@ def fig_heatmap(out="fig3_stack.png"):
                         left=0.155, right=0.985)
     S.title_block(fig,
                   "ソフトウェア種別ごとの欠陥箇所の分布",
-                  f"CVE・GHSA に記録のない {len(SIL):,} 件。数値は各行内の割合（%）、"
+                  f"{T_SILENT}（{T_SILENT_DEF}）{len(SIL):,} 件。数値は各行内の割合（%）、"
                   f"3% 未満は非表示。分類器には種別を与えていない。",
                   x=0.035, y=1 - 0.32 / (0.78 * nr + 3.1))
     return S.save(fig, out)
