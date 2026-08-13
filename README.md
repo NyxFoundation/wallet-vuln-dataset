@@ -61,15 +61,35 @@ annotated with CVE references, a fuzz harness for an already-fixed CVE — plus 
 bugs outside custody, like a server-side cursor leak. The keyword-free sweep of sixteen
 repositories found **5,457** custody fixes. A ratio of 107 : 1.
 
-**What cannot be claimed from this.** An earlier version of this section said five
-defect mechanisms never appear in an advisory. That does not survive. Restricted to
-the 51 advisory rows that are genuinely custody fixes, 7 of 22 mechanisms are
-absent — and drawing 51 rows at random from the silent distribution leaves 7.4
-absent by chance. The mechanism comparison between the two populations is
-underpowered, and the zeros in the earlier version came from using all 1,325
-advisory rows as the denominator when 1,274 of them repair no defect. The count
-comparison above is a full census and stands; the *composition* comparison does
-not.
+### What the two records are made of
+
+The composition comparison does hold, on the right denominator and with a test. Of the
+rows on each side whose defect mechanism could be identified — 194 with an advisory,
+5,124 without — six differences survive Fisher's exact test with a Holm correction
+across all 22 mechanisms:
+
+| mechanism | with an advisory | no CVE/GHSA | Holm p |
+|---|---:|---:|---:|
+| a CVE in a dependency, bumped | **77.3%** (150) | 0.5% (28) | 4e-218 |
+| input length and bounds checking | 4.1% (8) | **17.0%** (870) | 2e-6 |
+| authorisation of the caller | 1.5% (3) | **13.2%** (675) | 3e-7 |
+| what is signed differs from what is shown | 1.5% (3) | **13.1%** (672) | 4e-7 |
+| key derivation and storage | 2.1% (4) | **10.7%** (546) | 2e-4 |
+| key left in memory | 0% (0) | **5.9%** (304) | 4e-4 |
+
+**Three quarters of the disclosed record is somebody else's CVE.** What a wallet
+publishes an advisory for is overwhelmingly a dependency it bumped; its own custody
+logic — the bytes it signs against the bytes it displays, who is allowed to call what,
+where the key lives — is where the undisclosed fixes concentrate. The other sixteen
+mechanisms do not separate the two populations and are not claimed to.
+
+**A correction.** An earlier version of this section claimed five mechanisms never
+appear in an advisory, then withdrew the composition comparison entirely as
+underpowered. The first claim was wrong — 7 of 22 mechanisms are absent from a
+51-row sample where 7.4 absences are expected by chance. The retraction went too
+far: it came from dividing by all 1,325 advisory rows, 1,131 of which repair no
+defect. On the mechanism-bearing rows the comparison is testable, and six differences
+survive correction for testing all 22.
 
 ## What breaks, in order
 
@@ -482,22 +502,28 @@ on it.
 
 ## Figures
 
-`docs/figures/` holds the four figures behind the findings above, regenerated from
+`docs/figures/` holds the three figures behind the findings above, regenerated from
 the committed tables so they cannot drift from the data:
 
 | Figure | Shows |
 |---|---|
 | `fig1_ratio.png` | disclosed advisories against fixes shipped without one |
-| `fig2b_composition.png` | all 5,457 silent fixes by defect mechanism, in five groups |
-| `fig3_stack.png` | software type against the kind of defect that occurs in it |
-| `fig4_folk.png` | signing and display failures against leakage of the key itself |
+| `fig2_compare.png` | defect-mechanism composition of the two records, ordered by the difference, significant rows marked |
+| `fig3_stack.png` | software type against defect location, with column totals and the signing-vs-key grouping |
 
 ```bash
 uv run --with matplotlib --with numpy --with uharfbuzz --with fonttools \
-    --with pandas --with pyarrow python scripts/poster_figures.py
+    --with pandas --with pyarrow --with scipy python scripts/poster_figures.py
 ```
 
-Labels are Japanese, and worded for a reader who has never worked on a wallet:
+There were five figures; there are three. A yield-vs-history scatter was cut for
+describing the collection process rather than the finding, and a figure contrasting
+signing defects with key leakage was folded into `fig3` as a bracketed column group and
+a totals row — the same claim, read off one table instead of asserted in a second.
+
+Titles state what the figure shows and its scope; interpretation goes in the subtitle or
+a note, never in the title. Labels are Japanese, and worded for a reader who has never
+worked on a wallet:
 "custody path" appears as 資産の保管・送金処理, and an advisory as 登録された脆弱性情報 —
 registered, not 公表された (announced). The figures may only claim the record is
 missing, which is all the corpus can see; BTCPay's 2FA bypass was announced loudly

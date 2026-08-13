@@ -114,7 +114,7 @@ def fig_ratio(out="fig1_ratio.png"):
     # 51 against a 4,608 scale is a sliver, so the callout carries it. Parked in the
     # empty upper-right of this row so it clears both the row total and the legend,
     # with the arrow approaching from the right rather than across the subtitle.
-    S.t(ax, W * 0.56, -0.16, f"うち 資産の保管・送金処理の欠陥は\nわずか {conf} 件（4%）",
+    S.t(ax, W * 0.56, -0.16, f"うち 資産の保管・送金処理の欠陥\n{conf} 件（4%）",
         fp="bold", size=15.5, color=S.RUST, va="center", linespacing=1.5)
     S.arrow(ax, (W * 0.545, -0.34), (conf * 2.2, -0.60),
             color=S.RUST_L, lw=1.7, ms=12, rad=-0.26)
@@ -131,8 +131,8 @@ def fig_ratio(out="fig1_ratio.png"):
     fig.subplots_adjust(top=0.775, bottom=0.03, left=0.045, right=0.985)
     S.title_block(fig,
                   "脆弱性情報が登録された修正と、登録なく出荷された修正の件数",
-                  f"暗号資産ウォレット {N_REPO} 製品のソースコード変更履歴より。"
-                  "登録のある 1,325 件のうち、製品自身の資産保管処理の欠陥は 51 件。",
+                  f"暗号資産ウォレット {N_REPO} 製品の全変更履歴を対象に、"
+                  "各コミットの差分を 1 件ずつ判定した結果。",
                   x=0.045, y=0.965)
     return S.save(fig, out)
 
@@ -150,94 +150,114 @@ def fig_ratio(out="fig1_ratio.png"):
 
 
 # --- 2b. what the silent fixes are actually made of ------------------------
-def fig_composition(out="fig2b_composition.png"):
-    """The mechanism breakdown of the silent fixes, grouped by what fails.
+def fig_compare(out="fig2_compare.png"):
+    """Disclosed vs undisclosed composition, ordered by the difference.
 
-    This was a two-column comparison against the advisory side. That column is
-    n=51 — every other advisory row is not a defect fix at all — so it cannot
-    carry a distribution, and putting it beside 4,608 invited reading a sampling
-    artefact as a finding. The comparison of the two populations lives in fig1,
-    where it is a count. Here the question is the one the corpus can answer on
-    its own: what kinds of defect are in wallet code.
+    The earlier version showed only the undisclosed side, which cannot answer the
+    question the corpus was built for. It also once claimed some mechanisms never
+    appear in an advisory — withdrawn, correctly, because it divided by all 1,325
+    advisory rows when 1,131 of them repair no defect, leaving nothing testable.
+
+    On the right denominator — rows on each side whose mechanism was identified —
+    six differences survive Fisher's exact test with a Holm correction across all
+    22 mechanisms. Those six are drawn; the other sixteen are summed into one row
+    rather than dropped, because at n=194 a 2% cell is one or two commits and a
+    grid of them reads as evidence when it is not.
+
+    Grouped bars with the labels in a left column, not a butterfly with labels
+    down the middle: in the butterfly draft every label sat between two rows and
+    could be read as belonging to either.
     """
-    GROUPS = [
-        ("署名と承認", S.RUST, [
-            "signed-differs-from-shown", "signature-verification-gap",
-            "nonce-or-randomness", "curve-point-validation", "replay-scope"]),
-        ("鍵の取り扱い", S.GOLD, [
-            "key-derivation-storage", "key-lifetime-in-memory", "side-channel-fault"]),
-        ("外部からの入力", S.PLUM, [
-            "input-bounds-parsing", "encoding-canonicalization",
-            "type-state-consistency", "code-injection-context"]),
-        ("接続と権限", S.TEAL, [
-            "authorization-check", "origin-session-auth", "missing-authentication",
-            "uri-deeplink-handling", "transport-encryption", "privilege-isolation"]),
-        ("実行環境と対向者", S.OLIVE, [
-            "secure-boot-rollback", "protocol-counterparty", "state-race-concurrency",
-            "dependency-supply-chain"]),
-    ]
-    vc = SIL.mechanism.value_counts()
-    total = len(SIL)
+    from scipy.stats import fisher_exact
 
-    rowsn = sum(len(g[2]) for g in GROUPS) + len(GROUPS)
-    fig, ax = S.new(12.8, 0.40 * rowsn + 2.9, xlim=(-6.2, 17.2),
-                    ylim=(-1.25, rowsn * 0.50 + 0.35))
-    maxv = int(vc.max())
-    SCALE = 15.4 / maxv
+    A = ADV[ADV.mechanism.notna() & (ADV.mechanism != "other")]
+    S_ = SIL[SIL.mechanism != "other"]
+    na, ns = len(A), len(S_)
+    rec = []
+    for m in sorted(set(A.mechanism) | set(S_.mechanism)):
+        a, sc = int((A.mechanism == m).sum()), int((S_.mechanism == m).sum())
+        _, pv = fisher_exact([[a, na - a], [sc, ns - sc]])
+        rec.append({"m": m, "a": a, "s": sc, "p": pv})
+    r = pd.DataFrame(rec).sort_values("p").reset_index(drop=True)
+    k = len(r)
+    r["holm"] = [min(1.0, (k - i) * pv) for i, pv in enumerate(r.p)]
+    sig = r[r.holm < 0.05].copy()
+    rest = r[r.holm >= 0.05]
+    sig["ash"], sig["ssh"] = sig.a / na, sig.s / ns
+    sig = sig.assign(d=sig.ssh - sig.ash).sort_values("d")     # disclosed-heavy first
 
-    y = rowsn * 0.50 - 0.10
-    for gname, gcol, keys in GROUPS:
-        gtot = int(sum(vc.get(k, 0) for k in keys))
-        S.t(ax, -6.1, y, gname, fp="bold", size=14, color=gcol, va="center")
-        S.t(ax, -6.1, y - 0.30, f"{gtot:,} 件 ・ {gtot/total*100:.0f}%", fp="med",
-            size=11.5, color=S.MUTED, va="center")
-        y -= 0.50
-        for k in sorted(keys, key=lambda x: -int(vc.get(x, 0))):
-            v = int(vc.get(k, 0))
-            if not v:
-                continue
-            S.t(ax, -0.35, y, MECH_JA.get(k, k), fp="med", size=11.5, color=S.INK,
-                ha="right", va="center")
-            S.rrect(ax, 0, y - 0.145, max(v * SCALE, 0.04), 0.29,
-                    fc=S.lighten(gcol, 0.20), ec="none", rs=0.03, z=2)
-            S.t(ax, v * SCALE + 0.22, y, f"{v:,}", fp="bold", size=11,
-                color=gcol, va="center")
-            y -= 0.50
-        y -= 0.10
+    HERE = {"dependency-supply-chain": "依存パッケージの脆弱性への追随"}
+    rows = [(HERE.get(x.m, MECH_JA.get(x.m, x.m)), x.ash, x.ssh, x.a, x.s, True)
+            for _, x in sig.iterrows()]
+    rows.append((f"有意差のない他 {len(rest)} 原因（合計）",
+                 rest.a.sum() / na, rest.s.sum() / ns,
+                 int(rest.a.sum()), int(rest.s.sum()), False))
 
-    oth = int(vc.get("other", 0))
-    S.t(ax, -6.1, -0.80,
-        f"原因を特定できなかったもの  {oth:,} 件（{oth/total*100:.1f}%）",
-        fp="med", size=11.5, color=S.MUTED, va="center")
+    n = len(rows)
+    XMAX = 0.86
+    fig, ax = S.new(13.4, 0.92 * n + 2.7, xlim=(-0.72, 1.02), ylim=(-0.95, n + 0.78))
+    sc = XMAX / 0.80
 
-    fig.subplots_adjust(top=0.845, bottom=0.055, left=0.235, right=0.985)
+    for i, (lab, ash, ssh, a, s_, is_sig) in enumerate(rows):
+        y = n - 1 - i
+        S.t(ax, -0.035, y + 0.42, lab, fp="bold" if is_sig else "reg", size=13,
+            color=S.INK if is_sig else S.MUTED, ha="right", va="center")
+        for k2, (v, cnt, col) in enumerate(((ash, a, S.SLATE), (ssh, s_, S.RUST))):
+            yy = y + (0.62 if k2 == 0 else 0.16)
+            c = col if is_sig else S.lighten(col, 0.55)
+            S.rrect(ax, 0, yy - 0.16, max(v * sc, 0.0016), 0.32, fc=c, ec="none",
+                    rs=0.004, z=2)
+            S.t(ax, v * sc + 0.012, yy, f"{v * 100:.1f}%  （{cnt:,} 件）", fp="med",
+                size=11.5, color=c, ha="left", va="center")
+
+    # Legend stacked, not side by side: laid out on one line the second swatch
+    # landed on top of the first entry's "n=194".
+    for row, (col, lab) in enumerate(((S.SLATE, f"公開アドバイザリあり  n={na}"),
+                                      (S.RUST, f"CVE・GHSA に記録なし  n={ns:,}"))):
+        yy = n + 0.44 - row * 0.30
+        S.rrect(ax, -0.60, yy - 0.07, 0.028, 0.15, fc=col, ec="none", rs=0.004, z=2)
+        S.t(ax, -0.556, yy, lab, fp="med", size=12.5, color=col,
+            ha="left", va="center")
+
+    S.t(ax, -0.72, -0.66,
+        "Fisher 正確確率検定、22 原因にわたる Holm 補正後 p<0.05 の 6 原因を掲載。"
+        "割合は各側で原因を特定できた行に対する値。",
+        fp="reg", size=11, color=S.MUTED, ha="left", va="center")
+    fig.subplots_adjust(top=1 - 1.42 / (0.92 * n + 2.7), bottom=0.03,
+                        left=0.035, right=0.985)
     S.title_block(fig,
-                  f"CVE・GHSA に記録のない修正 {N_SIL:,} 件の原因別内訳",
-                  f"暗号資産ウォレット {N_REPO} 製品の全変更履歴より。原因は 23 分類、"
-                  f"うち特定できたものが "
-                  f"{(SIL.mechanism != 'other').mean() * 100:.1f}%。",
-                  x=0.045, y=0.972)
+                  "公開アドバイザリのある修正と、記録のない修正の欠陥原因別構成比",
+                  "上から順に、公開側に偏る原因から記録のない側に偏る原因へ。",
+                  x=0.035, y=1 - 0.34 / (0.92 * n + 2.7))
     return S.save(fig, out)
 
 
-# --- 3. where what breaks in the custody stack -----------------------------
 def fig_heatmap(out="fig3_stack.png"):
-    # Read the categories off the data. A hardcoded list of six silently dropped
-    # node_wallet — monero, btcpay and monero-gui, 682 fixes, 12.5% of the table —
-    # from a figure whose whole claim is "software type against defect type".
+    """Software type against defect location, with the column totals underneath.
+
+    The totals row carries what used to be a separate figure: signing and display
+    defects (1,632 + 628) outnumber key-material ones (1,190 + 304). Two columns
+    to a group, bracketed, so the comparison is read off the same table instead of
+    asserted in a second one.
+    """
     order_c = [c for c in SIL.cat.value_counts().index if c in CAT_JA]
     unknown = sorted(set(SIL.cat.dropna()) - set(CAT_JA))
     if unknown:
         raise SystemExit(f"fig3: no Japanese label for {unknown}; the figure would "
                          f"drop them silently")
-    order_v = ["signing", "key_material", "firmware", "ui_deception",
-               "transport", "contract", "memory", "approval"]
+    # signing beside ui_deception, key_material beside memory: the grouping is the
+    # argument, so adjacency has to encode it.
+    order_v = ["signing", "ui_deception", "key_material", "memory",
+               "firmware", "transport", "contract", "approval"]
     ct = pd.crosstab(SIL.cat, SIL.vuln_class, normalize="index") * 100
     ct = ct.reindex(index=order_c, columns=order_v).fillna(0.0)
     counts = SIL.cat.value_counts().reindex(order_c).fillna(0).astype(int)
+    totals = SIL.vuln_class.value_counts().reindex(order_v).fillna(0).astype(int)
 
     nr, nc = ct.shape
-    fig, ax = S.new(12.8, 6.6, xlim=(-2.05, nc + 0.05), ylim=(-0.15, nr + 0.75))
+    # +1 row of totals below the matrix, +1 band of group brackets above it
+    fig, ax = S.new(13.2, 0.78 * nr + 3.1,
+                    xlim=(-2.35, nc + 0.05), ylim=(-1.60, nr + 1.78))
     for i, cat in enumerate(order_c):
         y = nr - 1 - i
         for j, cls in enumerate(order_v):
@@ -248,60 +268,50 @@ def fig_heatmap(out="fig3_stack.png"):
             if v >= 3:
                 S.t(ax, j + 0.5, y + 0.5, f"{v:.0f}", fp="bold" if v >= 25 else "med",
                     size=13 if v >= 25 else 11,
-                    color=S.PAPER if v >= 40 else S.INK, ha="center", va="center", zorder=4)
-        S.t(ax, -0.12, y + 0.58, CAT_JA[cat], fp="med", size=11, color=S.INK,
-            ha="right", va="center", linespacing=1.3)
-        S.t(ax, -0.12, y + 0.20, f"{counts[cat]:,} 件", fp="reg", size=9.5,
+                    color=S.PAPER if v >= 40 else S.INK, ha="center", va="center",
+                    zorder=4)
+        # Label and its n on ONE line: stacking them put the count of one row
+        # against the second line of the row above it.
+        S.t(ax, -0.14, y + 0.50, CAT_JA[cat].replace("\n", ""), fp="med", size=11.5,
+            color=S.INK, ha="right", va="center")
+        S.t(ax, -0.14, y + 0.14, f"n={counts[cat]:,}", fp="reg", size=9.5,
             color=S.MUTED, ha="right", va="center")
+
     for j, cls in enumerate(order_v):
-        S.t(ax, j + 0.5, nr + 0.14, CLASS_JA[cls], fp="med", size=11, color=S.SOFT,
-            ha="center", va="bottom", linespacing=1.25)
-    fig.subplots_adjust(top=0.775, bottom=0.06, left=0.175, right=0.985)
+        S.t(ax, j + 0.5, nr + 0.16, CLASS_JA[cls].replace("\n", ""), fp="med",
+            size=11.5, color=S.SOFT, ha="center", va="bottom")
+        S.t(ax, j + 0.5, -0.42, f"{int(totals[cls]):,}", fp="bold", size=13,
+            color=S.INK, ha="center", va="center")
+    S.t(ax, -0.14, -0.42, "全体の件数", fp="med", size=11.5, color=S.INK,
+        ha="right", va="center")
+
+    # Group brackets: the fig4 claim, drawn rather than stated. Two lines, because
+    # a bracket spans two columns and one line of this text is twice that wide —
+    # side by side the two labels collided over the middle column.
+    for x0, x1, lab in ((0, 2, "承認内容と異なる署名・表示"),
+                        (2, 4, "鍵素材そのもの")):
+        tot = int(totals[["signing", "ui_deception"]].sum() if x0 == 0
+                  else totals[["key_material", "memory"]].sum())
+        # The line sits well clear of the count: at a 0.11-unit gap it ran through
+        # the numerals' descenders.
+        ax.plot([x0 + 0.06, x1 - 0.06], [nr + 0.88, nr + 0.88], color=S.SLATE,
+                lw=1.6, zorder=3)
+        S.t(ax, (x0 + x1) / 2, nr + 1.44, lab, fp="med", size=12, color=S.SLATE,
+            ha="center", va="center")
+        S.t(ax, (x0 + x1) / 2, nr + 1.16, f"{tot:,} 件", fp="bold", size=13,
+            color=S.SLATE, ha="center", va="center")
+
+    fig.subplots_adjust(top=1 - 1.55 / (0.78 * nr + 3.1), bottom=0.02,
+                        left=0.155, right=0.985)
     S.title_block(fig,
-                  "ソフトウェアの種別と、発生する欠陥の種類の関係",
-                  "各行内での割合（%）。判定した分類器には、"
-                  "どの種別のソフトウェアを読んでいるかを与えていない。",
-                  x=0.045, y=0.965)
-    return S.save(fig, out)
-
-
-# --- 4. what the folk model gets wrong -------------------------------------
-def fig_folk(out="fig4_folk.png"):
-    vc = SIL.vuln_class.value_counts()
-    sign = int(vc.get("signing", 0)) + int(vc.get("ui_deception", 0))
-    keys = int(vc.get("key_material", 0))
-    fig, ax = S.new(12.8, 5.6, xlim=(-sign * 0.02, sign * 1.34), ylim=(-0.48, 2.15))
-
-    rows = [
-        (1.34, sign, S.RUST,
-         "電子署名・画面表示の欠陥",
-         "利用者が承認していない内容に有効な署名が付く／画面が別の内容を表示する",
-         f"署名 {int(vc.get('signing',0)):,} ＋ UI偽装 {int(vc.get('ui_deception',0)):,}"),
-        (0.34, keys, S.SLATE,
-         "鍵素材の欠陥",
-         "秘密鍵や復元用フレーズが漏れる・弱く生成される・メモリに残る", None),
-    ]
-    for y, v, c, head, desc, note in rows:
-        S.t(ax, 0, y + 0.60, head, fp="bold", size=16, color=S.INK, va="center")
-        S.t(ax, 0, y + 0.31, desc, fp="reg", size=11.5, color=S.SOFT, va="center")
-        S.rrect(ax, 0, y - 0.15, v, 0.34, fc=c, ec="none", rs=0.02, z=2)
-        S.t(ax, v + sign * 0.014, y + 0.02, f"{v:,}", fp="black", size=30, color=c,
-            va="center")
-        if note:  # only when it breaks the total down; repeating it is noise
-            S.t(ax, v + sign * 0.014, y - 0.26, note, fp="med", size=10.5,
-                color=S.MUTED, va="center")
-
-    S.t(ax, 0, -0.28, "「復元用フレーズを守れば安全」という一般的な助言は、欠陥の所在と一致しない。",
-        fp="bold", size=14, color=S.RUST, va="center")
-    fig.subplots_adjust(top=0.80, bottom=0.05, left=0.045, right=0.90)
-    S.title_block(fig,
-                  "欠陥の所在の内訳 — 電子署名・画面表示の誤りと、鍵そのものの漏洩",
-                  f"CVE・GHSA に記録のない {len(SIL):,} 件の分類。",
-                  x=0.045, y=0.965)
+                  "ソフトウェア種別ごとの欠陥箇所の分布",
+                  f"CVE・GHSA に記録のない {len(SIL):,} 件。数値は各行内の割合（%）、"
+                  f"3% 未満は非表示。分類器には種別を与えていない。",
+                  x=0.035, y=1 - 0.32 / (0.78 * nr + 3.1))
     return S.save(fig, out)
 
 
 # --- 5. why yield is the wrong sort key ------------------------------------
 if __name__ == "__main__":
-    for f in (fig_ratio, fig_composition, fig_heatmap, fig_folk):
+    for f in (fig_ratio, fig_compare, fig_heatmap):
         print(f())
