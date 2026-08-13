@@ -511,19 +511,23 @@ the committed tables so they cannot drift from the data:
 | `fig2_compare.png` | defect-mechanism composition of the two records, ordered by the difference, significant rows marked |
 | `fig3_stack.png` | software type against defect location, with column totals and the signing-vs-key grouping |
 
-[`docs/poster_examples.md`](docs/poster_examples.md) holds five concrete fixes, one per
-mechanism that `fig2` finds significant, each with the source diff and a title that no
-keyword search reaches: `😄`, `Remove comments`, `feat(extapp): xtask build for ethereum
-app`, `Minor reorg of TransactionBuilder`, `Disallow deriving Ethereum keys`. Titles,
-dates, diffs and per-repository advisory counts were checked against the GitHub API.
+[`docs/poster_examples.md`](docs/poster_examples.md) holds five concrete fixes with their
+source diffs, one per mechanism that `fig2` finds significant. Each is verified to have
+been **shipped** before it was fixed — the commit is on the default branch, and a release
+tag exists that contains its parent but not the commit itself. Without that check a "fix"
+cannot be told apart from a developer tidying their own branch:
+[`scripts/check_shipped.py`](scripts/check_shipped.py) applies it, and three of the first
+five candidates failed it.
 
-That check found something the corpus should record. `ethers` v4 keeps its compiled
-bundle at the repository root, so one fix is judged twice — once as the source commit and
-once as the "Updated dist files." commit that ships the built output. 18 of ethers' 73
-recovered fixes (25%) are bundle commits. No other repository of the sixteen does this,
-and it is 0.33% of the 5,457, so the ratios above do not move. It also invalidates an
-earlier check of mine that reported zero generated-output false positives: that test
-looked for paths under `dist/`, which never matches a repository that builds to its root.
+**That check found the corpus overcounts.** Enumeration walks `git log --all`, so commits
+on unmerged branches are judged too. Of the sweep's 5,457 fixes, 4,168 (76%) are on the
+default branch; 613 more are squash-merged commits, of which **475 duplicate a fix already
+counted under its default-branch SHA**; and 676 sit only on feature branches, of which
+roughly 18% are nonetheless inside a release tag. Netting out, about **4,400 unique fixes
+reached a shipped product** and the disclosed-to-silent ratio is nearer **87 : 1** than
+107 : 1. The direction of every finding holds; the counts run about a fifth high. The
+figures and the tables above have not been rebuilt against this, which would need the gate
+to require default-branch reachability and drop the duplicates.
 
 ```bash
 uv run --with matplotlib --with numpy --with uharfbuzz --with fonttools \
